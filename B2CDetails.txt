@@ -1,0 +1,8 @@
+API (Dev)
+Client ID: 341d6199-54df-46c4-bf4b-df132bb2fb27
+Directory: 508fc0b7-54c6-4c27-b9a8-05b018342d63
+Scope:     https://gameroomsdev.onmicrosoft.com/api/Access.API
+
+Client (WASM, Dev)
+Client ID: 6ff6d1a9-1a4a-481a-a51a-691d2fbf52b9
+
