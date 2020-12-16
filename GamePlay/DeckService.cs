@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 using Game.Entities;
 using Azure.Storage.Blobs;
 using System.Text;
-
+using Games.Services.Authorization;
 namespace Game.Play
 {
     public static class DeckService
@@ -20,13 +20,28 @@ namespace Game.Play
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = "deck/{deckType}")] HttpRequest req,
             ILogger log, string deckType = "uno")
         {
-            return await Run(req, log, deckType, true);
+            var accessToken = req.GetAccessToken();
+            var principal = await Helpers.GetClaimsPrincipalAsync(accessToken, log);
+            if(principal != null)
+            {
+                return await Run(req, log, deckType, true);
+            }
+            else
+            {
+                return new UnauthorizedResult();
+            }
         }
         [FunctionName("CreateDeck")]
         public static async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = "deck/{deckType}/{includeWilds}")] HttpRequest req,
             ILogger log, string deckType="standard", bool includeWilds = false)
         {
+            var accessToken = req.GetAccessToken();
+            var principal = await Helpers.GetClaimsPrincipalAsync(accessToken, log);
+            if(principal==null)
+            {
+                return new UnauthorizedResult();
+            }
             DeckBase deck = new DeckBase();
             if(deckType.ToLower().Equals("standard"))
             {
@@ -45,6 +60,12 @@ namespace Game.Play
         [FunctionName("GetDeck")]
         public static async Task<IActionResult>RetrieveDeck([HttpTrigger(AuthorizationLevel.Function, "get", Route = "deck/{deckId}")] HttpRequest req, Guid deckId, ILogger log)
         {
+            var accessToken = req.GetAccessToken();
+            var principal = await Helpers.GetClaimsPrincipalAsync(accessToken, log);
+            if(principal==null)
+            {
+                return new UnauthorizedResult();
+            }
             var deck = await Load(deckId);
             return new OkObjectResult(deck);
         }

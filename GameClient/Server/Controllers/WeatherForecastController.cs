@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Game.Client.Server.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [ApiController]
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
