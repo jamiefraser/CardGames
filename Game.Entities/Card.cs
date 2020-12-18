@@ -11,6 +11,10 @@ namespace Game.Entities
         }
         public int Rank { get; set; }
         public bool IsSpecialCard = false;
+        public Card()
+        {
+
+        }
         public Card(int rank, string suit)
         {
             Rank = rank;

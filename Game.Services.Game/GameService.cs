@@ -17,7 +17,7 @@ using Microsoft.Azure.Cosmos.Table;
 using System.Threading;
 using System.Linq;
 using Microsoft.Azure.Cosmos.Table.Queryable;
-
+using Games.Services.Authorization;
 namespace Game.Play
 {
     public static class Service
@@ -61,13 +61,24 @@ namespace Game.Play
         public static async Task<IActionResult>ListGames([HttpTrigger(AuthorizationLevel.Function, "get", Route = "game")] HttpRequest req,
             ILogger log)
         {
+            var token = req.GetAccessToken();
+            var user = await Helpers.GetClaimsPrincipalAsync(token, log);
+            if(user==null)
+            {
+                return new UnauthorizedResult();
+            }
             var tableConnection = await GetTableReference("games");
             var qry = tableConnection.CreateQuery<Game.Entities.Game>();
             //new Microsoft.Azure.Cosmos.Table.TableQuery<Game.Entities.Game>();
             qry.FilterString = "";
             try
             {
-                return new OkObjectResult(await qry.ExecuteAsync<Game.Entities.Game>(new CancellationToken()));
+                var games = await qry.ExecuteAsync<Game.Entities.Game>(new CancellationToken());
+                if(games==null || games.Count()==0)
+                {
+                    return new BadRequestObjectResult(new Game.Entities.Game());
+                }
+                return new OkObjectResult(games);
             }
             catch(Exception ex)
             {
