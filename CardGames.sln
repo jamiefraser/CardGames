@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30523.141
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Game.Services.Deck", "GamePlay\Game.Services.Deck.csproj", "{BD8711EB-0B61-4F15-B9B6-085B6E834555}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Game.Services.Deck", "Game.Services.Deck\Game.Services.Deck.csproj", "{BD8711EB-0B61-4F15-B9B6-085B6E834555}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Game.Entities", "Game.Entities\Game.Entities.csproj", "{8504FC80-CD15-45D2-BA3B-EA0039A55CEB}"
 EndProject
@@ -15,17 +15,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Readme.txt = Readme.txt
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Client", "Client", "{E3C9CEF6-A7BC-44C3-9D75-3B47D75C462B}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Functions", "Functions", "{1884D23F-323C-4C74-9542-9A77CA727354}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Game.Client.Client", "GameClient\Client\Game.Client.Client.csproj", "{063AEC74-6E08-4B0D-9F18-B7992DCD0B5D}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Game.Client.Server", "GameClient\Server\Game.Client.Server.csproj", "{013FD596-CC91-4BC9-8B72-94FD041A55E5}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Game.Client.Shared", "GameClient\Shared\Game.Client.Shared.csproj", "{33E2821D-29D8-4F24-8534-04FA38ECC088}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Games.Services.Authorization", "Games.Functions.AuthorizationHelpers\Games.Services.Authorization.csproj", "{8D543A48-6CC8-4C6D-97A0-A0CEE7E7592B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Game.Client.Client", "Game.Client\Client\Game.Client.Client.csproj", "{CFDAAD11-AD59-45A1-B95A-AD81E3B0DFBC}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Game.Client.Shared", "Game.Client\Shared\Game.Client.Shared.csproj", "{B25D247B-E5AD-415B-85FB-0B3BC3583DE6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Client", "Client", "{08A8C711-4B40-48E4-B2C4-DF455DC6F97D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,22 +43,18 @@ Global
 		{B2890DFD-D5AD-4808-A220-D040206DB2F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B2890DFD-D5AD-4808-A220-D040206DB2F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B2890DFD-D5AD-4808-A220-D040206DB2F5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{063AEC74-6E08-4B0D-9F18-B7992DCD0B5D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{063AEC74-6E08-4B0D-9F18-B7992DCD0B5D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{063AEC74-6E08-4B0D-9F18-B7992DCD0B5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{063AEC74-6E08-4B0D-9F18-B7992DCD0B5D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{013FD596-CC91-4BC9-8B72-94FD041A55E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{013FD596-CC91-4BC9-8B72-94FD041A55E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{013FD596-CC91-4BC9-8B72-94FD041A55E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{013FD596-CC91-4BC9-8B72-94FD041A55E5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{33E2821D-29D8-4F24-8534-04FA38ECC088}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{33E2821D-29D8-4F24-8534-04FA38ECC088}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{33E2821D-29D8-4F24-8534-04FA38ECC088}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{33E2821D-29D8-4F24-8534-04FA38ECC088}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8D543A48-6CC8-4C6D-97A0-A0CEE7E7592B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8D543A48-6CC8-4C6D-97A0-A0CEE7E7592B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8D543A48-6CC8-4C6D-97A0-A0CEE7E7592B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8D543A48-6CC8-4C6D-97A0-A0CEE7E7592B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CFDAAD11-AD59-45A1-B95A-AD81E3B0DFBC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CFDAAD11-AD59-45A1-B95A-AD81E3B0DFBC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CFDAAD11-AD59-45A1-B95A-AD81E3B0DFBC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CFDAAD11-AD59-45A1-B95A-AD81E3B0DFBC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B25D247B-E5AD-415B-85FB-0B3BC3583DE6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B25D247B-E5AD-415B-85FB-0B3BC3583DE6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B25D247B-E5AD-415B-85FB-0B3BC3583DE6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B25D247B-E5AD-415B-85FB-0B3BC3583DE6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -68,10 +62,9 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{BD8711EB-0B61-4F15-B9B6-085B6E834555} = {1884D23F-323C-4C74-9542-9A77CA727354}
 		{B2890DFD-D5AD-4808-A220-D040206DB2F5} = {1884D23F-323C-4C74-9542-9A77CA727354}
-		{063AEC74-6E08-4B0D-9F18-B7992DCD0B5D} = {E3C9CEF6-A7BC-44C3-9D75-3B47D75C462B}
-		{013FD596-CC91-4BC9-8B72-94FD041A55E5} = {E3C9CEF6-A7BC-44C3-9D75-3B47D75C462B}
-		{33E2821D-29D8-4F24-8534-04FA38ECC088} = {E3C9CEF6-A7BC-44C3-9D75-3B47D75C462B}
 		{8D543A48-6CC8-4C6D-97A0-A0CEE7E7592B} = {1884D23F-323C-4C74-9542-9A77CA727354}
+		{CFDAAD11-AD59-45A1-B95A-AD81E3B0DFBC} = {08A8C711-4B40-48E4-B2C4-DF455DC6F97D}
+		{B25D247B-E5AD-415B-85FB-0B3BC3583DE6} = {08A8C711-4B40-48E4-B2C4-DF455DC6F97D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {712D776E-ADCD-48C9-BF33-0CDC0844BA92}
