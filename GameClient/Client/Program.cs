@@ -21,6 +21,7 @@ namespace Game.Client.Client
             builder.RootComponents.Add<App>("app");
             //builder.Services.AddHttpClientInterceptor();
             var gameServiceRoot = builder.Configuration.GetValue<string>("GameServiceRoot");
+            System.Diagnostics.Debug.WriteLine(gameServiceRoot.ToString());
             builder.Services.AddHttpClient("Game.Client.ServerAPI", client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress))
                 .AddHttpMessageHandler<BaseAddressAuthorizationMessageHandler>();
             builder.Services.AddHttpClient("GameService", client => client.BaseAddress = new Uri(gameServiceRoot))

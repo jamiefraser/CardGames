@@ -11,7 +11,7 @@
         try
         {
             var url = Configuration["GameServiceRoot"];
-            var client = HttpClientFactory.CreateClient("GameService");
+            var client = HttpClientFactory.CreateClient("Game.Client.ServerAPI");
             var address = client.BaseAddress.AbsoluteUri.ToString();
             System.Diagnostics.Debug.WriteLine(client.BaseAddress.AbsoluteUri.ToString());
             var json = await client.GetAsync($"game");
