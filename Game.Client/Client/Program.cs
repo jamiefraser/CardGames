@@ -8,7 +8,10 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-
+using Toolbelt.Blazor.Extensions.DependencyInjection;
+using Polly;
+using Polly.Extensions.Http;
+using Polly.Extensions;
 namespace Game.Client.Client
 {
     public class Program
@@ -16,20 +19,50 @@ namespace Game.Client.Client
         public static async Task Main(string[] args)
         {
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
+            var gameServiceRoot = builder.Configuration["GameServiceRoot"];
+            var deckServiceRoot = builder.Configuration["DeckServiceRoot"];
             builder.RootComponents.Add<App>("#app");
 
-            builder.Services.AddHttpClient("Game.Client.ServerAPI", client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress))
-                .AddHttpMessageHandler<BaseAddressAuthorizationMessageHandler>();
+            builder.Services.AddOptions();
+            builder.Services.AddAuthorizationCore();
+            builder.Services.AddScoped<GameTableAuthorizationHandler>();
 
-            // Supply HttpClient instances that include access tokens when making requests to the server project
-            builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("Game.Client.ServerAPI"));
+            #region HttpClientFactories for REST Services Service with authentication and error handling policies
+            var httpTransientErrorRetryPolicy = Polly.Extensions.Http.HttpPolicyExtensions.HandleTransientHttpError().RetryAsync(3);
+            var timeoutPolicy = Policy.TimeoutAsync<HttpResponseMessage>(90);
+            var writeFallBackPolicy = Policy.Handle<HttpRequestException>().Fallback(async (token) =>
+            {
+                System.Diagnostics.Debug.WriteLine($"Falling back from a write!!");
+
+            });            
 
             builder.Services.AddMsalAuthentication(options =>
             {
                 builder.Configuration.Bind("AzureAdB2C", options.ProviderOptions.Authentication);
-                options.ProviderOptions.DefaultAccessTokenScopes.Add("https://gameroomsdev.onmicrosoft.com/https://gameroomsdev.onmicrosoft.com/api/Access.API");
+                options.ProviderOptions.DefaultAccessTokenScopes.Add("https://gameroomsdev.onmicrosoft.com/api/Access.API");
             });
 
+            //Now create a named service instance for HttpClient that points to the correct base address (based on your handler configuration) and 
+            //instantiates the right authorization handler for that client
+            builder.Services.AddHttpClient("gameAPI",
+                client => client.BaseAddress = new Uri($"{gameServiceRoot}"))
+                //The AuthorizationHandler ensures an refreshed API access token is attached to every request to the URI specified in the BaseAddress
+                .AddHttpMessageHandler<GameTableAuthorizationHandler>()
+                //Tack the Polly policies we created above onto the HttpClientFactory
+                //So every HttpClient constructed by the factory follows a consistent set of rules for dealing with error conditions
+                //You can always tack more policies onto specific instances to deal with your specific condition as well
+                //ProTip:  I believe this would make for a lovely solution to logging certain classes of issues which would lead to better manageability
+                .AddPolicyHandler(httpTransientErrorRetryPolicy)
+                .AddPolicyHandler(timeoutPolicy);
+
+            builder.Services.AddHttpClient("deckAPI",
+                client => client.BaseAddress = new Uri($"{deckServiceRoot}"))
+                .AddPolicyHandler(httpTransientErrorRetryPolicy)
+                .AddPolicyHandler(timeoutPolicy);
+
+
+
+            #endregion
             await builder.Build().RunAsync();
         }
     }

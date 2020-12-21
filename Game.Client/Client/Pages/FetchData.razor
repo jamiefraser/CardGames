@@ -4,7 +4,7 @@
 @using Game.Client.Shared
 @attribute [Authorize]
 @inject HttpClient Http
-
+@inject IHttpClientFactory factory;
 <h1>Weather forecast</h1>
 
 <p>This component demonstrates fetching data from the server.</p>
@@ -45,6 +45,11 @@ else
     {
         try
         {
+            var otherClient = factory.CreateClient("gameAPI");
+
+            var jsonResult = await otherClient.GetAsync("game");
+            var json = await jsonResult.Content.ReadAsStringAsync();
+            Console.WriteLine(json);
             forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("WeatherForecast");
         }
         catch (AccessTokenNotAvailableException exception)
