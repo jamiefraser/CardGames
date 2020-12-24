@@ -58,7 +58,7 @@ namespace Game.Play
             return results;
         }
         [FunctionName("ListGames")]
-        public static async Task<IActionResult>ListGames([HttpTrigger(AuthorizationLevel.Function, "get", Route = "game")] HttpRequest req,
+        public static async Task<IActionResult>ListGames([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "game")] HttpRequest req,
             ILogger log)
         {
             var token = req.GetAccessToken();
@@ -76,13 +76,13 @@ namespace Game.Play
                 var games = await qry.ExecuteAsync<Game.Entities.Game>(new CancellationToken());
                 if(games==null || games.Count()==0)
                 {
-                    return new BadRequestObjectResult(new Game.Entities.Game());
+                    return new NotFoundResult();
                 }
                 return new OkObjectResult(games);
             }
             catch(Exception ex)
             {
-                return new BadRequestResult();
+                return new BadRequestObjectResult(ex);
             }
         }
         [FunctionName("CreateGame")]

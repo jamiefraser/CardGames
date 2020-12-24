@@ -1,5 +1,9 @@
 {
   "dependencies": {
+    "secrets1": {
+      "type": "secrets",
+      "connectionId": "GamesVaultUri"
+    },
     "storage1": {
       "type": "storage",
       "connectionId": "AzureWebJobsStorage"

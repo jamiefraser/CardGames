@@ -9,7 +9,7 @@
 
 <p>This component demonstrates fetching data from the server.</p>
 
-@if (forecasts == null)
+@if (games == null)
 {
     <p><em>Loading...</em></p>
 }
@@ -18,20 +18,20 @@ else
     <table class="table">
         <thead>
             <tr>
-                <th>Date</th>
-                <th>Temp. (C)</th>
-                <th>Temp. (F)</th>
-                <th>Summary</th>
+                <th>Hand Size</th>
+                <th>How Many Decks</th>
+                <th>Progressive Deal?</th>
+                <th>Name</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var forecast in forecasts)
+            @foreach (var game in games)
             {
                 <tr>
-                    <td>@forecast.Date.ToShortDateString()</td>
-                    <td>@forecast.TemperatureC</td>
-                    <td>@forecast.TemperatureF</td>
-                    <td>@forecast.Summary</td>
+                    <td>@game.NumberOfCardsToDeal.ToString()</td>
+                    <td>@game.NumberOfDecks</td>
+                    <td>@game.ProgressiveDeal</td>
+                    <td>@game.RowKey</td>
                 </tr>
             }
         </tbody>
@@ -39,22 +39,25 @@ else
 }
 
 @code {
-    private WeatherForecast[] forecasts;
+    private List<Game.Entities.Game> games;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
             var otherClient = factory.CreateClient("gameAPI");
+            games = await otherClient.GetFromJsonAsync<List<Game.Entities.Game>>("/api/game");
 
-            var jsonResult = await otherClient.GetAsync("game");
-            var json = await jsonResult.Content.ReadAsStringAsync();
-            Console.WriteLine(json);
-            forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("WeatherForecast");
+            Console.WriteLine(games.Count);
         }
         catch (AccessTokenNotAvailableException exception)
         {
             exception.Redirect();
+        }
+        catch(HttpRequestException ex)
+        {
+            var exType = ex.GetType().Name;
+            Console.WriteLine(ex.Message);
         }
     }
 

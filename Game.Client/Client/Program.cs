@@ -25,7 +25,8 @@ namespace Game.Client.Client
 
             builder.Services.AddOptions();
             builder.Services.AddAuthorizationCore();
-            builder.Services.AddScoped<GameTableAuthorizationHandler>();
+            builder.Services.AddScoped<GameServiceAuthorizationHandler>();
+            builder.Services.AddScoped<DeckServiceAuthorizationHandler>();
 
             #region HttpClientFactories for REST Services Service with authentication and error handling policies
             var httpTransientErrorRetryPolicy = Polly.Extensions.Http.HttpPolicyExtensions.HandleTransientHttpError().RetryAsync(3);
@@ -34,7 +35,7 @@ namespace Game.Client.Client
             {
                 System.Diagnostics.Debug.WriteLine($"Falling back from a write!!");
 
-            });            
+            });
 
             builder.Services.AddMsalAuthentication(options =>
             {
@@ -42,12 +43,16 @@ namespace Game.Client.Client
                 options.ProviderOptions.DefaultAccessTokenScopes.Add("https://gameroomsdev.onmicrosoft.com/api/Access.API");
             });
 
-            //Now create a named service instance for HttpClient that points to the correct base address (based on your handler configuration) and 
+            //Now create a named service instances for HttpClients that points to the correct base addresses (based on your handler configuration) and 
             //instantiates the right authorization handler for that client
+            #region GameAPI
             builder.Services.AddHttpClient("gameAPI",
-                client => client.BaseAddress = new Uri($"{gameServiceRoot}"))
+                client =>
+                {
+                    client.BaseAddress = new Uri($"{gameServiceRoot}");
+                })
                 //The AuthorizationHandler ensures an refreshed API access token is attached to every request to the URI specified in the BaseAddress
-                .AddHttpMessageHandler<GameTableAuthorizationHandler>()
+                .AddHttpMessageHandler<GameServiceAuthorizationHandler>()
                 //Tack the Polly policies we created above onto the HttpClientFactory
                 //So every HttpClient constructed by the factory follows a consistent set of rules for dealing with error conditions
                 //You can always tack more policies onto specific instances to deal with your specific condition as well
@@ -55,13 +60,23 @@ namespace Game.Client.Client
                 .AddPolicyHandler(httpTransientErrorRetryPolicy)
                 .AddPolicyHandler(timeoutPolicy);
 
+            builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>()
+                .CreateClient("gameAPI"));
+            #endregion
+
+            #region DeckAPI
             builder.Services.AddHttpClient("deckAPI",
-                client => client.BaseAddress = new Uri($"{deckServiceRoot}"))
+                client =>
+                {
+                    client.BaseAddress = new Uri($"{deckServiceRoot}");
+                })
+                .AddHttpMessageHandler<DeckServiceAuthorizationHandler>()
                 .AddPolicyHandler(httpTransientErrorRetryPolicy)
                 .AddPolicyHandler(timeoutPolicy);
 
-
-
+            builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>()
+               .CreateClient("deckAPI"));
+            #endregion
             #endregion
             await builder.Build().RunAsync();
         }

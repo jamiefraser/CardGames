@@ -1,0 +1,178 @@
+﻿/* CSS Document */
+
+body {
+    background: #6b5f44 url(../images/floral.jpg) center top scroll no-repeat;
+    margin: 0;
+    padding: 0;
+    margin-top: 25px;
+}
+
+#left {
+    float: left;
+}
+
+#right {
+    float: right;
+}
+
+.borbot {
+    border-bottom: solid 2px #b3d5d2;
+}
+
+.borleft {
+    border-bottom: solid 2px #b3d5d2;
+}
+
+h2 {
+    font-family: Georgia, "Times New Roman", Times, serif;
+    font-size: 16px;
+    color: #669999;
+    text-align: left;
+    line-height: 20px;
+    margin-left: 20px;
+}
+
+p {
+    font-family: Georgia, "Times New Roman", Times, serif;
+    font-size: 14px;
+    color: #000000;
+    text-align: left;
+    line-height: 20px;
+    margin-left: 20px;
+    padding-bottom: 20px;
+}
+
+ul {
+    list-style-type: none;
+    margin: 0px;
+    padding: 0px;
+    overflow: hidden;
+}
+
+li {
+    font-size: 16px;
+    font-family: Georgia, "Times New Roman", Times, serif;
+    font-weight: bold;
+    display: inline;
+    margin-left: 51px;
+}
+
+#page {
+    margin: 0 auto;
+    width: 800px;
+    overflow: hidden;
+}
+
+a:active, a:visited, a:link {
+    text-decoration: none;
+    outline-style: none;
+    color: #663300;
+}
+
+a:hover {
+    color: #144d4d;
+}
+
+#header {
+    margin-top: 25px;
+}
+
+#nav {
+    margin-top: -25px;
+}
+
+#top {
+    background: url(../images/topcontainer.jpg) center top no-repeat;
+    min-height: 24px;
+}
+
+    *:first-child + html #top img {
+        margin-left: 5px;
+        margin-top: 9px;
+    }
+
+    * html #top img {
+        margin-left: 5px;
+        margin-top: 9px;
+    }
+
+
+
+    #top img {
+        margin-top: 15px;
+        margin-left: 5px;
+    }
+
+
+#middle {
+    background: url(../images/middleimg.gif) center top repeat-y;
+    min-height: 500px;
+}
+
+
+.shadow {
+    background: url(images/shadowdark.gif) repeat;
+    width: 800px;
+    position: fixed;
+    margin-left: 100px;
+    margin-top: -100px;
+}
+
+
+*:first-child + html #content {
+    margin-top: -5px;
+}
+
+* html #content {
+    margin-top: -5px;
+}
+
+
+
+#bottom {
+    background: url(../images/bottom.jpg) center top no-repeat;
+    min-height: 77px;
+}
+
+    *:first-child + html #bottom img {
+        margin-left: 5px;
+        margin-top: -15px;
+    }
+
+    * html #bottom img {
+        margin-left: 5px;
+        margin-top: -15px;
+    }
+
+.footer {
+    font-size: 10px;
+    color: #5fa8a2;
+    margin-top: 0px;
+}
+
+*:first-child + html #bottom p {
+    padding-top: -15px;
+}
+
+* html #bottom .para {
+    margin-top: -15px;
+}
+
+#blazor-error-ui {
+    background: lightyellow;
+    bottom: 0;
+    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
+    display: none;
+    left: 0;
+    padding: 0.6rem 1.25rem 0.7rem 1.25rem;
+    position: fixed;
+    width: 100%;
+    z-index: 1000;
+}
+
+    #blazor-error-ui .dismiss {
+        cursor: pointer;
+        position: absolute;
+        right: 0.75rem;
+        top: 0.5rem;
+    }

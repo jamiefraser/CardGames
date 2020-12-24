@@ -7,14 +7,13 @@ using System.Linq;
 using System.Threading.Tasks;
 namespace Game.Client.Client
 {
-    public class GameTableAuthorizationHandler :  AuthorizationMessageHandler
+    public class DeckServiceAuthorizationHandler : AuthorizationMessageHandler
     {
-        public GameTableAuthorizationHandler(IAccessTokenProvider provider, NavigationManager navigationManager, IConfiguration config) : base(provider, navigationManager)
+        public DeckServiceAuthorizationHandler(IAccessTokenProvider provider, NavigationManager navigationManager, IConfiguration config) : base(provider, navigationManager)
         {
-            var gameBase = config["GameServiceRoot"];
             var deckBase = config["DeckServiceRoot"];
             ConfigureHandler(
-                authorizedUrls: new[] { $"{gameBase},{deckBase}" },
+                authorizedUrls: new[] { $"{deckBase}" },
                 scopes: new[] { "https://gameroomsdev.onmicrosoft.com/api/Access.API" });
         }
     }
