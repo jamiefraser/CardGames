@@ -1,111 +1,18 @@
 ﻿@inherits LayoutComponentBase
-<div id="Div1">
-    <div id="page">
-        <img src="/images/logo.jpg" alt="" border="0" />
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <div class="main">
+        <div class="top-row px-4 auth">
+            <LoginDisplay />
+            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
+        </div>
+
+        <div class="content px-4">
+            @Body
+        </div>
     </div>
 </div>
-
-<div id="Div2">
-    <div id="page">
-
-        <div id="nav">
-            <NavLink href="" Match="NavLinkMatch.All">
-                <img style="margin-top:105px; margin-left:30px;" src="/images/home.jpg" alt="" border="0" />
-            </NavLink>
-            <NavLink class="nav-link" href="counter">
-                <img style="margin-left:-5px;" src="/images/about.jpg" alt="" border="0" />
-            </NavLink>
-            <img src="/images/about.jpg" alt="" border="0" />
-            <img style="margin-left:220px;" src="/images/about.jpg" alt="" border="0" />
-
-            <div class="flex-column">
-
-
-                <span class="oi oi-plus" aria-hidden="true"></span> Counter
-                </NavLink>
-                <NavLink class="nav-link" href="fetchdata">
-                    <span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
-                </NavLink>
-            </div>
-
-        </div>
-
-    </div>
-</div>
-
-
-<div id="content">
-    <div id="page">
-
-
-        <div id="top">
-            <img src="/images/topline.jpg" alt="" border="0" />
-        </div>
-
-
-        <div id="middle">
-
-            <div style="width:500px;" id="left">
-
-                <!--@*<asp:ContentPlaceHolder ID="MainContent" runat="server" />*@-->
-                @Body
-            </div>
-
-        </div>
-
-
-
-
-        <div id="bottom">
-            <img src="/images/topline.jpg" alt="" border="0" />
-        </div>
-        <p style="margin-top:-75px; float:left;" class="footer">
-
-            <!--@*� Copyright 2009 <span style="margin-left:50px;">Design: <a href="http://www.myWebArts.com" target="_blank">mywebarts.com</a></span>
-            <span style="margin-left:50px;">Email: <a href=mailto:janki@mywebarts.com>janki@mywebarts.com</a></span>*@-->
-        </p>
-
-
-
-
-
-
-
-                </div>
-            </div>
-            <!--@*<div class="page">
-                    <div class="sidebar">
-                        <NavMenu />
-                    </div>
-
-                    <div class="main">
-                        <div class="top-row px-4 auth">
-                            <LoginDisplay />
-                            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
-                        </div>
-
-                        <div class="content px-4">
-                            @Body
-                        </di
-
-
-
-        </div>
-    </div>
-
-<!--@*<div class="page">
-        <div class="sidebar">
-            <NavMenu />
-        </div>
-
-        <div class="main">
-            <div class="top-row px-4 auth">
-                <LoginDisplay />
-                <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
-            </div>
-
-            <div class="content px-4">
-                @Body
-            </div>
-        </div>
-    </div>*@-->

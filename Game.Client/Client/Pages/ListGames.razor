@@ -1,14 +1,11 @@
-﻿@page "/fetchdata"
+﻿@page "/games"
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @using Game.Client.Shared
 @attribute [Authorize]
 @inject HttpClient Http
 @inject IHttpClientFactory factory;
-<h1>Weather forecast</h1>
-
-<p>This component demonstrates fetching data from the server.</p>
-
+<h1>Card Games</h1>
 @if (games == null)
 {
     <p><em>Loading...</em></p>

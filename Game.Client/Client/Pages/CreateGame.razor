@@ -1,0 +1,114 @@
+﻿@page "/games/new"
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@using Game.Client.Shared
+@*@attribute [Authorize]*@
+@inject HttpClient Http
+@inject IHttpClientFactory factory;
+<h3>Create Game</h3>
+<style>
+</style>
+@if (game == null)
+{
+    <p><em>Initializing...</em></p>
+}
+else
+{
+    <EditForm Model="@game" OnValidSubmit="@HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <thead></thead>
+        <tbody>
+            <tr>
+                <td class="cell-label">
+                    <label>
+                        What's it called?
+                    </label>
+                </td>
+                <td class="cell-value"><InputText @bind-Value="game.RowKey" /></td>
+            </tr>
+            <tr>
+                <td class="cell-label">
+                    What kind of cards are used?
+                </td>
+                <td class="cell-value">
+                    <InputSelect @bind-Value="game.DeckType">
+                        <option value=1 label="Standard"></option>
+                        <option value=2 label="Uno"></option>
+                    </InputSelect>
+                </td>
+            </tr>
+            <tr>
+                <td class="cell-label">
+                    How many decks are used?
+                </td>
+                <td class="cell-value">
+                    <InputNumber @bind-Value="game.NumberOfDecks" />
+                </td>
+            </tr>
+            <tr>
+                <td class="cell-label">
+                    Minimum number of players?
+                </td>
+                <td class="cell-value">
+                    <InputNumber @bind-Value="game.MinimumPlayers" />
+                </td>
+            </tr>
+            <tr>
+                <td class="cell-label">
+                    Maximum number of players?
+                </td>
+                <td class="cell-value">
+                    <InputNumber @bind-Value="game.MaxPlayers" />
+                </td>
+            </tr>
+            <tr>
+                <td class="cell-label">
+                    How many cards in a hand?
+                </td>
+                <td class="cell-value">
+                    <InputNumber @bind-Value="game.NumberOfCardsToDeal" />
+                </td>
+            </tr>
+            <tr>
+                <td class="cell-label">
+                    Each hand gets more cards (like Pay the Man)?
+                </td>
+                <td class="cell-value">
+                    <InputCheckbox @bind-Value="game.ProgressiveDeal" />
+                </td>
+            </tr>
+            <tr>
+                <td class="cell-label">
+                    Increase deal by how many cards each hand?
+                </td>
+                <td class="cell-value">
+                    <InputNumber @bind-Value="game.IncrementCardsToDealBy" />
+                </td>
+            </tr>
+        </tbody>
+
+        <button type="submit">Submit</button>
+    </EditForm>
+
+
+
+}
+
+@code {
+    public string defaultDeckType = "";
+    private void HandleValidSubmit()
+    {
+
+    }
+    private Game.Entities.Game game;
+
+    protected override async Task OnInitializedAsync()
+    {
+        game = new Entities.Game()
+        {
+            DeckType = Entities.DeckType.Standard
+        };
+
+    }
+}
