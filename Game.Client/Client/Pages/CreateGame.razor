@@ -24,7 +24,7 @@ else
                 </label>
             </div>
             <div class="col">
-                <InputText @bind-Value="game.RowKey" />
+                <InputText @bind-Value="game.Name" />
             </div>
         </div>
         <div class="flex-grid">
@@ -109,18 +109,23 @@ else
 
 @code {
     public string defaultDeckType = "";
-    private void HandleValidSubmit()
+    private async Task HandleValidSubmit()
     {
+        var client = factory.CreateClient("gameAPI");
+        try
+        {
+            await client.PostJsonAsync("/api/game", game);
+        }
+        catch(Exception ex)
+        {
 
+        }
     }
     private Game.Entities.Game game;
 
     protected override async Task OnInitializedAsync()
     {
-        game = new Entities.Game()
-        {
-            DeckType = Entities.DeckType.Standard
-        };
+        game = new Entities.Game();
 
     }
 }

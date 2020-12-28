@@ -93,6 +93,7 @@ namespace Game.Play
             var sr = new StreamReader(req.Body);
             var gameJson = sr.ReadToEnd();
             var game = JsonConvert.DeserializeObject<Game.Entities.Game>(gameJson);
+            game.PartitionKey = "Card Games";
             if (string.IsNullOrEmpty(game.RowKey))
             {
                 return new BadRequestObjectResult(new
