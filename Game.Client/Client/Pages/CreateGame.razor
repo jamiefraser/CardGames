@@ -17,77 +17,89 @@ else
     <EditForm Model="@game" OnValidSubmit="@HandleValidSubmit">
         <DataAnnotationsValidator />
         <ValidationSummary />
-        <thead></thead>
-        <tbody>
-            <tr>
-                <td class="cell-label">
-                    <label>
-                        What's it called?
-                    </label>
-                </td>
-                <td class="cell-value"><InputText @bind-Value="game.RowKey" /></td>
-            </tr>
-            <tr>
-                <td class="cell-label">
+        <div class="flex-grid">
+            <div class="col">
+                <label>
+                    What's it called?
+                </label>
+            </div>
+            <div class="col">
+                <InputText @bind-Value="game.RowKey" />
+            </div>
+        </div>
+        <div class="flex-grid">
+            <div class="col">
+                <label>
                     What kind of cards are used?
-                </td>
-                <td class="cell-value">
-                    <InputSelect @bind-Value="game.DeckType">
-                        <option value=1 label="Standard"></option>
-                        <option value=2 label="Uno"></option>
-                    </InputSelect>
-                </td>
-            </tr>
-            <tr>
-                <td class="cell-label">
+                </label>
+            </div>
+            <div class="col">
+                <InputSelect @bind-Value="game.DeckType">
+                    <option value=1 label="Standard"></option>
+                    <option value=2 label="Uno"></option>
+                </InputSelect>
+            </div>
+        </div>
+        <div class="flex-grid">
+            <div class="col">
+                <label>
                     How many decks are used?
-                </td>
-                <td class="cell-value">
-                    <InputNumber @bind-Value="game.NumberOfDecks" />
-                </td>
-            </tr>
-            <tr>
-                <td class="cell-label">
+                </label>
+            </div>
+            <div class="col">
+                <InputNumber @bind-Value="game.NumberOfDecks" />
+            </div>
+        </div>
+        <div class="flex-grid">
+            <div class="col">
+                <label>
                     Minimum number of players?
-                </td>
-                <td class="cell-value">
-                    <InputNumber @bind-Value="game.MinimumPlayers" />
-                </td>
-            </tr>
-            <tr>
-                <td class="cell-label">
+                </label>
+            </div>
+            <div class="col">
+                <InputNumber @bind-Value="game.MinimumPlayers" />
+            </div>
+        </div>
+        <div class="flex-grid">
+            <div class="col">
+                <label>
                     Maximum number of players?
-                </td>
-                <td class="cell-value">
-                    <InputNumber @bind-Value="game.MaxPlayers" />
-                </td>
-            </tr>
-            <tr>
-                <td class="cell-label">
+                </label>
+            </div>
+            <div class="col">
+                <InputNumber @bind-Value="game.MaxPlayers" />
+            </div>
+        </div>
+        <div class="flex-grid">
+            <div class="col">
+                <label>
                     How many cards in a hand?
-                </td>
-                <td class="cell-value">
-                    <InputNumber @bind-Value="game.NumberOfCardsToDeal" />
-                </td>
-            </tr>
-            <tr>
-                <td class="cell-label">
+                </label>
+            </div>
+            <div class="col">
+                <InputNumber @bind-Value="game.NumberOfCardsToDeal" />
+            </div>
+        </div>
+        <div class="flex-grid">
+            <div class="col">
+                <label>
                     Each hand gets more cards (like Pay the Man)?
-                </td>
-                <td class="cell-value">
-                    <InputCheckbox @bind-Value="game.ProgressiveDeal" />
-                </td>
-            </tr>
-            <tr>
-                <td class="cell-label">
+                </label>
+            </div>
+            <div class="col">
+                <InputCheckbox @bind-Value="game.ProgressiveDeal" />
+            </div>
+        </div>
+        <div class="flex-grid">
+            <div class="col">
+                <label>
                     Increase deal by how many cards each hand?
-                </td>
-                <td class="cell-value">
-                    <InputNumber @bind-Value="game.IncrementCardsToDealBy" />
-                </td>
-            </tr>
-        </tbody>
-
+                </label>
+            </div>
+            <div class="col">
+                <InputNumber @bind-Value="game.IncrementCardsToDealBy" />
+            </div>
+        </div>
         <button type="submit">Submit</button>
     </EditForm>
 

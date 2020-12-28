@@ -1,4 +1,11 @@
 @import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
+.flex-grid {
+    display: flex;
+}
+
+.col {
+    flex: 1;
+}
 .cell-label {
     padding-right: 20px;
 }
