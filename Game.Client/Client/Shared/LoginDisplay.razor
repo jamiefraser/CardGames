@@ -7,7 +7,6 @@
 <AuthorizeView>
     <Authorized>
         Hello, @context.User.Identity.Name!
-        @CreateEasyAuthUserRecord(context.User);
         <button class="nav-link btn btn-link" @onclick="BeginLogout">Log out</button>
     </Authorized>
     <NotAuthorized>

@@ -1,13 +1,11 @@
 ﻿@page "/games/start"
-@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @using Game.Client.Shared
 @attribute [Authorize]
 @inject HttpClient Http
 @inject IHttpClientFactory factory;
-@
 @using Syncfusion.Blazor.DropDowns
-
 <h3>Start a New Game</h3>
 @if (gameTable == null && (games == null || games.Count == 0))
 {
@@ -15,12 +13,9 @@
 }
 else
 {
-    <AuthorizeView>
-        <Authorized>
             <EditForm Model="@gameTable" OnValidSubmit="@HandleValidSubmit">
                 <DataAnnotationsValidator />
                 <ValidationSummary />
-
                 <div class="flex-grid">
                     <div class="col">
                         <label>
@@ -51,9 +46,6 @@ else
                     </div>
                 </div>
             </EditForm>
-        </Authorized>
-    </AuthorizeView>
-
 }
 @code {
     private Game.Entities.Table gameTable;
@@ -63,6 +55,9 @@ else
     private List<Game.Entities.EasyAuthUserInfo> usersFriends;
     protected override async Task OnInitializedAsync()
     {
+        players = new List<Entities.EasyAuthUserInfo>();
+        registeredPlayers = new List<Entities.EasyAuthUserInfo>();
+        usersFriends = new List<Entities.EasyAuthUserInfo>();
         var client = factory.CreateClient("gameAPI");
         games = await client.GetFromJsonAsync<List<Game.Entities.Game>>("api/game");
         gameTable = new Entities.Table();
