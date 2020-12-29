@@ -1,0 +1,75 @@
+﻿@page "/games/start"
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@using Game.Client.Shared
+@attribute [Authorize]
+@inject HttpClient Http
+@inject IHttpClientFactory factory;
+@
+@using Syncfusion.Blazor.DropDowns
+
+<h3>Start a New Game</h3>
+@if (gameTable == null && (games == null || games.Count == 0))
+{
+    <p><em>Initializing...</em></p>
+}
+else
+{
+    <AuthorizeView>
+        <Authorized>
+            <EditForm Model="@gameTable" OnValidSubmit="@HandleValidSubmit">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="flex-grid">
+                    <div class="col">
+                        <label>
+                            Choose a game
+                        </label>
+                    </div>
+                    <div class="col">
+                        <Game.Client.Client.Components.CustomInputSelect @bind-Value="gameTable.Game">
+                            <option value="null" label="Select a game to play..." />
+                            @foreach (Game.Entities.Game game in games)
+                                {
+                                <option value="@game" label="@game.Name" />
+                                }
+                        </Game.Client.Client.Components.CustomInputSelect>
+                    </div>
+                </div>
+                <div class="flex-grid">
+                    <div class="col">
+                        <label>
+                            Pick your players
+                        </label>
+                    </div>
+                    <div class="col">
+                        <SfListBox Value="@players" DataSource="@registeredPlayers" TItem="Game.Entities.EasyAuthUserInfo" TValue="List<Game.Entities.EasyAuthUserInfo>">
+                            <ListBoxSelectionSettings ShowCheckbox="true"></ListBoxSelectionSettings>
+                            <ListBoxFieldSettings Text="PrincipalName" Value="PrincipalId"></ListBoxFieldSettings>
+                        </SfListBox>
+                    </div>
+                </div>
+            </EditForm>
+        </Authorized>
+    </AuthorizeView>
+
+}
+@code {
+    private Game.Entities.Table gameTable;
+    private List<Game.Entities.Game> games;
+    private List<Game.Entities.EasyAuthUserInfo> players;
+    private List<Game.Entities.EasyAuthUserInfo> registeredPlayers;
+    private List<Game.Entities.EasyAuthUserInfo> usersFriends;
+    protected override async Task OnInitializedAsync()
+    {
+        var client = factory.CreateClient("gameAPI");
+        games = await client.GetFromJsonAsync<List<Game.Entities.Game>>("api/game");
+        gameTable = new Entities.Table();
+    }
+    private async Task HandleValidSubmit()
+    {
+
+    }
+
+}

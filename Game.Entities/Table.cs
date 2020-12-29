@@ -6,19 +6,43 @@ using System.Text;
 
 namespace Game.Entities
 {
-    public class Table : TableEntity
+    public class Table
     {
-        string SerializedTableOwner { get; set; }
-        string SerializedPlayers { get; set; }
         public EasyAuthUserInfo TableOwner { get; set; }
-        [IgnoreProperty]
         public ObservableCollection<Player> Players { get; set; }
-        public bool Finished { get; set; }
+        private bool _finished;
+        public bool Finished
+        {
+            get
+            {
+                return _finished;
+            }
+            set
+            {
+                _finished = value;
+                if (value == true)
+                {
+                    //Call the deck service to delete any associated decks
+                    //store the scores for each player
+                    //blow away the record for this table
+                }
+            }
+        }
         public string Name { get; set; }
-        public int MaxPlayers { get; set; }
-        public int NumberOfDecks { get; set; }
-        public int NumberOfCardsInAHand { get; set; }
-        public Game Game { get; set; }
+        public int MaxPlayers { get; private set; }
+        private Game _game;
+        public Game Game
+        {
+            get
+            {
+                return _game;
+            }
+            set
+            {
+                _game = value;
+                MaxPlayers = _game.MaxPlayers;
+            }
+        }
         public int CurrentPlayersCount
         {
             get
@@ -29,6 +53,7 @@ namespace Game.Entities
         public Table()
         {
             this.Players = new ObservableCollection<Player>();
+            this.Finished = false;
         }
     }
 }

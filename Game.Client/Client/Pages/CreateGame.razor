@@ -90,16 +90,44 @@ else
                 <InputCheckbox @bind-Value="game.ProgressiveDeal" />
             </div>
         </div>
+        @if (game.ProgressiveDeal)
+        {
+            <div class="flex-grid">
+                <div class="col">
+                    <label>
+                        Increase deal by how many cards each hand?
+                    </label>
+                </div>
+
+                <div class="col">
+                    <InputNumber @bind-Value="game.IncrementCardsToDealBy" />
+                </div>
+
+            </div>
+        }
         <div class="flex-grid">
             <div class="col">
                 <label>
-                    Increase deal by how many cards each hand?
+                    Use a discard pile?
                 </label>
             </div>
             <div class="col">
-                <InputNumber @bind-Value="game.IncrementCardsToDealBy" />
+                <InputCheckbox @bind-Value="game.UsesDiscardPile" />
             </div>
         </div>
+        @if(game.UsesDiscardPile)
+        {
+            <div class="flex-grid">
+                <div class="col">
+                    <label>
+                        Pick up whole discard pile?
+                    </label>
+                </div>
+                <div class="col">
+                    <InputCheckbox @bind-Value="game.PlayerPicksUpWholeDiscardPile"/>
+                </div>
+            </div>
+        }
         <button type="submit">Submit</button>
     </EditForm>
 
@@ -116,7 +144,7 @@ else
         {
             await client.PostJsonAsync("/api/game", game);
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
 
         }

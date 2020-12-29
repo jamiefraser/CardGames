@@ -24,7 +24,10 @@ namespace Game.Client.Client
             builder.RootComponents.Add<App>("#app");
 
             builder.Services.AddOptions();
-            builder.Services.AddAuthorizationCore();
+            builder.Services.AddAuthorizationCore(options =>
+            {
+
+            });
             builder.Services.AddScoped<GameServiceAuthorizationHandler>();
             builder.Services.AddScoped<DeckServiceAuthorizationHandler>();
 

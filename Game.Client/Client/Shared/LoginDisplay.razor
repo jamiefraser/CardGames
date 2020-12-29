@@ -7,6 +7,7 @@
 <AuthorizeView>
     <Authorized>
         Hello, @context.User.Identity.Name!
+        @CreateEasyAuthUserRecord(context.User);
         <button class="nav-link btn btn-link" @onclick="BeginLogout">Log out</button>
     </Authorized>
     <NotAuthorized>
@@ -19,5 +20,8 @@
     {
         await SignOutManager.SetSignOutState();
         Navigation.NavigateTo("authentication/logout");
+    }
+    private async Task CreateEasyAuthUserRecord(System.Security.Claims.ClaimsPrincipal principal)
+    {
     }
 }
