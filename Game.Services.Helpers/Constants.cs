@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 
-namespace Games.Services.Authorization
+namespace Game.Services.Helpers
 {
     public static class Constants
     {

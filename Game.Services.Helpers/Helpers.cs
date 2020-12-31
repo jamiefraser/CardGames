@@ -1,0 +1,146 @@
+﻿using System;
+using System.IO;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+
+using System.Collections.Generic;
+using System.Globalization;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.IdentityModel.Protocols;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using System.Linq;
+using System.Security.Claims;
+using Microsoft.Extensions.Configuration;
+using Game.Entities;
+using Microsoft.Azure.Cosmos.Table;
+
+namespace Game.Services.Helpers
+{
+    public static class Helpers
+    {
+
+        public static async Task<Game.Entities.Table> Save(this Entities.Table tbl)
+        {
+            tbl.Timestamp = DateTime.Now;
+            var table = await GetTableReference("gametables");
+            var insertOrMergeOperation = Microsoft.Azure.Cosmos.Table.TableOperation.InsertOrMerge(tbl);
+            var result = await table.ExecuteAsync(insertOrMergeOperation);
+            return result.Result as Game.Entities.Table;
+        }
+        public static async Task<Microsoft.Azure.Cosmos.Table.CloudTable> GetTableReference(string tableName)
+        {
+            string connectionString = Environment.GetEnvironmentVariable("AZURE_STORAGE_CONNECTION_STRING");
+            var storageAccount = CloudStorageAccount.Parse(connectionString);
+            Microsoft.Azure.Cosmos.Table.CloudTableClient tableClient = storageAccount.CreateCloudTableClient(new TableClientConfiguration());
+            Console.WriteLine("Create a Table for the demo");
+
+            // Create a table client for interacting with the table service 
+            Microsoft.Azure.Cosmos.Table.CloudTable table = tableClient.GetTableReference(tableName);
+            try
+            {
+                await table.CreateIfNotExistsAsync();
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return table;
+        }
+        public static string GetAccessToken(this HttpRequest req)
+        {
+            var authorizationHeader = req.Headers?["Authorization"];
+            string[] parts = authorizationHeader?.ToString().Split(null) ?? new string[0];
+            if (parts.Length == 2 && parts[0].Equals("Bearer"))
+                return parts[1];
+            return null;
+        }
+
+        private static EasyAuthUserInfo UserInfoFromRequest(this HttpRequest req)
+        {
+            var stream = req.Headers["Authorization"].ToString().Split(" ")[1];
+            var handler = new JwtSecurityTokenHandler();
+            var token = handler.ReadToken(stream) as JwtSecurityToken;
+            var PrincipalId = token.Claims.Where(c => c.Type == "oid").FirstOrDefault().Value;
+            var PrincipalName = token.Claims.Where(c => c.Type == "name").FirstOrDefault().Value;
+            var PrincipalIdp = token.Claims.Where(c => c.Type == "idp").FirstOrDefault().Value;
+            return new EasyAuthUserInfo()
+            {
+                PrincipalId = PrincipalId,
+                PrincipalName = PrincipalName,
+                PrincipalIdp = PrincipalIdp,
+                ZumoHeaders = new Dictionary<string, string>()
+            };
+        }
+
+        public static EasyAuthUserInfo UserInfo(this HttpRequest req, IConfiguration config)
+        {
+            var ret = string.IsNullOrEmpty(config["RunningLocally"]) ?
+            new EasyAuthUserInfo()
+            {
+                PrincipalId = req.Headers.Where(h => h.Key.Equals("X-MS-CLIENT-PRINCIPAL-ID")).FirstOrDefault().Value,
+                PrincipalName = req.Headers.Where(h => h.Key.Equals("X-MS-CLIENT-PRINCIPAL-NAME")).FirstOrDefault().Value,
+                PrincipalIdp = req.Headers.Where(h => h.Key.Equals("X-MS-CLIENT-PRINCIPAL-IDP")).FirstOrDefault().Value,
+                ZumoHeaders = new Dictionary<string, string>()
+            } : req.UserInfoFromRequest();
+            foreach (var h in req.Headers.Where(header => header.Key.StartsWith("X-MS")))
+            {
+                ret.ZumoHeaders.Add(h.Key, h.Value);
+            }
+            return ret;
+        }
+        
+        public static async Task<ClaimsPrincipal> GetClaimsPrincipalAsync(string accessToken, ILogger log)
+        {
+            var audience = Constants.audience;
+            var b2cInstance = Constants.b2cInstance;
+            var clientID = Constants.clientID;
+            var tenant = Constants.tenant;
+            var tenantid = Constants.tenantid;
+            var aadInstance = Constants.aadInstance;
+            var authority = Constants.authority;
+            var validIssuers = Constants.validIssuers;
+            var policyName = Constants.policyName;
+            // Debugging purposes only, set this to false for production
+            Microsoft.IdentityModel.Logging.IdentityModelEventSource.ShowPII = true;
+
+            ConfigurationManager<OpenIdConnectConfiguration> configManager =
+                new ConfigurationManager<OpenIdConnectConfiguration>(
+                    $"{b2cInstance}/{tenant}/{policyName}/v2.0/.well-known/openid-configuration",
+                    new OpenIdConnectConfigurationRetriever());
+
+            OpenIdConnectConfiguration config = null;
+            config = await configManager.GetConfigurationAsync();
+
+            ISecurityTokenValidator tokenValidator = new JwtSecurityTokenHandler();
+
+            // Initialize the token validation parameters
+            TokenValidationParameters validationParameters = new TokenValidationParameters
+            {
+                // App Id URI and AppId of this service application are both valid audiences.
+                ValidAudiences = new[] { audience, clientID },
+
+                // Support Azure AD V1 and V2 endpoints.
+                ValidIssuers = validIssuers,
+                IssuerSigningKeys = config.SigningKeys
+            };
+
+            try
+            {
+                SecurityToken securityToken;
+                var claimsPrincipal = tokenValidator.ValidateToken(accessToken, validationParameters, out securityToken);
+                return claimsPrincipal;
+            }
+            catch (Exception ex)
+            {
+                log.LogError(ex.ToString());
+            }
+            return null;
+        }
+    }
+}

@@ -1,7 +1,15 @@
 {
-    "IsEncrypted": false,
-    "Values": {
-        "AzureWebJobsStorage": "UseDevelopmentStorage=true",
-        "FUNCTIONS_WORKER_RUNTIME": "dotnet"
-    }
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+    "AzureADAppTenantId": "508fc0b7-54c6-4c27-b9a8-05b018342d63",
+    "AzureADAppClientId": "341d6199-54df-46c4-bf4b-df132bb2fb27",
+    "AzureADAppClientSecret": "x5aA~AGzABlSb8icc1F~XWCeU0X~o-qw1-",
+    "AzureADAppRedirectUri": "https://gamesservice.azurewebsites.net/.auth/login/aad/callback"
+  },
+  "Host": {
+    "LocalHttpPort": 5861,
+    "CORS": "*"
+  }
 }

@@ -10,10 +10,11 @@ using Newtonsoft.Json;
 using Game.Entities;
 using Azure.Storage.Blobs;
 using System.Text;
-using Games.Services.Authorization;
+using Game.Services;
+using Game.Services.Helpers;
 namespace Game.Play
 {
-    public static class DeckService
+    public static class Service
     {
         [FunctionName("CreateUnoDeck")]
         public static async Task<IActionResult>CreateDeckWithSpecialCards(

@@ -10,4 +10,8 @@
     <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="6.8.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Game.Entities\Game.Entities.csproj" />
+  </ItemGroup>
+
 </Project>

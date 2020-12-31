@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Game.Services.RealTimeCommunications": {
+      "commandName": "Project",
+      "commandLineArgs": "host start --pause-on-error --port 5864"
+    }
+  }
+}

@@ -1,0 +1,2 @@
+for /r %R in (obj) do if exist %R (rd /s /q "%R")
+for /r %R in (bin) do if exist %R (rd /s /q "%R")

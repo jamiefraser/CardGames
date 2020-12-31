@@ -17,7 +17,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Game.Entities\Game.Entities.csproj" />
-    <ProjectReference Include="..\Games.Functions.AuthorizationHelpers\Games.Services.Authorization.csproj" />
+    <ProjectReference Include="..\Game.Services.Helpers\Game.Services.Helpers.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">

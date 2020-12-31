@@ -2,14 +2,24 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
 using System.Text;
 
 namespace Game.Entities
 {
-    public class Table
+    public class Table : Microsoft.Azure.Cosmos.Table.TableEntity
     {
         public EasyAuthUserInfo TableOwner { get; set; }
-        public ObservableCollection<Player> Players { get; set; }
+        public List<Player>InvitedPlayers
+        {
+            get;
+            set;
+        }
+        public List<Player> Players 
+        { 
+            get; 
+            set; 
+        }
         private bool _finished;
         public bool Finished
         {
@@ -31,6 +41,7 @@ namespace Game.Entities
         public string Name { get; set; }
         public int MaxPlayers { get; private set; }
         private Game _game;
+        [Required]
         public Game Game
         {
             get
@@ -52,7 +63,7 @@ namespace Game.Entities
         }
         public Table()
         {
-            this.Players = new ObservableCollection<Player>();
+            this.Players = new List<Player>();
             this.Finished = false;
         }
     }
