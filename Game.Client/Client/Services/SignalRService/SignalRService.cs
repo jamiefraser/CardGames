@@ -24,11 +24,13 @@ namespace Game.Client.Client.Services.SignalRService
                     messages.Add(encodedMsg);
                 });
             });
+            Players = new List<Entities.Player>();
         }
         public string AccessToken
         {
             get;
             set;
         }
+        public List<Entities.Player> Players { get; set; }
     }
 }

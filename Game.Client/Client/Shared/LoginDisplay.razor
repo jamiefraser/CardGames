@@ -36,8 +36,8 @@
     private List<string> messages = new List<string>();
     private async Task BeginLogout(MouseEventArgs args)
     {
-        var ps = factory.CreateClient("presenceAPI");
-        await ps.PostAsJsonAsync("api/messages", "hello from the logindisplay component!");
+        //var ps = factory.CreateClient("presenceAPI");
+        //await ps.PostAsJsonAsync("api/messages", "hello from the logindisplay component!");
         await SignOutManager.SetSignOutState();
         Navigation.NavigateTo("authentication/logout");
     }
@@ -46,7 +46,7 @@
     }
     protected override async Task OnInitializedAsync()
     {
-       
+
 
     }
     protected async Task BeforeUnload()
