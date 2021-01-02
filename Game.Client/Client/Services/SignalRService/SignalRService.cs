@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.SignalR.Client;
+﻿using Game.Entities;
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.SignalR.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,15 +19,22 @@ namespace Game.Client.Client.Services.SignalRService
             Task.Run(async () =>
             {
                 await hubConnection.StartAsync();
-                hubConnection.On<string>("NewMessage", (message) =>
+                hubConnection.On<string>("broadcast", (message) =>
                 {
                     var encodedMsg = $"{message}";
                     Console.WriteLine(encodedMsg);
                     messages.Add(encodedMsg);
                 });
+                hubConnection.On<PresenceStatusMessage>("presence", (message) =>
+                {
+                    Console.WriteLine($"{message.Player.PrincipalName} {(message.CurrentStatus.Equals(PlayerPresence.Online) ? " is online" : " is offline")}");
+                });
             });
             Players = new List<Entities.Player>();
         }
+
+        
+
         public string AccessToken
         {
             get;

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Game.Entities
 {
-    public class Player : TableEntity
+    public class Player : Microsoft.Azure.Cosmos.Table.TableEntity
     {
         public string PrincipalName { get; set; }
         public string PrincipalId { get; set; }

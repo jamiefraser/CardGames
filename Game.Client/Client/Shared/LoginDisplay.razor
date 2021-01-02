@@ -5,6 +5,7 @@
 @using StateManager;
 @using Microsoft.AspNetCore.SignalR.Client
 @using Game.Client.Client.Services.SignalRService;
+@using Game.Client.Client
 @inject NavigationManager Navigation
 @inject SignOutSessionStateManager SignOutManager
 @inject ICurrentUserService currentUser;
@@ -12,6 +13,8 @@
 @inject ISignalRService signalR;
 @inject HttpClient Http
 @inject IHttpClientFactory factory
+@inject AuthenticationStateProvider authenticationStateProvider
+
 <AuthorizeView>
     <Authorized>
         Hello, @context.User.Identity.Name!
@@ -26,7 +29,10 @@
     <NotAuthorized>
         <a href="authentication/login">Log in</a>
         @{
-            tasksStateService.BeforeUnload -= BeforeUnload;
+            Task.Run(async () =>
+            {
+                //await UpdateStatus(currentUser.CurrentClaimsPrincipal, false);
+            });
         }
     </NotAuthorized>
 </AuthorizeView>
@@ -36,21 +42,28 @@
     private List<string> messages = new List<string>();
     private async Task BeginLogout(MouseEventArgs args)
     {
-        //var ps = factory.CreateClient("presenceAPI");
-        //await ps.PostAsJsonAsync("api/messages", "hello from the logindisplay component!");
         await SignOutManager.SetSignOutState();
         Navigation.NavigateTo("authentication/logout");
     }
-    private async Task CreateEasyAuthUserRecord(System.Security.Claims.ClaimsPrincipal principal)
-    {
-    }
+
     protected override async Task OnInitializedAsync()
     {
-
-
+        authenticationStateProvider.AuthenticationStateChanged +=  AuthenticationStateChanged;
     }
+    private async void AuthenticationStateChanged(Task<AuthenticationState> task)
+    {
+        var state = await authenticationStateProvider.GetAuthenticationStateAsync();
+        if (state != null)
+        {
+            await Helpers.UpdateStatus(currentUser.CurrentClaimsPrincipal, factory, true);
+            await Helpers.SendBroadcastMessage("Saying hello!", factory);
+        }
+    }
+
     protected async Task BeforeUnload()
     {
-        Console.WriteLine("Before Unload is happening now!  You could deregister presence here if you like");
+        tasksStateService.BeforeUnload -= BeforeUnload;
+        await Helpers.UpdateStatus(currentUser.CurrentClaimsPrincipal,factory, false);
+
     }
 }

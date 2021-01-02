@@ -1,7 +1,17 @@
 @page "/authentication/{action}"
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@using Game.Client.Client.Services.CurrentUser
+@using Game.Client.Client
+@inject ICurrentUserService currentUser;
+@inject HttpClient Http
+@inject IHttpClientFactory factory
 <RemoteAuthenticatorView Action="@Action" />
 
-@code{
-    [Parameter] public string Action { get; set; }
-}
+@code{ [Parameter] public string Action { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        if (Action == "logout")
+        {
+            await Helpers.UpdateStatus(currentUser.CurrentClaimsPrincipal, factory, false);
+        }
+    } }

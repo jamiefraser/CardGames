@@ -56,7 +56,7 @@ namespace Game.Client.Client
             {
                 builder.Configuration.Bind("AzureAdB2C", options.ProviderOptions.Authentication);
                 options.ProviderOptions.DefaultAccessTokenScopes.Add("https://gameroomsdev.onmicrosoft.com/api/Access.API");
-                options.ProviderOptions.Cache.CacheLocation = "localStorage";
+                options.ProviderOptions.Cache.CacheLocation = "sessionStorage";
             });
 
             //Now create a named service instances for HttpClients that points to the correct base addresses (based on your handler configuration) and 

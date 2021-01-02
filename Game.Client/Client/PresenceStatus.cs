@@ -9,5 +9,6 @@ namespace Game.Client.Client
     public class PresenceStatus
     {
         public bool Present { get; set; }
+        public Entities.EasyAuthUserInfo User { get; set; }
     }
 }

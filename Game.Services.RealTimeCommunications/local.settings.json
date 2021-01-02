@@ -2,11 +2,11 @@
   "IsEncrypted": false,
   "Values": {
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
-    "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+    "AZURE_STORAGE_CONNECTION_STRING": "UseDevelopmentStorage=true",
     "AzureSignalRConnectionString": "Endpoint=https://cardgamesrtc.service.signalr.net;AccessKey=vUx33qHTEHcMu83AmlCsJtfSOeSvS8hRpcDLpGu5BEI=;Version=1.0;"
+  },
+  "Host": {
+    "LocalHttpPort": 5864,
+    "CORS": "*"
   }
-    "Host": {
-      "LocalHttpPort": 5864,
-      "CORS": "*"
-    }
-  }
+}
