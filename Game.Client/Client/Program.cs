@@ -35,7 +35,7 @@ namespace Game.Client.Client
             builder.RootComponents.Add<App>("#app");
 
             builder.Services.AddSingleton<ICurrentUserService>(new CurrentUserService());
-            builder.Services.AddSingleton<ISignalRService>(new SignalRService());
+            builder.Services.AddSingleton<ISignalRService>(sp => new SignalRService(sp.GetRequiredService<IHttpClientFactory>()));
 
             builder.Services.AddOptions();
             builder.Services.AddAuthorizationCore(options =>

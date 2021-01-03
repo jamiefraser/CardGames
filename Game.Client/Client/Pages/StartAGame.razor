@@ -44,10 +44,11 @@ else
                 </label>
             </div>
             <div class="col">
-                <SfListBox @bind-Value="@playerIds" DataSource="@players" TItem="Game.Entities.EasyAuthUserInfo" TValue="string[]">
+                <OnlinePlayers></OnlinePlayers>
+                @*<SfListBox @bind-Value="@playerIds" DataSource="@players" TItem="Game.Entities.EasyAuthUserInfo" TValue="string[]">
                     <ListBoxSelectionSettings ShowCheckbox="true"></ListBoxSelectionSettings>
                     <ListBoxFieldSettings Text="PrincipalName" Value="PrincipalId"></ListBoxFieldSettings>
-                </SfListBox>
+                </SfListBox>*@
             </div>
         </div>
         <button type="submit">Play on!</button>

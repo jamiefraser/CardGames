@@ -1,24 +1,19 @@
-using System;
-using System.IO;
-using System.Threading.Tasks;
+using Azure.Storage.Blobs;
+using Game.Services.Helpers;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Cosmos.Table;
+using Microsoft.Azure.Cosmos.Table.Queryable;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using Game.Entities;
-using Azure.Storage.Blobs;
-using System.Text;
+using System;
 using System.Collections.Generic;
-using Azure.Storage.Blobs.Models;
-using Azure;
-using Microsoft.Azure.Cosmos.Table;
-using System.Threading;
+using System.IO;
 using System.Linq;
-using Microsoft.Azure.Cosmos.Table.Queryable;
-using Game.Services;
-using Game.Services.Helpers;
+using System.Threading;
+using System.Threading.Tasks;
 namespace Game.Play
 {
     public static class Service

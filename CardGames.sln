@@ -32,7 +32,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Game.Services.Helpers", "Ga
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StateManager", "StateManager\StateManager.csproj", "{CD1207A7-73DF-4F5E-AA95-5E9213E2F47E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Game.Services.RealTimeCommunications", "Game.Services.RealTimeCommunications\Game.Services.RealTimeCommunications.csproj", "{405E875A-B472-4BA7-8410-D179D80975B4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Game.Services.RealTimeCommunications", "Game.Services.RealTimeCommunications\Game.Services.RealTimeCommunications.csproj", "{405E875A-B472-4BA7-8410-D179D80975B4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,17 +1,20 @@
 ﻿using Game.Entities;
+using Game.Services.Helpers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Azure.Cosmos.Table;
+using Microsoft.Azure.Cosmos.Table.Queryable;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Extensions.SignalRService;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using Microsoft.Azure.Cosmos.Table;
-using Microsoft.AspNetCore.WebUtilities;
 using System.IO;
-
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 namespace Game.Services.RealTimeCommunications
 {
     public static class Presence
@@ -51,48 +54,53 @@ namespace Game.Services.RealTimeCommunications
         public static async Task UpdatePresence([HttpTrigger(AuthorizationLevel.Anonymous, "post")] Entities.PresenceStatusMessage statusMessage,
                                             [SignalR(HubName = "gameroom")] IAsyncCollector<SignalRMessage> signalRMessages)
         {
-            
-            var player = statusMessage.Player;
-            if (player == null) return;
-                player.ETag = "*";
-            player.RowKey = player.PrincipalId;
-            player.PartitionKey = "Online Players";
-            var table = await Helpers.Helpers.GetTableReference("onlineplayers");
-            if (statusMessage.CurrentStatus.Equals(PlayerPresence.Online))
-            {
-                //add a row to the table
-                var insertOperation = Microsoft.Azure.Cosmos.Table.TableOperation.Insert(player);
-                var result = await table.ExecuteAsync(insertOperation);
-            }
-            else
-            {
-                var fetchOperation = Microsoft.Azure.Cosmos.Table.TableOperation.Retrieve<Player>(player.PartitionKey, player.RowKey);
-                var retrieved = await table.ExecuteAsync(fetchOperation);
-                //if (retrieved != null) player = retrieved.Result as Player;
-                try
-                {
-                    var deleteOperation = Microsoft.Azure.Cosmos.Table.TableOperation.Delete(player);
-                    var result = await table.ExecuteAsync(deleteOperation);
-                }
-                catch(Exception ex)
-                {
-
-                }
-                //delete the row from the table
-            }
-            await signalRMessages.AddAsync(
-            new SignalRMessage
-            {
-                Target = "presence",
-                Arguments = new[] { statusMessage }
-            });
-            return;
+            var queue = await Helpers.Helpers.CreateQueueClient("presence-updates").CreateQueue();
         }
         [FunctionName("players")]
         public static async Task<IActionResult> Players([HttpTrigger(AuthorizationLevel.Anonymous, "get")]HttpRequest req, ILogger log)
         {
-            var players = new List<Entities.Player>();
+            var token = req.GetAccessToken();
+            
+            var tableConnection = await Helpers.Helpers.GetTableReference("onlineplayers");
+            var qry = tableConnection.CreateQuery<Game.Entities.Player>();
+            var players = await qry.ExecuteAsync<Game.Entities.Player>(new CancellationToken());
             return new OkObjectResult(players);
+        }
+
+        private async static Task<IEnumerable<TElement>> ExecuteAsync<TElement>(this TableQuery<TElement> tableQuery, CancellationToken ct)
+        {
+            var nextQuery = tableQuery;
+            var continuationToken = default(TableContinuationToken);
+            var results = new List<TElement>();
+
+            do
+            {
+                //Execute the next query segment async.
+                var queryResult = await nextQuery.ExecuteSegmentedAsync(continuationToken, ct);
+
+                //Set exact results list capacity with result count.
+                results.Capacity += queryResult.Results.Count;
+
+                //Add segment results to results list.
+                results.AddRange(queryResult.Results);
+
+                continuationToken = queryResult.ContinuationToken;
+
+                //Continuation token is not null, more records to load.
+                if (continuationToken != null && tableQuery.TakeCount.HasValue)
+                {
+                    //Query has a take count, calculate the remaining number of items to load.
+                    var itemsToLoad = tableQuery.TakeCount.Value - results.Count;
+
+                    //If more items to load, update query take count, or else set next query to null.
+                    nextQuery = itemsToLoad > 0
+                        ? tableQuery.Take<TElement>(itemsToLoad).AsTableQuery()
+                        : null;
+                }
+
+            } while (continuationToken != null && nextQuery != null && !ct.IsCancellationRequested);
+
+            return results;
         }
     }
 }

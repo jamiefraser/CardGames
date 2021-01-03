@@ -48,6 +48,7 @@
 
     protected override async Task OnInitializedAsync()
     {
+        Console.WriteLine(signalR.AccessToken);
         authenticationStateProvider.AuthenticationStateChanged +=  AuthenticationStateChanged;
     }
     private async void AuthenticationStateChanged(Task<AuthenticationState> task)

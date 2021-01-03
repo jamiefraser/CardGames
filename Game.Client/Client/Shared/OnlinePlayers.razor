@@ -1,0 +1,21 @@
+﻿@using Client.Services.SignalRService
+@using Syncfusion.Blazor.DropDowns
+
+@inject ISignalRService signalrService;
+<SfListBox @bind-Value="@playerIds" @bind-DataSource="@signalrService.PlayersOnline" TItem="Game.Entities.Player" TValue="string[]">
+    <ListBoxSelectionSettings ShowCheckbox="true"></ListBoxSelectionSettings>
+    <ListBoxFieldSettings Text="PrincipalName" Value="PrincipalId"></ListBoxFieldSettings>
+</SfListBox>
+@code {
+    private string[] playerIds;
+    protected override Task OnInitializedAsync()
+    {
+        signalrService.PlayersOnline.CollectionChanged += PlayersListChanged;
+        return base.OnInitializedAsync();
+    }
+    private async void PlayersListChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+    {
+        StateHasChanged();
+    }
+
+}

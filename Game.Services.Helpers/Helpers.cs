@@ -7,7 +7,7 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-
+using System.Configuration;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
@@ -19,6 +19,7 @@ using System.Security.Claims;
 using Microsoft.Extensions.Configuration;
 using Game.Entities;
 using Microsoft.Azure.Cosmos.Table;
+using Azure.Storage.Queues;
 
 namespace Game.Services.Helpers
 {
@@ -142,5 +143,42 @@ namespace Game.Services.Helpers
             }
             return null;
         }
+
+        public static QueueClient CreateQueueClient(string queueName)
+        {
+            // Get the connection string from app settings
+            string connectionString = Environment.GetEnvironmentVariable("AZURE_STORAGE_CONNECTION_STRING");
+
+            // Instantiate a QueueClient which will be used to create and manipulate the queue
+            QueueClient queueClient = new QueueClient(connectionString, queueName);
+            return queueClient;
+        }
+
+        public static  QueueClient CreateQueue(this QueueClient queueClient)
+        {
+            try
+            {
+                // Create the queue
+                queueClient.CreateIfNotExists();
+
+                if (queueClient.Exists())
+                {
+                    Console.WriteLine($"Queue created: '{queueClient.Name}'");
+                    return queueClient;
+                }
+                else
+                {
+                    Console.WriteLine($"Make sure the Azurite storage emulator running and try again.");
+                    return queueClient;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Exception: {ex.Message}\n\n");
+                Console.WriteLine($"Make sure the Azurite storage emulator running and try again.");
+                throw;
+            }
+        }
+
     }
 }
