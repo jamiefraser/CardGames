@@ -168,6 +168,10 @@ namespace Game.Client.Client
             {
                 await state.Delete(errorStateKey);
             }
+            state.BeforeUnload += () =>
+            {
+                return Helpers.UpdateStatus(services.GetRequiredService<ICurrentUserService>().CurrentClaimsPrincipal, services.GetRequiredService<IHttpClientFactory>(), false);
+            };
 
         }
     }

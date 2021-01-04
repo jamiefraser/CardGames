@@ -51,10 +51,21 @@ namespace Game.Services.RealTimeCommunications
         }
 
         [FunctionName("UpdatePresence")]
-        public static async Task UpdatePresence([HttpTrigger(AuthorizationLevel.Anonymous, "post")] Entities.PresenceStatusMessage statusMessage,
+        public static async Task<IActionResult> UpdatePresence([HttpTrigger(AuthorizationLevel.Anonymous, "post")] Entities.PresenceStatusMessage statusMessage,
                                             [SignalR(HubName = "gameroom")] IAsyncCollector<SignalRMessage> signalRMessages)
         {
-            var queue = await Helpers.Helpers.CreateQueueClient("presence-updates").CreateQueue();
+            if (statusMessage.Player == null) return new AcceptedResult();
+            try
+            {
+                var queue = Helpers.Helpers.CreateQueueClient("presence-updates").CreateQueue();
+                var message = Newtonsoft.Json.JsonConvert.SerializeObject(statusMessage);
+                queue.SendMessage(message);
+                return new AcceptedResult();
+            }
+            catch(Exception ex)
+            {
+                return new BadRequestObjectResult(ex);
+            }
         }
         [FunctionName("players")]
         public static async Task<IActionResult> Players([HttpTrigger(AuthorizationLevel.Anonymous, "get")]HttpRequest req, ILogger log)

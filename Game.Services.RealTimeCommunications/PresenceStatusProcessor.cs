@@ -10,7 +10,7 @@ namespace Game.Services.RealTimeCommunications
     public static class PresenceStatusProcessor
     {
         [FunctionName("PresenceStatusProcessor")]
-        public static async Task Run([QueueTrigger("presence-updates", Connection = "ConnectionStrings:AzureWebJobsStorage")]string myQueueItem, ILogger log, [SignalR(HubName = "gameroom")] IAsyncCollector<SignalRMessage> signalRMessages)
+        public static async Task Run([QueueTrigger("presence-updates", Connection = "AzureWebJobsStorage")]string myQueueItem, ILogger log, [SignalR(HubName = "gameroom")] IAsyncCollector<SignalRMessage> signalRMessages)
         {
             var statusMessage = Newtonsoft.Json.JsonConvert.DeserializeObject<Entities.PresenceStatusMessage>(myQueueItem);
             var player = statusMessage.Player;

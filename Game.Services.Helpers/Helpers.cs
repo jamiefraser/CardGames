@@ -148,9 +148,12 @@ namespace Game.Services.Helpers
         {
             // Get the connection string from app settings
             string connectionString = Environment.GetEnvironmentVariable("AZURE_STORAGE_CONNECTION_STRING");
-
+            QueueClientOptions opts = new QueueClientOptions()
+            {
+                MessageEncoding = QueueMessageEncoding.Base64
+            };
             // Instantiate a QueueClient which will be used to create and manipulate the queue
-            QueueClient queueClient = new QueueClient(connectionString, queueName);
+            QueueClient queueClient = new QueueClient(connectionString, queueName,opts);
             return queueClient;
         }
 
@@ -164,6 +167,7 @@ namespace Game.Services.Helpers
                 if (queueClient.Exists())
                 {
                     Console.WriteLine($"Queue created: '{queueClient.Name}'");
+                    
                     return queueClient;
                 }
                 else
