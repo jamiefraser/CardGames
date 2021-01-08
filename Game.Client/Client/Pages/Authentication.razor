@@ -1,6 +1,6 @@
 @page "/authentication/{action}"
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
-@using Game.Client.Client.Services.CurrentUser
+@using Game.Client.Shared.Services.CurrentUser
 @using Game.Client.Client
 @inject ICurrentUserService currentUser;
 @inject HttpClient Http
@@ -12,6 +12,6 @@
     {
         if (Action == "logout")
         {
-            await Helpers.UpdateStatus(currentUser.CurrentClaimsPrincipal, factory, false);
+            //await Helpers.UpdateStatus(currentUser.CurrentClaimsPrincipal, factory, false);
         }
     } }

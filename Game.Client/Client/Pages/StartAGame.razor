@@ -2,57 +2,57 @@
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @using Game.Client.Shared
-@using Game.Client.Client.Services.CurrentUser
+@using Game.Client.Shared.Services.CurrentUser
 @using System.Linq
 @using Game.Client.Client
 @using Syncfusion.Blazor.DropDowns
+@using Game.Client.Shared.ViewModels;
+@using System.ComponentModel
+@using System.Collections.Specialized
 @attribute [Authorize]
 @inject HttpClient Http
 @inject IHttpClientFactory factory
 @inject ICurrentUserService currentUserService
-
+@inject IStartAGameViewModel vm;
+@implements IDisposable
+@attribute [Authorize]
 <h3>Start a New Game</h3>
-@if ((games == null || games.Count == 0) && !playersLoaded)
+@if ((vm.Games == null || vm.Games.Count == 0))
 {
     <p><em>Initializing...</em></p>
 }
 else
 {
-    <EditForm Model="@gameTable" OnValidSubmit="@HandleValidSubmit">
-        <DataAnnotationsValidator />
-        <ValidationSummary />
-        <div class="flex-grid">
-            <div class="col">
-                <label>
-                    Choose a game
-                </label>
-            </div>
-            <div class="col">
-                <Game.Client.Client.Components.CustomInputSelect @bind-Value="gameTable.Game">
-                    <option value="null" label="Select a game to play..." />
-                    @foreach (Game.Entities.Game game in games)
-                        {
-                            <option value="@game" label="@game.Name" />
-                        }
-                </Game.Client.Client.Components.CustomInputSelect>
-            </div>
+<EditForm Model="@vm" OnValidSubmit="@HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <div class="flex-grid">
+        <div class="col">
+            <label>
+                Choose a game
+            </label>
         </div>
-        <div class="flex-grid">
-            <div class="col">
-                <label>
-                    Pick your players
-                </label>
-            </div>
-            <div class="col">
-                <OnlinePlayers></OnlinePlayers>
-                @*<SfListBox @bind-Value="@playerIds" DataSource="@players" TItem="Game.Entities.EasyAuthUserInfo" TValue="string[]">
-                    <ListBoxSelectionSettings ShowCheckbox="true"></ListBoxSelectionSettings>
-                    <ListBoxFieldSettings Text="PrincipalName" Value="PrincipalId"></ListBoxFieldSettings>
-                </SfListBox>*@
-            </div>
+        <div class="col">
+            <Syncfusion.Blazor.DropDowns.SfComboBox DataSource="vm.Games" TItem="Entities.Game" TValue="Entities.Game" @bind-Value="vm.SelectedGame">
+                <ComboBoxFieldSettings Text="Name" Value="RowKey" />
+            </Syncfusion.Blazor.DropDowns.SfComboBox>
         </div>
-        <button type="submit">Play on!</button>
-    </EditForm>
+    </div>
+    <div class="flex-grid">
+        <div class="col">
+            <label>
+                Pick your players
+            </label>
+        </div>
+        <div class="col">
+            <SfListBox DataSource="@vm.Players" TItem="Entities.Player" TValue="string[]">
+                <ListBoxFieldSettings Text="PrincipalName" Value="PrincipalId"></ListBoxFieldSettings>
+                <ListBoxSelectionSettings ShowCheckbox="true" CheckboxPosition="CheckBoxPosition.Right" />
+            </SfListBox>
+        </div>
+    </div>
+    <button type="submit">Play on!</button>
+    <ValidationSummary />
+</EditForm>
 }
 @code
 {
@@ -65,42 +65,39 @@ else
     string[] playerIds;
     protected override async Task OnInitializedAsync()
     {
+        vm.PropertyChanged += vmPropertyChanged;
         playersLoaded = false;
-        var graphSvc = factory.CreateClient("graphAPI");
-        try
-        {
-            players = await graphSvc.GetFromJsonAsync<List<Entities.EasyAuthUserInfo>>("/api/users");
-            players = players.Where(p => !p.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid)).ToList();
-            playersLoaded = true;
-        }
-        catch (Exception ex)
-        {
-            //do something useful
-            //then release the UI
-            playersLoaded = true;
-        }
+
         registeredPlayers = new List<Entities.EasyAuthUserInfo>();
         usersFriends = new List<Entities.EasyAuthUserInfo>();
-        var client = factory.CreateClient("gameAPI");
-        games = await client.GetFromJsonAsync<List<Game.Entities.Game>>("api/game");
+
         gameTable = new Entities.Table();
+    }
+    private async void vmPropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        StateHasChanged();
+    }
+    private async void PlayersChanged(object sender, NotifyCollectionChangedEventArgs args)
+    {
+        Console.WriteLine(args.Action);
+        await InvokeAsync(() => StateHasChanged());
     }
     private async Task HandleValidSubmit()
     {
-        var selectedPlayers = new List<Entities.Player>();
-        foreach(var user in players.Where(p => playerIds.Contains(p.PrincipalId)))
-        {
-            selectedPlayers.Add(user.ToPlayer());
-        }
-        gameTable.InvitedPlayers = selectedPlayers;
+
         var tableService = factory.CreateClient("tableAPI");
         try
         {
-            var result = await tableService.PostAsJsonAsync<Entities.Table>("/api/tables",gameTable);
+            var result = await tableService.PostAsJsonAsync<Entities.Table>("/api/tables", vm.GameTable);
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
 
         }
+    }
+    public void Dispose()
+    {
+        vm.PropertyChanged -= vmPropertyChanged;
+        vm = null;
     }
 }

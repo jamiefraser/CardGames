@@ -4,7 +4,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace Game.Client.Client.Services.CurrentUser
+namespace Game.Client.Shared.Services.CurrentUser
 {
     public class CurrentUserService : ICurrentUserService
     {

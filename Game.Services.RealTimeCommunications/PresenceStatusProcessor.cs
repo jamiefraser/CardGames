@@ -22,8 +22,15 @@ namespace Game.Services.RealTimeCommunications
             if (statusMessage.CurrentStatus.Equals(PlayerPresence.Online))
             {
                 //add a row to the table
-                var insertOperation = Microsoft.Azure.Cosmos.Table.TableOperation.Insert(player);
-                var result = await table.ExecuteAsync(insertOperation);
+                try
+                {
+                    var insertOperation = Microsoft.Azure.Cosmos.Table.TableOperation.InsertOrReplace(player);
+                    var result = await table.ExecuteAsync(insertOperation);
+                }
+                catch(Exception ex)
+                {
+
+                }
             }
             else
             {

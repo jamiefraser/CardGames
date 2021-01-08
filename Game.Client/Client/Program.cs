@@ -1,22 +1,16 @@
-using System;
-using System.Net.Http;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using System.Text;
-using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
+using Game.Client.Shared.Services.CurrentUser;
+using Game.Client.Shared.Services.SignalRService;
+using Game.Client.Shared.ViewModels;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Toolbelt.Blazor.Extensions.DependencyInjection;
 using Polly;
-using Polly.Extensions.Http;
-using Polly.Extensions;
-using Syncfusion.Blazor;
-using Game.Client.Client.Services.CurrentUser;
 using StateManager;
 using StateManager.Extensions;
-using Game.Client.Client.Services.SignalRService;
+using Syncfusion.Blazor;
+using System;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace Game.Client.Client
 {
@@ -35,7 +29,7 @@ namespace Game.Client.Client
             builder.RootComponents.Add<App>("#app");
 
             builder.Services.AddSingleton<ICurrentUserService>(new CurrentUserService());
-            builder.Services.AddSingleton<ISignalRService>(sp => new SignalRService(sp.GetRequiredService<IHttpClientFactory>()));
+            builder.Services.AddSingleton<ISignalRService>(sp => new SignalRService(sp.GetRequiredService<IHttpClientFactory>(), presenceServiceRoot));
 
             builder.Services.AddOptions();
             builder.Services.AddAuthorizationCore(options =>
@@ -146,6 +140,9 @@ namespace Game.Client.Client
             #endregion
             #endregion
 
+            #region Register ViewModels
+            builder.Services.AddTransient<IStartAGameViewModel, StartAGameViewModel>();
+            #endregion
             #region State Manager - wiring in for presence detection
             builder.Services.AddSyncfusionBlazor();
             builder.Services.AddTransient(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
@@ -154,6 +151,7 @@ namespace Game.Client.Client
             await InitializeState(built.Services,
                "stateSaved", "There are unsaved changes. Quit anyway?");
             await built.Services.EnableUnloadEvents();
+
             await built.RunAsync();
             #endregion
         }

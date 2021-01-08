@@ -9,8 +9,7 @@ namespace Game.Client.Client.Components
 {
     public class CustomInputSelect<TValue> : InputSelect<TValue>
     {
-        protected override bool TryParseValueFromString(string value, out TValue result,
-     out string validationErrorMessage)
+        protected override bool TryParseValueFromString(string value, out TValue result, out string validationErrorMessage)
         {
             if(typeof(TValue)==typeof(Game.Entities.Game))
             {

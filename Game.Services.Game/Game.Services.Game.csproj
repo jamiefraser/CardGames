@@ -4,6 +4,7 @@
     <AzureFunctionsVersion>v3</AzureFunctionsVersion>
     <_FunctionsSkipCleanOutput>true</_FunctionsSkipCleanOutput>
     <UserSecretsId>182d4f2e-9d2f-4e1a-9586-862aeefd04f0</UserSecretsId>
+    <Configurations>Debug;Release;Debug-SignalR</Configurations>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Azure.Storage.Blobs" Version="12.7.0" />

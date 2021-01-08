@@ -41,7 +41,7 @@ namespace Game.Entities
         public string Name { get; set; }
         public int MaxPlayers { get; private set; }
         private Game _game;
-        [Required]
+        [NotNullValidator(ErrorMessage ="You must select a game to play")]
         public Game Game
         {
             get
@@ -65,6 +65,7 @@ namespace Game.Entities
         {
             this.Players = new List<Player>();
             this.Finished = false;
+
         }
     }
 }

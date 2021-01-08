@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
+    <BlazorWebAssemblyEnableLinking>false</BlazorWebAssemblyEnableLinking>
+    <Configurations>Debug;Release;Debug-SignalR</Configurations>
   </PropertyGroup>
 
   <ItemGroup>
@@ -34,6 +36,10 @@
     <Content Update="wwwroot\images\about.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="ViewModels\" />
   </ItemGroup>
 
 </Project>
