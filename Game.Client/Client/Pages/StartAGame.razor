@@ -23,7 +23,7 @@
 }
 else
 {
-<EditForm Model="@vm" OnValidSubmit="@HandleValidSubmit">
+<EditForm Model="@vm" OnValidSubmit="@HandleValidSubmit" OnInvalidSubmit="HandleInvalidSubmit" >
     <DataAnnotationsValidator />
     <div class="flex-grid">
         <div class="col">
@@ -44,7 +44,8 @@ else
             </label>
         </div>
         <div class="col">
-            <SfListBox DataSource="@vm.Players" TItem="Entities.Player" TValue="string[]">
+            <SfListBox DataSource="@vm.Players" TItem="Entities.Player" TValue="string[]" @ref="PlayersList" onselect="PlayerSelected">
+                @*<ListBoxEvents TValue="string[]"  TItem="Entities.Player"/>*@
                 <ListBoxFieldSettings Text="PrincipalName" Value="PrincipalId"></ListBoxFieldSettings>
                 <ListBoxSelectionSettings ShowCheckbox="true" CheckboxPosition="CheckBoxPosition.Right" />
             </SfListBox>
@@ -63,6 +64,7 @@ else
     private List<Game.Entities.EasyAuthUserInfo> usersFriends;
     bool playersLoaded;
     string[] playerIds;
+    SfListBox<string[], Entities.Player> PlayersList;
     protected override async Task OnInitializedAsync()
     {
         vm.PropertyChanged += vmPropertyChanged;
@@ -73,6 +75,10 @@ else
 
         gameTable = new Entities.Table();
     }
+    private async void PlayerSelected(object sender, EventArgs args)
+    {
+
+    }
     private async void vmPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
         StateHasChanged();
@@ -82,18 +88,22 @@ else
         Console.WriteLine(args.Action);
         await InvokeAsync(() => StateHasChanged());
     }
-    private async Task HandleValidSubmit()
+    private async void HandleSubmit()
     {
 
-        var tableService = factory.CreateClient("tableAPI");
-        try
-        {
-            var result = await tableService.PostAsJsonAsync<Entities.Table>("/api/tables", vm.GameTable);
-        }
-        catch (Exception ex)
-        {
+    }
+    private async void HandleInvalidSubmit()
+    {
 
-        }
+    }
+    private async Task HandleValidSubmit()
+    {
+        vm.GameTable.InvitedPlayers = PlayersList.GetDataList().ToList();
+        await vm.StartGame();
+    }
+    private async Task ListItemSelected(SelectEventArgs args)
+    {
+        Console.WriteLine(args.GetType().Name);
     }
     public void Dispose()
     {

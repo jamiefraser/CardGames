@@ -1,4 +1,5 @@
-﻿using Game.Client.Shared.Services.SignalRService;
+﻿using Game.Client.Shared.Services.CurrentUser;
+using Game.Client.Shared.Services.SignalRService;
 using Game.Client.Shared.ViewModels;
 using Game.Entities;
 using System;
@@ -18,7 +19,7 @@ namespace Game.Client.Shared.ViewModels
     {
         private readonly ISignalRService signalRService;
         private readonly IHttpClientFactory factory;
-
+        private readonly ICurrentUserService currentUserService;
         public event PropertyChangedEventHandler PropertyChanged;
         private void RaisePropertyChanged(string propertyName)
         {
@@ -27,13 +28,15 @@ namespace Game.Client.Shared.ViewModels
                 PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
             }
         }
-        public StartAGameViewModel(ISignalRService _signalRService, IHttpClientFactory _factory)
+        public StartAGameViewModel(ISignalRService _signalRService, IHttpClientFactory _factory, ICurrentUserService _currentUserService)
         {
             signalRService = _signalRService;
             factory = _factory;
+            currentUserService = _currentUserService;
             GameTable = new Entities.Table();
+            gametable.InvitedPlayers = new List<Player>();
             Players = new ObservableCollection<Entities.Player>();
-            foreach(var p in signalRService.PlayersOnline)
+            foreach(var p in signalRService.PlayersOnline.Where(player => !player.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid)))
             {
                 Players.Add(p);
             }
@@ -46,7 +49,20 @@ namespace Game.Client.Shared.ViewModels
                 Console.WriteLine(Games.Count);
             });
         }
+        public async Task StartGame()
+        {
+            gametable.Game = selectedgame;
+            
+            var tableService = factory.CreateClient("tableAPI");
+            try
+            {
+                var result = await tableService.PostAsJsonAsync<Entities.Table>("/api/tables", GameTable);
+            }
+            catch (Exception ex)
+            {
 
+            }
+        }
         private void SignalRService_PlayerRemoved(object sender, PlayerRemovedEventArgs e)
         {
             var p = Players.Where(player => player.PrincipalId.Equals(e.Player.PrincipalId)).FirstOrDefault();
@@ -123,5 +139,8 @@ namespace Game.Client.Shared.ViewModels
                 RaisePropertyChanged("GameTable");
             }
         }
+        [Entities.AtLeastOneItemValidator(ErrorMessage ="You must invite at least one player")]
+        public string[] InvitedPlayerIds
+        { get; set; }
     }
 }

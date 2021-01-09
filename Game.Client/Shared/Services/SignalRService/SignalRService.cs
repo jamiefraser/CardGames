@@ -9,6 +9,8 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Net.Http.Json;
+using Game.Client.Shared.Services.CurrentUser;
+
 namespace Game.Client.Shared.Services.SignalRService
 {
     public class SignalRService : ISignalRService
@@ -16,12 +18,13 @@ namespace Game.Client.Shared.Services.SignalRService
         private HubConnection hubConnection;
         private List<string> messages = new List<string>();
         private IHttpClientFactory _factory;
-        public SignalRService(IHttpClientFactory factory, string serviceBaseUrl)
+        private readonly ICurrentUserService currentUserService;
+        public SignalRService(IHttpClientFactory factory, string serviceBaseUrl, ICurrentUserService _currentUserService)
         {
             _factory = factory;
             var clientAddress = factory.CreateClient("PresenceServiceRoot").BaseAddress;
             hubConnection = new HubConnectionBuilder().WithUrl($"{serviceBaseUrl}api").Build();
-
+            currentUserService = _currentUserService;
             Task.Run(async () =>
             {
                 await hubConnection.StartAsync();
@@ -37,6 +40,11 @@ namespace Game.Client.Shared.Services.SignalRService
                     if(message.CurrentStatus.Equals(PlayerPresence.Online))
                     {
                         if (PlayersOnline.Contains(message.Player)) return;
+                        if (message.Player.PrincipalId.Equals(_currentUserService.CurrentClaimsPrincipalOid)) return;
+                        var playerQry = from Entities.Player player in PlayersOnline
+                                        where player.PrincipalId.Equals(message.Player.PrincipalId)
+                                        select player;
+                        if (playerQry.Count() > 0) return;
                         var p = new Player()
                         {
                             ETag = message.Player.ETag,

@@ -20,20 +20,40 @@ using Microsoft.Extensions.Configuration;
 using Game.Entities;
 using Microsoft.Azure.Cosmos.Table;
 using Azure.Storage.Queues;
+using Azure.Storage.Blobs;
+using System.Text;
 
 namespace Game.Services.Helpers
 {
     public static class Helpers
     {
 
-        public static async Task<Game.Entities.Table> Save(this Entities.Table tbl)
+        public static async Task Save(this Table table)
         {
-            tbl.Timestamp = DateTime.Now;
-            var table = await GetTableReference("gametables");
-            var insertOrMergeOperation = Microsoft.Azure.Cosmos.Table.TableOperation.InsertOrMerge(tbl);
-            var result = await table.ExecuteAsync(insertOrMergeOperation);
-            return result.Result as Game.Entities.Table;
+            var id = table.Id;
+            string connectionString = Environment.GetEnvironmentVariable("AZURE_STORAGE_CONNECTION_STRING");
+            BlobServiceClient blobServiceClient = new BlobServiceClient(connectionString);
+
+            //Create a unique name for the container
+            string containerName = "tables";
+
+            // Create the container and return a container client object
+
+            BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient(containerName);
+            var blobClient = containerClient.GetBlobClient(id.ToString());
+            var json = Newtonsoft.Json.JsonConvert.SerializeObject(table);
+            var bytes = Encoding.ASCII.GetBytes(json);
+            var ms = new MemoryStream(bytes);
+            await blobClient.UploadAsync(ms);
         }
+        //public static async Task<Game.Entities.Table> Save(this Entities.Table tbl)
+        //{
+            
+        //    var table = await GetTableReference("gametables");
+        //    var insertOrMergeOperation = Microsoft.Azure.Cosmos.Table.TableOperation.InsertOrMerge(tbl);
+        //    var result = await table.ExecuteAsync(insertOrMergeOperation);
+        //    return result.Result as Game.Entities.Table;
+        //}
         public static async Task<Microsoft.Azure.Cosmos.Table.CloudTable> GetTableReference(string tableName)
         {
             string connectionString = Environment.GetEnvironmentVariable("AZURE_STORAGE_CONNECTION_STRING");

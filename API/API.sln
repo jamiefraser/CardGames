@@ -15,6 +15,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Game.Services.Table", "..\G
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Games.Services.Authorization", "..\Games.Functions.AuthorizationHelpers\Games.Services.Authorization.csproj", "{A01CFDCB-4744-464E-A6AE-E045C1163C52}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Game.Services.RealTimeCommunications", "..\Game.Services.RealTimeCommunications\Game.Services.RealTimeCommunications.csproj", "{C0F1E1F3-80E3-4242-98EA-D80616527ECD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -58,6 +60,12 @@ Global
 		{A01CFDCB-4744-464E-A6AE-E045C1163C52}.Debug-SignalR|Any CPU.Build.0 = Debug|Any CPU
 		{A01CFDCB-4744-464E-A6AE-E045C1163C52}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A01CFDCB-4744-464E-A6AE-E045C1163C52}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C0F1E1F3-80E3-4242-98EA-D80616527ECD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C0F1E1F3-80E3-4242-98EA-D80616527ECD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C0F1E1F3-80E3-4242-98EA-D80616527ECD}.Debug-SignalR|Any CPU.ActiveCfg = Debug-SignalR|Any CPU
+		{C0F1E1F3-80E3-4242-98EA-D80616527ECD}.Debug-SignalR|Any CPU.Build.0 = Debug-SignalR|Any CPU
+		{C0F1E1F3-80E3-4242-98EA-D80616527ECD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C0F1E1F3-80E3-4242-98EA-D80616527ECD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

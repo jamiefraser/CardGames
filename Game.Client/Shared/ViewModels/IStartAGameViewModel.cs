@@ -13,5 +13,7 @@ namespace Game.Client.Shared.ViewModels
         ObservableCollection<Entities.Game> Games { get; }
         Entities.Table GameTable { get; set; }
         Entities.Game SelectedGame { get; set; }
+        string[] InvitedPlayerIds { get; set; }
+        Task StartGame();
     }
 }

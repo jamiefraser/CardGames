@@ -7,14 +7,16 @@ using System.Text;
 
 namespace Game.Entities
 {
-    public class Table : Microsoft.Azure.Cosmos.Table.TableEntity
+    public class Table
     {
+        public Guid Id { get; set; }
         public EasyAuthUserInfo TableOwner { get; set; }
         public List<Player>InvitedPlayers
         {
             get;
             set;
         }
+        public string[] InvitedPlayerIds { get; set; }
         public List<Player> Players 
         { 
             get; 

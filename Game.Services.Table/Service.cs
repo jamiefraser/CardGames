@@ -28,8 +28,7 @@ namespace Game.Services.Table
             var table = Newtonsoft.Json.JsonConvert.DeserializeObject<Game.Entities.Table>(tableJson);
             var owner = req.UserInfo(_config);
             table.TableOwner = owner;
-            table.PartitionKey = "Game Tables";
-            table.RowKey = Guid.NewGuid().ToString();
+            table.Id = Guid.NewGuid();
             await table.Save();
             return new OkObjectResult(table);
         }

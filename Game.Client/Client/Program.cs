@@ -29,7 +29,7 @@ namespace Game.Client.Client
             builder.RootComponents.Add<App>("#app");
 
             builder.Services.AddSingleton<ICurrentUserService>(new CurrentUserService());
-            builder.Services.AddSingleton<ISignalRService>(sp => new SignalRService(sp.GetRequiredService<IHttpClientFactory>(), presenceServiceRoot));
+            builder.Services.AddSingleton<ISignalRService>(sp => new SignalRService(sp.GetRequiredService<IHttpClientFactory>(), presenceServiceRoot, sp.GetRequiredService<ICurrentUserService>()));
 
             builder.Services.AddOptions();
             builder.Services.AddAuthorizationCore(options =>
