@@ -17,17 +17,25 @@ namespace Game.Client.Shared.ViewModels
 {
     public class StartAGameViewModel : IStartAGameViewModel, IDisposable
     {
+        #region Members
         private readonly ISignalRService signalRService;
         private readonly IHttpClientFactory factory;
         private readonly ICurrentUserService currentUserService;
+        #endregion
+
+        #region INotifyPropertyChanged
         public event PropertyChangedEventHandler PropertyChanged;
+
         private void RaisePropertyChanged(string propertyName)
         {
-            if (PropertyChanged !=null)
+            if (PropertyChanged != null)
             {
                 PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
             }
         }
+        #endregion
+
+        #region ctor
         public StartAGameViewModel(ISignalRService _signalRService, IHttpClientFactory _factory, ICurrentUserService _currentUserService)
         {
             signalRService = _signalRService;
@@ -36,7 +44,7 @@ namespace Game.Client.Shared.ViewModels
             GameTable = new Entities.Table();
             gametable.InvitedPlayers = new List<Player>();
             Players = new ObservableCollection<Entities.Player>();
-            foreach(var p in signalRService.PlayersOnline.Where(player => !player.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid)))
+            foreach (var p in signalRService.PlayersOnline.Where(player => !player.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid)))
             {
                 Players.Add(p);
             }
@@ -49,10 +57,13 @@ namespace Game.Client.Shared.ViewModels
                 Console.WriteLine(Games.Count);
             });
         }
+        #endregion
+
+        #region Methods
         public async Task StartGame()
         {
             gametable.Game = selectedgame;
-            
+
             var tableService = factory.CreateClient("tableAPI");
             try
             {
@@ -63,6 +74,17 @@ namespace Game.Client.Shared.ViewModels
 
             }
         }
+        #endregion
+
+        #region IDisposable
+        public void Dispose()
+        {
+            signalRService.PlayerAdded -= SignalRService_PlayerAdded;
+            signalRService.PlayerRemoved -= SignalRService_PlayerRemoved;
+        }
+        #endregion
+
+        #region Event Handlers
         private void SignalRService_PlayerRemoved(object sender, PlayerRemovedEventArgs e)
         {
             var p = Players.Where(player => player.PrincipalId.Equals(e.Player.PrincipalId)).FirstOrDefault();
@@ -73,19 +95,28 @@ namespace Game.Client.Shared.ViewModels
         private void SignalRService_PlayerAdded(object sender, PlayerAddedEventArgs e)
         {
             var p = Players.Where(player => player.PrincipalId.Equals(e.Player.PrincipalId)).FirstOrDefault();
-            if(p == null)
+            if (p == null)
             {
                 Players.Add(e.Player);
             }
             RaisePropertyChanged("Players");
         }
+        #endregion
 
-        public void Dispose()
+        #region Properties
+        private ObservableCollection<Entities.Table> availablegames;
+        public ObservableCollection<Entities.Table> AvailableGames
         {
-            signalRService.PlayerAdded -= SignalRService_PlayerAdded;
-            signalRService.PlayerRemoved -= SignalRService_PlayerRemoved;
+            get
+            {
+                return availablegames;
+            }
+            private set
+            {
+                availablegames = value;
+                RaisePropertyChanged("AvailableGames");
+            }
         }
-
         private ObservableCollection<Entities.Player> players;
         public ObservableCollection<Entities.Player> Players
         {
@@ -99,7 +130,7 @@ namespace Game.Client.Shared.ViewModels
             }
         }
         private ObservableCollection<Entities.Game> games;
-        public ObservableCollection<Entities.Game>Games
+        public ObservableCollection<Entities.Game> Games
         {
             get
             {
@@ -113,7 +144,7 @@ namespace Game.Client.Shared.ViewModels
         }
         private Entities.Game selectedgame;
         [Required(ErrorMessage = "You must select a game to play")]
-        [ValidGameValidator(ErrorMessage ="You must select a game to play")]
+        [ValidGameValidator(ErrorMessage = "You must select a game to play")]
         public Entities.Game SelectedGame
         {
             get
@@ -139,8 +170,8 @@ namespace Game.Client.Shared.ViewModels
                 RaisePropertyChanged("GameTable");
             }
         }
-        [Entities.AtLeastOneItemValidator(ErrorMessage ="You must invite at least one player")]
         public string[] InvitedPlayerIds
         { get; set; }
+        #endregion
     }
 }
