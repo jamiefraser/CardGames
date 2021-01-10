@@ -56,6 +56,12 @@ namespace Game.Client.Shared.ViewModels
                 Games = await client.GetFromJsonAsync<ObservableCollection<Game.Entities.Game>>("api/game");
                 Console.WriteLine(Games.Count);
             });
+            var tableClient = factory.CreateClient("tableAPI");
+            Task.Run(async () =>
+            {
+                AvailableGames = await tableClient.GetFromJsonAsync<ObservableCollection<Entities.Table>>("api/tables");
+                Console.WriteLine($"The are {availablegames.Count()} tables available to join");
+            });
         }
         #endregion
 
