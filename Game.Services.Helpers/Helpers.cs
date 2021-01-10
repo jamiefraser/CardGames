@@ -27,7 +27,10 @@ namespace Game.Services.Helpers
 {
     public static class Helpers
     {
-
+        public static async Task<List<Entities.Table>>GetTables()
+        {
+            string connectionString = Environment.GetEnvironmentVariable("AZURE_STORAGE_CONNECTION_STRING");
+        }
         public static async Task Save(this Table table)
         {
             var id = table.Id;

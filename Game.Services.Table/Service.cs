@@ -32,6 +32,10 @@ namespace Game.Services.Table
             await table.Save();
             return new OkObjectResult(table);
         }
+        [FunctionName("FetchTables")]
+        public async Task<IActionResult>GetActiveTables([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route ="tables")] HttpRequest reg, ILogger log)
+        {
 
+        }
     }
 }
