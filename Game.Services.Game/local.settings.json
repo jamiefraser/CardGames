@@ -3,7 +3,7 @@
   "Values": {
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
     "FUNCTIONS_WORKER_RUNTIME": "dotnet",
-    "AZURE_STORAGE_CONNECTION_STRING": "UseDevelopmentStorage=true"
+    "AZURE_STORAGE_CONNECTION_STRING": "DefaultEndpointsProtocol=https;AccountName=storagecardgamesdev;AccountKey=sTMDoVkz3v1ouN4NkBeastSCjw0JDmLHAlkC1pGvyFwTbFUzrHiPS9WEqWwNvSxLEYyDqBzXvlOmogIJ43Afbg==;EndpointSuffix=core.windows.net"
   },
   "Host": {
     "LocalHttpPort": 5860,

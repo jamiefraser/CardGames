@@ -35,7 +35,7 @@ namespace Game.Services.Table
         [FunctionName("FetchTables")]
         public async Task<IActionResult>GetActiveTables([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route ="tables")] HttpRequest reg, ILogger log)
         {
-
+            return new OkObjectResult(await Helpers.Helpers.GetTables());
         }
     }
 }

@@ -29,7 +29,29 @@ namespace Game.Services.Helpers
     {
         public static async Task<List<Entities.Table>>GetTables()
         {
+            List<Entities.Table> tables = new List<Table>();
             string connectionString = Environment.GetEnvironmentVariable("AZURE_STORAGE_CONNECTION_STRING");
+            BlobServiceClient blobServiceClient = new BlobServiceClient(connectionString);
+
+            //Create a unique name for the container
+            string containerName = "tables";
+
+            // Create the container and return a container client object
+
+            BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient(containerName);
+            foreach(var blob in (containerClient.GetBlobs()))
+            {
+                string name = blob.Name;
+                var downloadedBlob = containerClient.GetBlobClient(name);
+                
+                using (var sr = new StreamReader(downloadedBlob.OpenRead()))
+                {
+                    var json = sr.ReadToEnd();
+                    var table = Newtonsoft.Json.JsonConvert.DeserializeObject<Entities.Table>(json);
+                    tables.Add(table);
+                }
+            }
+            return tables;
         }
         public static async Task Save(this Table table)
         {
@@ -41,8 +63,17 @@ namespace Game.Services.Helpers
             string containerName = "tables";
 
             // Create the container and return a container client object
-
-            BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient(containerName);
+            BlobContainerClient containerClient;
+            try
+            {
+                containerClient = blobServiceClient.GetBlobContainerClient(containerName);
+                var props = containerClient.GetProperties();
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.GetType().Name);
+                containerClient = blobServiceClient.CreateBlobContainer(containerName);
+            }
             var blobClient = containerClient.GetBlobClient(id.ToString());
             var json = Newtonsoft.Json.JsonConvert.SerializeObject(table);
             var bytes = Encoding.ASCII.GetBytes(json);
