@@ -25,6 +25,16 @@ namespace Game.Client.Shared.Services.SignalRService
             var clientAddress = factory.CreateClient("PresenceServiceRoot").BaseAddress;
             hubConnection = new HubConnectionBuilder().WithUrl($"{serviceBaseUrl}api").Build();
             currentUserService = _currentUserService;
+            var client = factory.CreateClient("presenceAPI");
+            var tableClient = factory.CreateClient("tableAPI");
+            PlayersOnline = new ObservableCollection<Player>();
+            Task.Run(async () =>
+            {
+                var players = await client.GetFromJsonAsync<List<Entities.Player>>("api/players");
+                PlayersOnline = new ObservableCollection<Entities.Player>(players);
+                var tables = await tableClient.GetFromJsonAsync<List<Entities.Table>>("api/tables");
+                AvailableTables = new ObservableCollection<Table>(tables);
+            });
             Task.Run(async () =>
             {
                 await hubConnection.StartAsync();
@@ -33,6 +43,18 @@ namespace Game.Client.Shared.Services.SignalRService
                     var encodedMsg = $"{message}";
                     Console.WriteLine(encodedMsg);
                     messages.Add(encodedMsg);
+                });
+                hubConnection.On<TableCreationOrDeletionMessage>("newtable", message =>
+                {
+                    if(message.Action.Equals(TableAction.Added))
+                    {
+                        RaiseTableAdded(message.Table);
+                    }
+                    else
+                    {
+                        var t = AvailableTables.Where(tbl => tbl.Id.Equals(message.Table.Id)).FirstOrDefault();
+                        RaiseTableRemoved(message.Table);
+                    }
                 });
                 hubConnection.On<PresenceStatusMessage>("presence", (message) =>
                 {
@@ -68,12 +90,6 @@ namespace Game.Client.Shared.Services.SignalRService
                     }
                 });
             });
-            var client = factory.CreateClient("presenceAPI");
-            Task.Run(async () =>
-            {
-                var players = await client.GetFromJsonAsync<List<Entities.Player>>("api/players");
-                PlayersOnline = new ObservableCollection<Entities.Player>(players);
-            });
         }
 
         private ObservableCollection<Entities.Player> _playersonline;
@@ -98,6 +114,41 @@ namespace Game.Client.Shared.Services.SignalRService
                 {
                     Player = player
                 });
+            }
+        }
+
+        public event EventHandler<TableAddedEventArgs> TableAdded;
+        public event EventHandler<TableRemovedEventArgs> TableRemoved;
+        private void RaiseTableAdded(Entities.Table table)
+        {
+            if(TableAdded!=null)
+            {
+                TableAdded(this, new TableAddedEventArgs()
+                {
+                    Table = table
+                });
+            }
+        }
+        private void RaiseTableRemoved(Entities.Table table)
+        {
+            if(TableRemoved != null)
+            {
+                TableRemoved(this, new TableRemovedEventArgs()
+                {
+                    Table = table
+                });
+            }
+        }
+        private ObservableCollection<Entities.Table> availabletables;
+        public ObservableCollection<Entities.Table>AvailableTables
+        {
+            get
+            {
+                return availabletables;
+            }
+            private set
+            {
+                availabletables = value;
             }
         }
         public ObservableCollection<Entities.Player>PlayersOnline

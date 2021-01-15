@@ -29,7 +29,9 @@ namespace Game.Services.Table
             var owner = req.UserInfo(_config);
             table.TableOwner = owner;
             table.Id = Guid.NewGuid();
-            await table.Save();
+            table = await table.Save();
+            var service = Refit.RestService.For<IRTCService>(Environment.GetEnvironmentVariable("RTCBaseUrl"));
+            await service.PublishTableCreatedMessage(table);
             return new OkObjectResult(table);
         }
         [FunctionName("FetchTables")]

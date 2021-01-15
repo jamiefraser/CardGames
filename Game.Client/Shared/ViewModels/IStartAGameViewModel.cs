@@ -11,7 +11,7 @@ namespace Game.Client.Shared.ViewModels
     {
         ObservableCollection<Entities.Player> Players { get; set; }
         ObservableCollection<Entities.Game> Games { get; }
-        ObservableCollection<Entities.Table> AvailableGames { get; }
+        ObservableCollection<Entities.Table> AvailableGameTables { get; }
         Entities.Table GameTable { get; set; }
         Entities.Game SelectedGame { get; set; }
         string[] InvitedPlayerIds { get; set; }

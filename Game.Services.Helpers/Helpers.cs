@@ -53,9 +53,11 @@ namespace Game.Services.Helpers
             }
             return tables;
         }
-        public static async Task Save(this Table table)
+        public static async Task<Table> Save(this Table table)
         {
-            var id = table.Id;
+
+            var id = Guid.NewGuid().ToString();
+            table.Name = string.IsNullOrEmpty(table.Name) ? $"{table.Game.Name} - {table.TableOwner.PrincipalName} - {DateTime.Now.ToString("yyyy-MM-dd")}" : table.Name;
             string connectionString = Environment.GetEnvironmentVariable("AZURE_STORAGE_CONNECTION_STRING");
             BlobServiceClient blobServiceClient = new BlobServiceClient(connectionString);
 
@@ -74,11 +76,12 @@ namespace Game.Services.Helpers
                 Console.WriteLine(ex.GetType().Name);
                 containerClient = blobServiceClient.CreateBlobContainer(containerName);
             }
-            var blobClient = containerClient.GetBlobClient(id.ToString());
+            var blobClient = containerClient.GetBlobClient(id);
             var json = Newtonsoft.Json.JsonConvert.SerializeObject(table);
             var bytes = Encoding.ASCII.GetBytes(json);
             var ms = new MemoryStream(bytes);
             await blobClient.UploadAsync(ms);
+            return table;
         }
         //public static async Task<Game.Entities.Table> Save(this Entities.Table tbl)
         //{

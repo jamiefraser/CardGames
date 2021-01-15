@@ -10,7 +10,10 @@ namespace Game.Client.Shared.Services.SignalRService
     {
         string AccessToken { get; set; }
         ObservableCollection<Entities.Player> PlayersOnline { get; set; }
+        ObservableCollection<Entities.Table> AvailableTables { get; }
         event EventHandler<PlayerAddedEventArgs> PlayerAdded;
         event EventHandler<PlayerRemovedEventArgs> PlayerRemoved;
+        event EventHandler<TableAddedEventArgs> TableAdded;
+        event EventHandler<TableRemovedEventArgs> TableRemoved;
     }
 }

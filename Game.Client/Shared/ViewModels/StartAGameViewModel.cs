@@ -50,6 +50,10 @@ namespace Game.Client.Shared.ViewModels
             }
             signalRService.PlayerAdded += SignalRService_PlayerAdded;
             signalRService.PlayerRemoved += SignalRService_PlayerRemoved;
+
+            signalRService.TableAdded += SignalRService_TableAdded;
+            signalRService.TableRemoved += SignalRService_TableRemoved;
+
             var client = factory.CreateClient("gameAPI");
             Task.Run(async () =>
             {
@@ -59,9 +63,26 @@ namespace Game.Client.Shared.ViewModels
             var tableClient = factory.CreateClient("tableAPI");
             Task.Run(async () =>
             {
-                AvailableGames = await tableClient.GetFromJsonAsync<ObservableCollection<Entities.Table>>("api/tables");
-                Console.WriteLine($"The are {availablegames.Count()} tables available to join");
+                AvailableGameTables = await tableClient.GetFromJsonAsync<ObservableCollection<Entities.Table>>("api/tables");
+                Console.WriteLine($"The are {availablegametables.Count()} tables available to join");
             });
+        }
+
+        private void SignalRService_TableRemoved(object sender, TableRemovedEventArgs e)
+        {
+            AvailableGameTables.Remove(e.Table);
+            RaisePropertyChanged("AvailableGameTables");
+        }
+
+        private void SignalRService_TableAdded(object sender, TableAddedEventArgs e)
+        {
+            if (AvailableGameTables == null) availablegametables = new ObservableCollection<Table>();
+            var t = AvailableGameTables.Where(table => table.Id.Equals(e.Table.Id)).FirstOrDefault();
+            if (t == null)
+            {
+                AvailableGameTables.Add(e.Table);
+            }
+            RaisePropertyChanged("AvailableGameTables");
         }
         #endregion
 
@@ -110,17 +131,17 @@ namespace Game.Client.Shared.ViewModels
         #endregion
 
         #region Properties
-        private ObservableCollection<Entities.Table> availablegames;
-        public ObservableCollection<Entities.Table> AvailableGames
+        private ObservableCollection<Entities.Table> availablegametables;
+        public ObservableCollection<Entities.Table> AvailableGameTables
         {
             get
             {
-                return availablegames;
+                return availablegametables;
             }
             private set
             {
-                availablegames = value;
-                RaisePropertyChanged("AvailableGames");
+                availablegametables = value;
+                RaisePropertyChanged("AvailableGameTables");
             }
         }
         private ObservableCollection<Entities.Player> players;

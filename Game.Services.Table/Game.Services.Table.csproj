@@ -17,6 +17,7 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="3.0.11" />
+    <PackageReference Include="Refit" Version="5.2.4" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Game.Entities\Game.Entities.csproj" />
