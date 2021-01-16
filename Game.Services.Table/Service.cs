@@ -30,9 +30,9 @@ namespace Game.Services.Table
             table.TableOwner = owner;
             table.Id = Guid.NewGuid();
             table = await table.Save();
-            var service = Refit.RestService.For<IRTCService>(Environment.GetEnvironmentVariable("RTCBaseUrl"));
-            await service.PublishTableCreatedMessage(table);
-            return new OkObjectResult(table);
+            //var service = Refit.RestService.For<IRTCService>(Environment.GetEnvironmentVariable("RTCBaseUrl"));
+            //await service.PublishTableCreatedMessage(table);
+            return new AcceptedResult();
         }
         [FunctionName("FetchTables")]
         public async Task<IActionResult>GetActiveTables([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route ="tables")] HttpRequest reg, ILogger log)

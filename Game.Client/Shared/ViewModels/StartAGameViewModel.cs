@@ -82,6 +82,12 @@ namespace Game.Client.Shared.ViewModels
             {
                 AvailableGameTables.Add(e.Table);
             }
+            else
+            {
+                AvailableGameTables.Remove(t);
+                RaisePropertyChanged("AvailableGameTables");
+                AvailableGameTables.Add(e.Table);
+            }
             RaisePropertyChanged("AvailableGameTables");
         }
         #endregion
