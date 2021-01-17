@@ -96,7 +96,6 @@ namespace Game.Client.Shared.ViewModels
         public async Task StartGame()
         {
             gametable.Game = selectedgame;
-
             var tableService = factory.CreateClient("tableAPI");
             try
             {

@@ -23,45 +23,58 @@
 }
 else
 {
-<EditForm Model="@vm" OnValidSubmit="@HandleValidSubmit" OnInvalidSubmit="HandleInvalidSubmit">
-    <DataAnnotationsValidator />
-    <div class="flex-grid">
-        <div class="col">
-            <label>
-                Choose a game
-            </label>
+    <EditForm Model="@vm" OnValidSubmit="@HandleValidSubmit" OnInvalidSubmit="HandleInvalidSubmit">
+        <DataAnnotationsValidator />
+        <div class="flex-grid">
+            <div class="col">
+                <label>
+                    Choose a game
+                </label>
+            </div>
+            <div class="col">
+                <Syncfusion.Blazor.DropDowns.SfComboBox DataSource="vm.Games" TItem="Entities.Game" TValue="Entities.Game" @bind-Value="vm.SelectedGame">
+                    <ComboBoxFieldSettings Text="Name" Value="RowKey" />
+                </Syncfusion.Blazor.DropDowns.SfComboBox>
+            </div>
         </div>
-        <div class="col">
-            <Syncfusion.Blazor.DropDowns.SfComboBox DataSource="vm.Games" TItem="Entities.Game" TValue="Entities.Game" @bind-Value="vm.SelectedGame">
-                <ComboBoxFieldSettings Text="Name" Value="RowKey" />
-            </Syncfusion.Blazor.DropDowns.SfComboBox>
+        <div class="flex-grid">
+            <div class="col">
+                <label>Name:</label>
+            </div>
+            <div class="col">
+                <Syncfusion.Blazor.Inputs.SfTextBox @bind-Value="@vm.GameTable.Name"> </Syncfusion.Blazor.Inputs.SfTextBox>
+            </div>
         </div>
-    </div>
-    <div class="flex-grid">
-        <div class="col">
-            <label>
-                Pick your players
-            </label>
+        <div class="flex-grid">
+            <div class="col">
+                <label>
+                    Pick your players
+                </label>
+            </div>
+            <div class="col">
+                <SfListBox DataSource="@vm.Players" TItem="Entities.Player" TValue="string[]" @ref="PlayersList" onselect="PlayerSelected">
+                    @*<ListBoxEvents TValue="string[]"  TItem="Entities.Player"/>*@
+                    <ListBoxFieldSettings Text="PrincipalName" Value="PrincipalId"></ListBoxFieldSettings>
+                    <ListBoxSelectionSettings ShowCheckbox="true" CheckboxPosition="CheckBoxPosition.Right" />
+                </SfListBox>
+            </div>
         </div>
-        <div class="col">
-            <SfListBox DataSource="@vm.Players" TItem="Entities.Player" TValue="string[]" @ref="PlayersList" onselect="PlayerSelected">
-                @*<ListBoxEvents TValue="string[]"  TItem="Entities.Player"/>*@
-                <ListBoxFieldSettings Text="PrincipalName" Value="PrincipalId"></ListBoxFieldSettings>
-                <ListBoxSelectionSettings ShowCheckbox="true" CheckboxPosition="CheckBoxPosition.Right" />
-            </SfListBox>
+        <ValidationSummary />
+        <br />
+        <br />
+        <div class="flex-grid">
+            <div class="col">
+                <label>Available Tables</label>
+            </div>
+            <div class="col">
+                <SfListBox DataSource="@vm.AvailableGameTables" TItem="Entities.Table" TValue="Entities.Table[]" @ref="@AvailableTablesList">
+                    <ListBoxFieldSettings Text="Name" Value="Id"></ListBoxFieldSettings>
+                </SfListBox>
+            </div>
         </div>
-    </div>
-    <ValidationSummary />
-    <br />
-    <br />
-    <div class="col">
-        <SfListBox DataSource="@vm.AvailableGameTables" TItem="Entities.Table"TValue="Entities.Table[]" @ref="@AvailableTablesList">
-            <ListBoxFieldSettings Text="Name" Value="Id"></ListBoxFieldSettings>
-        </SfListBox>
-    </div>
-    <button type="submit">Play on!</button>
+        <button type="submit">Play on!</button>
 
-</EditForm>
+    </EditForm>
 }
 @code
 {
