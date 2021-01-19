@@ -15,6 +15,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StateManager", "..\StateMan
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Client", "Client", "{B59EA052-FDBE-4B0E-9B0E-28516FD1261A}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Game.Services.Helpers", "..\Game.Services.Helpers\Game.Services.Helpers.csproj", "{3FD98DC3-F40B-4803-A30C-D35B2AF75B52}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -52,6 +54,12 @@ Global
 		{020807BD-1E2E-4D3D-8B4F-EDA76FB6102D}.Debug-SignalR|Any CPU.Build.0 = Debug-SignalR|Any CPU
 		{020807BD-1E2E-4D3D-8B4F-EDA76FB6102D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{020807BD-1E2E-4D3D-8B4F-EDA76FB6102D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3FD98DC3-F40B-4803-A30C-D35B2AF75B52}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3FD98DC3-F40B-4803-A30C-D35B2AF75B52}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3FD98DC3-F40B-4803-A30C-D35B2AF75B52}.Debug-SignalR|Any CPU.ActiveCfg = Debug-SignalR|Any CPU
+		{3FD98DC3-F40B-4803-A30C-D35B2AF75B52}.Debug-SignalR|Any CPU.Build.0 = Debug-SignalR|Any CPU
+		{3FD98DC3-F40B-4803-A30C-D35B2AF75B52}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3FD98DC3-F40B-4803-A30C-D35B2AF75B52}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

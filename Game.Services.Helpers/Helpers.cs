@@ -152,7 +152,7 @@ namespace Game.Services.Helpers
             }
             return ret;
         }
-        
+
         public static async Task<ClaimsPrincipal> GetClaimsPrincipalAsync(string accessToken, ILogger log)
         {
             var audience = Constants.audience;

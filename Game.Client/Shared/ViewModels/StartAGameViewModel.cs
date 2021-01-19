@@ -12,7 +12,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
-
+using Game.Client.Shared;
 namespace Game.Client.Shared.ViewModels
 {
     public class StartAGameViewModel : ViewModelBase,  IStartAGameViewModel, IDisposable
@@ -85,6 +85,10 @@ namespace Game.Client.Shared.ViewModels
         {
             gametable.Game = selectedgame;
             var tableService = factory.CreateClient("tableAPI");
+            gametable.InvitedPlayers.Add(currentUserService.CurrentClaimsPrincipal.ToPlayer());
+            List<string> ids = gametable.InvitedPlayerIds != null ? new List<string>(gametable.InvitedPlayerIds) : new List<string>();
+            ids.Add(currentUserService.CurrentClaimsPrincipalOid);
+            gametable.InvitedPlayerIds = ids.ToArray();
             try
             {
                 var result = await tableService.PostAsJsonAsync<Entities.Table>("/api/tables", GameTable);
