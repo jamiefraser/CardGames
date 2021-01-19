@@ -1,0 +1,14 @@
+﻿@using Game.Client.Shared.ViewModels; 
+@inject ILobbyViewModel vm; 
+@page "/games/lobby/{TableId}"
+<h3>Lobby</h3>
+
+@code {
+    [Parameter]
+    public string TableId { get; set; }
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        vm.Initialize(Guid.Parse(TableId));
+    }
+}

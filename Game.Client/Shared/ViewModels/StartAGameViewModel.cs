@@ -15,24 +15,12 @@ using System.Threading.Tasks;
 
 namespace Game.Client.Shared.ViewModels
 {
-    public class StartAGameViewModel : IStartAGameViewModel, IDisposable
+    public class StartAGameViewModel : ViewModelBase,  IStartAGameViewModel, IDisposable
     {
         #region Members
         private readonly ISignalRService signalRService;
         private readonly IHttpClientFactory factory;
         private readonly ICurrentUserService currentUserService;
-        #endregion
-
-        #region INotifyPropertyChanged
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private void RaisePropertyChanged(string propertyName)
-        {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-            }
-        }
         #endregion
 
         #region ctor
@@ -136,6 +124,19 @@ namespace Game.Client.Shared.ViewModels
         #endregion
 
         #region Properties
+        private Entities.Table selectedgametable;
+        public Entities.Table SelectedGameTable
+        {
+            get
+            {
+                return selectedgametable;
+            }
+            set
+            {
+                selectedgametable = value;
+                RaisePropertyChanged("SelectedGameTable");
+            }
+        }
         private ObservableCollection<Entities.Table> availablegametables;
         public ObservableCollection<Entities.Table> AvailableGameTables
         {
@@ -147,6 +148,13 @@ namespace Game.Client.Shared.ViewModels
             {
                 availablegametables = value;
                 RaisePropertyChanged("AvailableGameTables");
+            }
+        }
+        public bool CannotCreateGameTable
+        {
+            get
+            {
+                return SelectedGame == null || string.IsNullOrEmpty(gametable.Name);
             }
         }
         private ObservableCollection<Entities.Player> players;

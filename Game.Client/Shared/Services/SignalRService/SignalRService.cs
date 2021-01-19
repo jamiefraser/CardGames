@@ -15,10 +15,14 @@ namespace Game.Client.Shared.Services.SignalRService
 {
     public class SignalRService : ISignalRService
     {
+        #region members
         private HubConnection hubConnection;
         private List<string> messages = new List<string>();
         private IHttpClientFactory _factory;
         private readonly ICurrentUserService currentUserService;
+        #endregion
+
+        #region ctors
         public SignalRService(IHttpClientFactory factory, string serviceBaseUrl, ICurrentUserService _currentUserService)
         {
             _factory = factory;
@@ -30,10 +34,7 @@ namespace Game.Client.Shared.Services.SignalRService
             PlayersOnline = new ObservableCollection<Player>();
             Task.Run(async () =>
             {
-                var players = await client.GetFromJsonAsync<List<Entities.Player>>("api/players");
-                PlayersOnline = new ObservableCollection<Entities.Player>(players);
-                var tables = await tableClient.GetFromJsonAsync<List<Entities.Table>>("api/tables");
-                AvailableTables = new ObservableCollection<Table>(tables);
+                await Initialize();
             });
             Task.Run(async () =>
             {
@@ -92,6 +93,19 @@ namespace Game.Client.Shared.Services.SignalRService
             });
         }
 
+        public async Task Initialize()
+        {
+            var clientAddress = _factory.CreateClient("PresenceServiceRoot").BaseAddress;
+            var client = _factory.CreateClient("presenceAPI");
+            var tableClient = _factory.CreateClient("tableAPI");
+            var players = await client.GetFromJsonAsync<List<Entities.Player>>("api/players");
+            PlayersOnline = new ObservableCollection<Entities.Player>(players);
+            var tables = await tableClient.GetFromJsonAsync<List<Entities.Table>>("api/tables");
+            AvailableTables = new ObservableCollection<Table>(tables);
+        }
+        #endregion
+
+        #region Properties
         private ObservableCollection<Entities.Player> _playersonline;
 
         public event EventHandler<PlayerAddedEventArgs> PlayerAdded;
@@ -151,6 +165,7 @@ namespace Game.Client.Shared.Services.SignalRService
                 availabletables = value;
             }
         }
+
         public ObservableCollection<Entities.Player>PlayersOnline
         {
             get
@@ -168,5 +183,6 @@ namespace Game.Client.Shared.Services.SignalRService
             get;
             set;
         }
+        #endregion
     }
 }

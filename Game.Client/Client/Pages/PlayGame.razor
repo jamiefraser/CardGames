@@ -1,0 +1,11 @@
+﻿@page "/games/play/{TableId}"
+<h3>PlayGame</h3>
+
+@code {
+    [Parameter]
+    public string TableId { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        Console.WriteLine(TableId.ToString());
+    }
+}

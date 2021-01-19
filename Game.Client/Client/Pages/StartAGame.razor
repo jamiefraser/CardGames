@@ -14,10 +14,11 @@
 @inject IHttpClientFactory factory
 @inject ICurrentUserService currentUserService
 @inject IStartAGameViewModel vm;
+@inject NavigationManager nav;
 @implements IDisposable
 @attribute [Authorize]
 <h3>Start a New Game</h3>
-@if ((vm.Games == null || vm.Games.Count == 0))
+@if ((vm.Games == null || vm.Games.Count == 0) || vm.AvailableGameTables == null)
 {
     <p><em>Initializing...</em></p>
 }
@@ -32,9 +33,26 @@ else
                 </label>
             </div>
             <div class="col">
-                <Syncfusion.Blazor.DropDowns.SfComboBox DataSource="vm.Games" TItem="Entities.Game" TValue="Entities.Game" @bind-Value="vm.SelectedGame">
-                    <ComboBoxFieldSettings Text="Name" Value="RowKey" />
-                </Syncfusion.Blazor.DropDowns.SfComboBox>
+                @*<Syncfusion.Blazor.DropDowns.SfComboBox DataSource="vm.Games"
+                                                            TItem="Entities.Game"
+                                                            TValue="Entities.Game"
+                                                            Value="selectedGame"
+                                                            @ref="AvailableGamesList">
+                        <ComboBoxFieldSettings Text="Name"  />
+                        <ComboBoxEvents TValue="Entities.Game"
+                                       TItem="Entities.Game"
+                                       ValueChange="selectedGameChanged" />
+                    </Syncfusion.Blazor.DropDowns.SfComboBox>*@
+                <SfListBox DataSource="vm.Games"
+                           TItem="Entities.Game"
+                           TValue="string"
+                           Value="selectedGame"
+                           @ref="AvailableGamesList">
+                    <ListBoxFieldSettings Text="Name" />
+                    <ListBoxEvents TValue="string"
+                                   TItem="Entities.Game"
+                                   ValueChange="selectedGameChanged" />
+                </SfListBox>
             </div>
         </div>
         <div class="flex-grid">
@@ -60,6 +78,9 @@ else
             </div>
         </div>
         <ValidationSummary />
+        <button type="submit" disabled="@vm.CannotCreateGameTable">Let's Play!</button>
+    </EditForm>
+    <EditForm Model="@vm" OnValidSubmit="@JoinGame">
         <br />
         <br />
         <div class="flex-grid">
@@ -67,14 +88,25 @@ else
                 <label>Available Tables</label>
             </div>
             <div class="col">
-                <SfListBox DataSource="@vm.AvailableGameTables" TItem="Entities.Table" TValue="Entities.Table[]" @ref="@AvailableTablesList">
-                    <ListBoxFieldSettings Text="Name" Value="Id"></ListBoxFieldSettings>
+                <SfListBox DataSource="@vm.AvailableGameTables"
+                           TItem="Entities.Table"
+                           TValue="string"
+                           @ref="@AvailableTablesList"
+                           Value="selectedGameTableId">
+                    <ListBoxFieldSettings Text="Name"
+                                          Value="Id" />
+                    <ListBoxEvents TValue="string"
+                                   TItem="Entities.Table"
+                                   ValueChange="selectedItemChanged"
+                                   ItemSelected="itemSelected" />
+                    <ListBoxSelectionSettings Mode="SelectionMode.Single" />
                 </SfListBox>
             </div>
         </div>
-        <button type="submit">Play on!</button>
-
+        <button type="submit" disabled="@(vm.SelectedGameTable==null ? true : false)">Join!</button>
     </EditForm>
+
+
 }
 @code
 {
@@ -86,7 +118,28 @@ else
     bool playersLoaded;
     string[] playerIds;
     SfListBox<string[], Entities.Player> PlayersList;
-    SfListBox<Entities.Table[], Entities.Table> AvailableTablesList;
+    SfListBox<string, Entities.Table> AvailableTablesList;
+    SfListBox<string, Entities.Game> AvailableGamesList;
+    public string selectedGameTableId { get; set; }
+    public string selectedGame { get; set; }
+    public string selectedGameId { get; set; }
+    public void selectedItemChanged(ListBoxChangeEventArgs<string, Entities.Table> args)
+    {
+        var x = AvailableTablesList.Value;
+        vm.SelectedGameTable = AvailableTablesList.GetDataByValue(x).FirstOrDefault();
+        StateHasChanged();
+    }
+    public void selectedGameChanged(ListBoxChangeEventArgs<string, Entities.Game> args)
+    {
+        if (AvailableGamesList.Value == null) return;
+        var x = AvailableGamesList.Value;
+        vm.SelectedGame = AvailableGamesList.GetDataByValue(x).FirstOrDefault();
+        StateHasChanged();
+    }
+    public void itemSelected(FilteringEventArgs args)
+    {
+
+    }
     protected override async Task OnInitializedAsync()
     {
         vm.PropertyChanged += vmPropertyChanged;
@@ -122,6 +175,10 @@ else
     private async void HandleInvalidSubmit()
     {
 
+    }
+    private async Task JoinGame()
+    {
+        nav.NavigateTo($"/games/lobby/{vm.SelectedGameTable.Id}");
     }
     private async Task HandleValidSubmit()
     {
