@@ -78,8 +78,10 @@ namespace Game.Entities
         public Table()
         {
             this.Players = new List<Player>();
+            InvitedPlayers = new List<Player>();
             this.Finished = false;
             PlayersRequestingAccess = new List<Player>();
+
         }
     }
 }

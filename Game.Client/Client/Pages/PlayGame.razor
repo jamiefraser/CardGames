@@ -20,13 +20,15 @@ else
                            TValue="string"
                            Value="SelectedPlayers"
                            @ref="PlayersRequestingEntry">
-                    <ListBoxFieldSettings Text="PrincipalName" 
+                    <ListBoxFieldSettings Text="PrincipalName"
                                           Value="PrincipalId" />
                     <ListBoxEvents TValue="string"
                                    TItem="Entities.Player"
                                    ValueChange="SelectedPlayerChanged" />
                 </SfListBox>
-                <Syncfusion.Blazor.Buttons.SfButton OnClick="admitClicked">Admit!</Syncfusion.Blazor.Buttons.SfButton>
+                <Syncfusion.Blazor.Buttons.SfButton OnClick="admitClicked">
+                    Admit!
+                </Syncfusion.Blazor.Buttons.SfButton>
             </div>
         </div>
     }
@@ -63,10 +65,12 @@ else
     }
     private async void vmPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-        StateHasChanged();
+        await InvokeAsync(() => StateHasChanged());
     }
     private async void admitClicked(MouseEventArgs args)
     {
         await vm.Admit();
+        SelectedPlayers = "";
+        await InvokeAsync(() => StateHasChanged());
     }
 }

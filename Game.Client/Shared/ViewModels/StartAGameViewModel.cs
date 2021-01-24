@@ -67,12 +67,11 @@ namespace Game.Client.Shared.ViewModels
 
         private void SignalRService_TableAdded(object sender, TableAddedEventArgs e)
         {
-            if (AvailableGameTables == null) availablegametables = new ObservableCollection<Table>();
+            if (AvailableGameTables == null) availablegametables = signalRService.AvailableTables;
             var t = AvailableGameTables.Where(table => table.Id.Equals(e.Table.Id)).FirstOrDefault();
             if (t == null)
             {
                 AvailableGameTables.Add(e.Table);
-
             }
             else
             {

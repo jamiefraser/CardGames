@@ -51,11 +51,13 @@ namespace Game.Client.Shared.Services.SignalRService
                 {
                     if(message.Action.Equals(TableAction.Added))
                     {
+                        AvailableTables.Add(message.Table);
                         RaiseTableAdded(message.Table);
                     }
                     else
                     {
                         var t = AvailableTables.Where(tbl => tbl.Id.Equals(message.Table.Id)).FirstOrDefault();
+                        AvailableTables.Remove(t);
                         RaiseTableRemoved(message.Table);
                     }
                 });

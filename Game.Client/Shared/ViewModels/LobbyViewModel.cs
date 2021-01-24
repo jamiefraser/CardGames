@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Game.Client.Shared.ViewModels
@@ -68,27 +69,36 @@ namespace Game.Client.Shared.ViewModels
         #region Methods
         public async void Initialize(Guid tableId)
         {
-            if(signalRService.AvailableTables==null || signalRService.AvailableTables.Count==0)
+            try
             {
-                await signalRService.Initialize();
-            }
-            Table = signalRService.AvailableTables.Where(t => t.Id.Equals(tableId)).FirstOrDefault();
-            if(table.InvitedPlayers.Where(p => p.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid)).Count() > 0)
-            {
-                WaitingForPermissionToJoin = false;
-                nav.NavigateTo($"/games/play/{Table.Id}");
-            }
-            else
-            {
-                //Send request to join message
-                var req = new Entities.RequestToJoinTableMessage()
+                if (signalRService.AvailableTables == null || signalRService.AvailableTables.Count == 0)
                 {
-                    RequestingPlayer = currentUserService.CurrentClaimsPrincipal.ToPlayer(),
-                    Table = table,
-                    TableOwnerId = table.TableOwner.PrincipalId
-                };
-                var tableClient = factory.CreateClient("tableAPI");
-                await tableClient.PostJsonAsync("/api/tables/join", table);
+                    await signalRService.Initialize();
+                }
+ 
+                Table = signalRService.AvailableTables.Where(t => t.Id.Equals(tableId)).FirstOrDefault();
+                if (table.InvitedPlayers == null) table.InvitedPlayers = new List<Entities.Player>();
+                if (table.InvitedPlayers.Where(p => p.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid)).Count() > 0)
+                {
+                    WaitingForPermissionToJoin = false;
+                    nav.NavigateTo($"/games/play/{Table.Id}");
+                }
+                else
+                {
+                    //Send request to join message
+                    var req = new Entities.RequestToJoinTableMessage()
+                    {
+                        RequestingPlayer = currentUserService.CurrentClaimsPrincipal.ToPlayer(),
+                        Table = table,
+                        TableOwnerId = table.TableOwner.PrincipalId
+                    };
+                    var tableClient = factory.CreateClient("tableAPI");
+                    await tableClient.PostJsonAsync("/api/tables/join", table);
+                }
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine($"{ex.Message}\r\n{ex.StackTrace}");
             }
         }
 

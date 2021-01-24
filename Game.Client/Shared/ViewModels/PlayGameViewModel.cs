@@ -32,6 +32,7 @@ namespace Game.Client.Shared.ViewModels
         {
             if (playersrequestingentry == null) playersrequestingentry = new ObservableCollection<Entities.Player>();
             PlayersRequestingEntry.Add(e.Message.RequestingPlayer);
+            Table.PlayersRequestingAccess.Add(e.Message.RequestingPlayer);
             RaisePropertyChanged("PlayersRequestingEntry");
         }
         #endregion
@@ -97,7 +98,16 @@ namespace Game.Client.Shared.ViewModels
                 TableOwnerId = table.TableOwner.PrincipalId
             };
             var client = factory.CreateClient("tableAPI");
-            await client.PostAsJsonAsync("/api/tables/admit", message);
+            var response = await client.PostAsJsonAsync("/api/tables/admit", message);
+            if(response.IsSuccessStatusCode)
+            {
+                Console.WriteLine($"Successfully admitted {playertoadmit.PrincipalName}");
+                var remove = table.PlayersRequestingAccess.Where(p => p.PrincipalId.Equals(playertoadmit.PrincipalId)).FirstOrDefault();
+                table.PlayersRequestingAccess.Remove(remove);
+                PlayersRequestingEntry.Remove(remove);
+                PlayerToAdmit = null;
+                RaisePropertyChanged("PlayersRequestingEntry");
+            }
         }
 
         public async Task Decline(Entities.RequestToJoinTableMessage message)
