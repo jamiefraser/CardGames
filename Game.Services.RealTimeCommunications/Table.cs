@@ -13,31 +13,44 @@ namespace Game.Services.RealTimeCommunications
 {
     public static class Table
     {
-        [FunctionName("Table")]
-        public static async Task<bool> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "table/created")] HttpRequest req,
+        [FunctionName("JoinTableRequest")]
+        public static async Task PublishJoinTableRequest([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "table/join")] HttpRequest req,
+                                                         ILogger log,
+                                                         [SignalR(HubName = "gameroom")] IAsyncCollector<SignalRMessage> messages)
+        {
+            log.LogInformation("User requesting to join");
+            var sr = new StreamReader(req.Body);
+            var json = sr.ReadToEnd();
+            var joinRequest = Newtonsoft.Json.JsonConvert.DeserializeObject<Entities.RequestToJoinTableMessage>(json);
+            await messages.AddAsync(
+                                    new SignalRMessage
+                                    {
+                                        Target = "joinrequest",
+                                        Arguments = new[]
+                                        {
+                                            joinRequest
+                                        }
+                                    });
+        }
+        [FunctionName("PublishPlayerAdmitted")]
+        public static async Task<bool> PublishPlayerAdmitted(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "table/publishplayeradmitted")] HttpRequest req,
             ILogger log,
             [SignalR(HubName = "gameroom")] IAsyncCollector<SignalRMessage> signalRMessages)
         {
-            log.LogInformation("New Table created!");
+            log.LogInformation("Player admitted!");
             var sr = new StreamReader(req.Body);
             var json = sr.ReadToEnd();
             try
             {
-                var table = Newtonsoft.Json.JsonConvert.DeserializeObject<Entities.Table>(json);
-                table.InvitedPlayerIds = new System.Collections.Generic.List<string>().ToArray();
-                log.LogInformation($"Notifying players that table {table.Name} is available to play");
+                var message = Newtonsoft.Json.JsonConvert.DeserializeObject<Entities.RequestToJoinTableMessage>(json);
                 await signalRMessages.AddAsync(
                 new SignalRMessage
                 {
-                    Target = "newtable",
+                    Target = "playeradmitted",
                     Arguments = new[]
                     {
-                        new Entities.TableCreationOrDeletionMessage()
-                        {
-                            Action = Entities.TableAction.Added,
-                            Table = table
-                        }
+                        message
                     }
                 });
 

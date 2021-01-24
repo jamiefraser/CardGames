@@ -9,7 +9,7 @@ namespace Game.Client.Shared.ViewModels
     public interface ILobbyViewModel
     {
         Entities.Table Table { get; set; }
-
+        bool WaitingForPermissionToJoin { get; set; }
         void Initialize(Guid tableId);
     }
 }

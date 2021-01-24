@@ -20,12 +20,14 @@ namespace Game.Client.Shared.Services.SignalRService
         private List<string> messages = new List<string>();
         private IHttpClientFactory _factory;
         private readonly ICurrentUserService currentUserService;
+        private List<string> IDsOfTablesRequestedToJoin;
         #endregion
 
         #region ctors
         public SignalRService(IHttpClientFactory factory, string serviceBaseUrl, ICurrentUserService _currentUserService)
         {
             _factory = factory;
+            IDsOfTablesRequestedToJoin = new List<string>();
             var clientAddress = factory.CreateClient("PresenceServiceRoot").BaseAddress;
             hubConnection = new HubConnectionBuilder().WithUrl($"{serviceBaseUrl}api").Build();
             currentUserService = _currentUserService;
@@ -90,6 +92,21 @@ namespace Game.Client.Shared.Services.SignalRService
                         RaisePlayerRemoved(p);
                     }
                 });
+                hubConnection.On<RequestToJoinTableMessage>("joinrequest", (message) =>
+                {
+                    if(message.TableOwnerId.Equals(currentUserService.CurrentClaimsPrincipalOid))
+                    {
+                        RaisePlayerRequestingToJoinTable(message);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Received a request to join a table, but it doesn't belong to the logged in user");
+                    }
+                });
+                hubConnection.On<RequestToJoinTableMessage>("playeradmitted", (message) =>
+                 {
+                     RaisePlayerAdmittedToTable(message);
+                 });
             });
         }
 
@@ -110,6 +127,17 @@ namespace Game.Client.Shared.Services.SignalRService
 
         public event EventHandler<PlayerAddedEventArgs> PlayerAdded;
         public event EventHandler<PlayerRemovedEventArgs> PlayerRemoved;
+        public event EventHandler<PlayerRequestingToJoinTableEventArgs> PlayerRequestingToJoinTable;
+        private void RaisePlayerRequestingToJoinTable(Entities.RequestToJoinTableMessage message)
+        {
+            if(PlayerRequestingToJoinTable != null)
+            {
+                PlayerRequestingToJoinTable(this, new PlayerRequestingToJoinTableEventArgs()
+                {
+                    Message = message
+                });
+            }
+        }
         private void RaisePlayerAdded(Entities.Player player)
         {
             if(PlayerAdded != null)
@@ -130,9 +158,10 @@ namespace Game.Client.Shared.Services.SignalRService
                 });
             }
         }
-
+        public event EventHandler<PlayerRequestingToJoinTableEventArgs> PlayerAdmittedToTable;
         public event EventHandler<TableAddedEventArgs> TableAdded;
         public event EventHandler<TableRemovedEventArgs> TableRemoved;
+
         private void RaiseTableAdded(Entities.Table table)
         {
             if(TableAdded!=null)
@@ -143,6 +172,7 @@ namespace Game.Client.Shared.Services.SignalRService
                 });
             }
         }
+
         private void RaiseTableRemoved(Entities.Table table)
         {
             if(TableRemoved != null)
@@ -153,6 +183,18 @@ namespace Game.Client.Shared.Services.SignalRService
                 });
             }
         }
+
+        private void RaisePlayerAdmittedToTable(RequestToJoinTableMessage message)
+        {
+            if(PlayerAdmittedToTable != null)
+            {
+                PlayerAdmittedToTable(this, new PlayerRequestingToJoinTableEventArgs() 
+                { 
+                    Message = message 
+                });
+            }
+        }
+
         private ObservableCollection<Entities.Table> availabletables;
         public ObservableCollection<Entities.Table>AvailableTables
         {

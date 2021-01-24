@@ -149,6 +149,11 @@ else
         usersFriends = new List<Entities.EasyAuthUserInfo>();
 
         gameTable = new Entities.Table();
+        vm.OwnGameCreated += OwnGameCreated;
+    }
+    private async void OwnGameCreated(object sender, Game.Client.Shared.Services.SignalRService.PlayerRequestingToJoinTableEventArgs args)
+    {
+        nav.NavigateTo($"/games/lobby/{args.Message.Table.Id.ToString()}");
     }
     private async void PlayerSelected(object sender, EventArgs args)
     {
@@ -182,7 +187,7 @@ else
     }
     private async Task HandleValidSubmit()
     {
-        vm.GameTable.InvitedPlayers = PlayersList.GetDataList().ToList();
+        vm.GameTable.InvitedPlayers = PlayersList.GetDataByValue(PlayersList.Value).ToList();
         await vm.StartGame();
     }
     private async Task ListItemSelected(SelectEventArgs args)
@@ -192,6 +197,7 @@ else
     public void Dispose()
     {
         vm.PropertyChanged -= vmPropertyChanged;
+        vm.OwnGameCreated -= OwnGameCreated;
         vm = null;
     }
 }

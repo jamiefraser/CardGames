@@ -15,6 +15,8 @@ namespace Game.Client.Shared.Services.SignalRService
         event EventHandler<PlayerRemovedEventArgs> PlayerRemoved;
         event EventHandler<TableAddedEventArgs> TableAdded;
         event EventHandler<TableRemovedEventArgs> TableRemoved;
+        event EventHandler<PlayerRequestingToJoinTableEventArgs> PlayerAdmittedToTable;
+        event EventHandler<PlayerRequestingToJoinTableEventArgs> PlayerRequestingToJoinTable;
         Task Initialize();
     }
 }

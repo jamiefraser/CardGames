@@ -13,6 +13,8 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using Game.Client.Shared;
+using Microsoft.AspNetCore.Components;
+
 namespace Game.Client.Shared.ViewModels
 {
     public class StartAGameViewModel : ViewModelBase,  IStartAGameViewModel, IDisposable
@@ -21,10 +23,11 @@ namespace Game.Client.Shared.ViewModels
         private readonly ISignalRService signalRService;
         private readonly IHttpClientFactory factory;
         private readonly ICurrentUserService currentUserService;
+        private readonly NavigationManager nav;
         #endregion
 
         #region ctor
-        public StartAGameViewModel(ISignalRService _signalRService, IHttpClientFactory _factory, ICurrentUserService _currentUserService)
+        public StartAGameViewModel(ISignalRService _signalRService, IHttpClientFactory _factory, ICurrentUserService _currentUserService, NavigationManager _nav)
         {
             signalRService = _signalRService;
             factory = _factory;
@@ -69,12 +72,21 @@ namespace Game.Client.Shared.ViewModels
             if (t == null)
             {
                 AvailableGameTables.Add(e.Table);
+
             }
             else
             {
                 AvailableGameTables.Remove(t);
                 RaisePropertyChanged("AvailableGameTables");
                 AvailableGameTables.Add(e.Table);
+            }
+            if (e.Table.TableOwner.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid))
+            {
+                RaiseOwnGameCreated(new RequestToJoinTableMessage()
+                {
+                    Table = e.Table,
+                    TableOwnerId = e.Table.TableOwner.PrincipalId
+                });
             }
             RaisePropertyChanged("AvailableGameTables");
         }
@@ -105,6 +117,21 @@ namespace Game.Client.Shared.ViewModels
         {
             signalRService.PlayerAdded -= SignalRService_PlayerAdded;
             signalRService.PlayerRemoved -= SignalRService_PlayerRemoved;
+        }
+        #endregion
+
+        #region Events
+        public event EventHandler<PlayerRequestingToJoinTableEventArgs> OwnGameCreated;
+
+        private void RaiseOwnGameCreated(RequestToJoinTableMessage message)
+        {
+            if(OwnGameCreated != null)
+            {
+                OwnGameCreated(this, new PlayerRequestingToJoinTableEventArgs()
+                {
+                    Message = message
+                });
+            }
         }
         #endregion
 
@@ -202,6 +229,7 @@ namespace Game.Client.Shared.ViewModels
             }
         }
         private Entities.Table gametable;
+
         public Entities.Table GameTable
         {
             get

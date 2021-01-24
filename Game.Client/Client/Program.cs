@@ -1,5 +1,6 @@
 using Game.Client.Shared.Services.CurrentUser;
 using Game.Client.Shared.Services.SignalRService;
+using Game.Client.Shared.Services.TableInvitationService;
 using Game.Client.Shared.ViewModels;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -30,7 +31,7 @@ namespace Game.Client.Client
 
             builder.Services.AddSingleton<ICurrentUserService>(new CurrentUserService());
             builder.Services.AddSingleton<ISignalRService>(sp => new SignalRService(sp.GetRequiredService<IHttpClientFactory>(), presenceServiceRoot, sp.GetRequiredService<ICurrentUserService>()));
-
+            builder.Services.AddSingleton<ITableInvitationService>(sp => new TableInvitationService(sp.GetRequiredService<ISignalRService>(), sp.GetRequiredService<IHttpClientFactory>()));
             builder.Services.AddOptions();
             builder.Services.AddAuthorizationCore(options =>
             {
@@ -143,6 +144,7 @@ namespace Game.Client.Client
             #region Register ViewModels
             builder.Services.AddTransient<IStartAGameViewModel, StartAGameViewModel>();
             builder.Services.AddTransient<ILobbyViewModel, LobbyViewModel>();
+            builder.Services.AddTransient<IPlayGameViewModel, PlayGameViewModel>();
             #endregion
             #region State Manager - wiring in for presence detection
             builder.Services.AddSyncfusionBlazor();

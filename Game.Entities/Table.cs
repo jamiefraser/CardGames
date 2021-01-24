@@ -11,16 +11,16 @@ namespace Game.Entities
     {
         public Guid Id { get; set; }
         public EasyAuthUserInfo TableOwner { get; set; }
-        public List<Player>InvitedPlayers
+        public List<Player> InvitedPlayers
         {
             get;
             set;
         }
         public string[] InvitedPlayerIds { get; set; }
-        public List<Player> Players 
-        { 
-            get; 
-            set; 
+        public List<Player> Players
+        {
+            get;
+            set;
         }
         private bool _finished;
         public bool Finished
@@ -40,10 +40,22 @@ namespace Game.Entities
                 }
             }
         }
+        private List<Player> playersrequestingaccess;
+        public List<Player> PlayersRequestingAccess
+        {
+            get
+            {
+                return playersrequestingaccess;
+            }
+            set
+            {
+                playersrequestingaccess = value;
+            }
+        }
         public string Name { get; set; }
         public int MaxPlayers { get; private set; }
         private Game _game;
-        [NotNullValidator(ErrorMessage ="You must select a game to play")]
+        [NotNullValidator(ErrorMessage = "You must select a game to play")]
         public Game Game
         {
             get
@@ -67,7 +79,7 @@ namespace Game.Entities
         {
             this.Players = new List<Player>();
             this.Finished = false;
-
+            PlayersRequestingAccess = new List<Player>();
         }
     }
 }

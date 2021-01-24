@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Game.Client.Shared.Services.SignalRService
 {
-    public class PlayerAddedEventArgs : EventArgs
+    public class PlayerRequestingToJoinTableEventArgs : EventArgs
     {
-        public Entities.Player Player { get; set; }
-        public Entities.Table Table { get; set; }
+        public Entities.RequestToJoinTableMessage Message { get; set; }
+        
     }
 }

@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Game.Client.Shared.ViewModels
 {
-    public class LobbyViewModel : ViewModelBase,  ILobbyViewModel
+    public class LobbyViewModel : ViewModelBase,  ILobbyViewModel, IDisposable
     {
         #region Members
         private readonly ISignalRService signalRService;
@@ -26,11 +26,30 @@ namespace Game.Client.Shared.ViewModels
             factory = _factory;
             currentUserService = _currentUserService;
             nav = _nav;
-            
+            signalRService.PlayerAdmittedToTable += SignalRService_PlayerAdmittedToTable;
+        }
+
+        private void SignalRService_PlayerAdmittedToTable(object sender, PlayerRequestingToJoinTableEventArgs e)
+        {
+            WaitingForPermissionToJoin = false;
+            nav.NavigateTo($"/games/play/{Table.Id}");
         }
         #endregion
 
         #region Properties
+        private bool waitingforpermissiontojoin = true;
+        public bool WaitingForPermissionToJoin
+        {
+            get
+            {
+                return waitingforpermissiontojoin;
+            }
+            set
+            {
+                waitingforpermissiontojoin = value;
+                RaisePropertyChanged("WaitingForPermissionToJoin");
+            }
+        }
         private Entities.Table table;
         public Entities.Table Table
         {
@@ -56,8 +75,30 @@ namespace Game.Client.Shared.ViewModels
             Table = signalRService.AvailableTables.Where(t => t.Id.Equals(tableId)).FirstOrDefault();
             if(table.InvitedPlayers.Where(p => p.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid)).Count() > 0)
             {
+                WaitingForPermissionToJoin = false;
                 nav.NavigateTo($"/games/play/{Table.Id}");
             }
+            else
+            {
+                //Send request to join message
+                var req = new Entities.RequestToJoinTableMessage()
+                {
+                    RequestingPlayer = currentUserService.CurrentClaimsPrincipal.ToPlayer(),
+                    Table = table,
+                    TableOwnerId = table.TableOwner.PrincipalId
+                };
+                var tableClient = factory.CreateClient("tableAPI");
+                await tableClient.PostJsonAsync("/api/tables/join", table);
+            }
+        }
+
+
+        #endregion
+
+        #region IDisposable
+        public void Dispose()
+        {
+            signalRService.PlayerAdmittedToTable -= SignalRService_PlayerAdmittedToTable;
         }
         #endregion
     }
