@@ -150,6 +150,7 @@ else
 
         gameTable = new Entities.Table();
         vm.OwnGameCreated += OwnGameCreated;
+        await vm.Initialize();
     }
     private async void OwnGameCreated(object sender, Game.Client.Shared.Services.SignalRService.PlayerRequestingToJoinTableEventArgs args)
     {

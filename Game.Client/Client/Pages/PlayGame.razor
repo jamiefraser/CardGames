@@ -50,11 +50,12 @@ else
     protected override async Task OnInitializedAsync()
     {
         vm.PropertyChanged += vmPropertyChanged;
+        await InvokeAsync(() =>vm.Initialize(TableId));
     }
     protected override async void OnParametersSet()
     {
         base.OnParametersSet();
-        await vm.Initialize(TableId);
+
     }
     public void SelectedPlayerChanged(ListBoxChangeEventArgs<string, Entities.Player> args)
     {
@@ -70,7 +71,6 @@ else
     private async void admitClicked(MouseEventArgs args)
     {
         await vm.Admit();
-        SelectedPlayers = "";
         await InvokeAsync(() => StateHasChanged());
     }
 }

@@ -51,6 +51,7 @@ namespace Game.Client.Shared.Services.SignalRService
                 {
                     if(message.Action.Equals(TableAction.Added))
                     {
+                        Console.WriteLine(AvailableTables.Count());
                         AvailableTables.Add(message.Table);
                         RaiseTableAdded(message.Table);
                     }

@@ -20,6 +20,7 @@ namespace Game.Client.Shared.ViewModels
         Entities.Table SelectedGameTable { get; set; }
         string[] InvitedPlayerIds { get; set; }
         Task StartGame();
+        Task Initialize();
         event EventHandler<PlayerRequestingToJoinTableEventArgs> OwnGameCreated;
     }
 }

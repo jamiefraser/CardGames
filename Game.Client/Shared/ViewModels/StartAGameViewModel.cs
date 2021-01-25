@@ -51,14 +51,15 @@ namespace Game.Client.Shared.ViewModels
                 Games = await client.GetFromJsonAsync<ObservableCollection<Game.Entities.Game>>("api/game");
                 Console.WriteLine(Games.Count);
             });
-            var tableClient = factory.CreateClient("tableAPI");
-            Task.Run(async () =>
-            {
-                AvailableGameTables = await tableClient.GetFromJsonAsync<ObservableCollection<Entities.Table>>("api/tables");
-                Console.WriteLine($"The are {availablegametables.Count()} tables available to join");
-            });
         }
 
+        public async Task Initialize()
+        {
+            var tableClient = factory.CreateClient("tableAPI");
+            if (signalRService.AvailableTables == null || signalRService.AvailableTables.Count() == 0) await signalRService.Initialize();
+            AvailableGameTables = new ObservableCollection<Table>(signalRService.AvailableTables);
+            Console.WriteLine($"The are {availablegametables.Count()} tables available to join");
+        }
         private void SignalRService_TableRemoved(object sender, TableRemovedEventArgs e)
         {
             AvailableGameTables.Remove(e.Table);
