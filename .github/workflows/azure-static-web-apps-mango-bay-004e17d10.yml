@@ -19,6 +19,7 @@ jobs:
         with:
           submodules: true
       - name: Set JSON Field
+        uses: jossef/action-set-json-field@v1
         with:
           file: 'appsettings.json'
           field: 'TableServiceRoot'
