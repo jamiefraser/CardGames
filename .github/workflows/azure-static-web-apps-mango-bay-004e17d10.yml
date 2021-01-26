@@ -21,9 +21,9 @@ jobs:
       - name: Set JSON Field
         uses: jossef/action-set-json-field@v1
         with:
-          file: '/Game.Client/Client/wwwroot/appsettings.json'
-          field: 'TableServiceRoot'
-          value: 'https://cardtablesgameservice.azurewebsites.net/'
+          file: /Game.Client/Client/wwwroot/appsettings.json
+          field: TableServiceRoot
+          value: https://cardtablesgameservice.azurewebsites.net/
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v0.0.1-preview
