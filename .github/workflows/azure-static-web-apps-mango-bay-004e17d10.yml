@@ -18,12 +18,16 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: true
-      - name: Set JSON Field
-        uses: jossef/action-set-json-field@v1
+      - name: Set property string value in a json file
+        # You may pin to the exact commit or the version.
+        # uses: benday-inc/set-property-value-in-appsettings@8176335b0e97f59cc127f184662da41e22ac1736
+        uses: benday-inc/set-property-value-in-appsettings@v1.1
         with:
-          file: 'Game.Client/Client/wwwroot/appsettings.json'
-          field: 'TableServiceRoot'
-          value: 'https://cardtablesgameservice.azurewebsites.net/'
+          # Path to the json file to edit (appsettings.json)
+          pathToSettingsFile: appsettings.json
+          # The name of the first level property in the json hierarchy.
+          keyname1: TableServiceRoot
+          valueToSet: https://cardtablesgameservice.azurewebsites.net/
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v0.0.1-preview
