@@ -27,7 +27,7 @@ jobs:
           pathToSettingsFile: Game.Client/Client/wwwroot/appsettings.json
           # The name of the first level property in the json hierarchy.
           keyname1: "TableServiceRoot"
-          valueToSet: "https://cardtablesgameservice.azurewebsites.net"
+          valueToSet: "https://cardtablesgameservice.azurewebsites.net/"
       - name: Set Presence Service Root
         # You may pin to the exact commit or the version.
         # uses: benday-inc/set-property-value-in-appsettings@8176335b0e97f59cc127f184662da41e22ac1736
@@ -37,7 +37,7 @@ jobs:
           pathToSettingsFile: Game.Client/Client/wwwroot/appsettings.json
           # The name of the first level property in the json hierarchy.
           keyname1: "PresenceServiceRoot"
-          valueToSet: "https://realtimecommunications.azurewebsites.net"
+          valueToSet: "https://realtimecommunications.azurewebsites.net/"
       - name: Set Game Service Root
         # You may pin to the exact commit or the version.
         # uses: benday-inc/set-property-value-in-appsettings@8176335b0e97f59cc127f184662da41e22ac1736
@@ -47,7 +47,7 @@ jobs:
           pathToSettingsFile: Game.Client/Client/wwwroot/appsettings.json
           # The name of the first level property in the json hierarchy.
           keyname1: "GameServiceRoot"
-          valueToSet: "https://cardgameservice.azurewebsites.net"
+          valueToSet: "https://cardgameservice.azurewebsites.net/"
       - name: Set Game Service Root
         # You may pin to the exact commit or the version.
         # uses: benday-inc/set-property-value-in-appsettings@8176335b0e97f59cc127f184662da41e22ac1736
@@ -57,7 +57,7 @@ jobs:
           pathToSettingsFile: Game.Client/Client/wwwroot/appsettings.json
           # The name of the first level property in the json hierarchy.
           keyname1: "DeckServiceRoot"
-          valueToSet: "https://carddeckservice.azurewebsites.net"
+          valueToSet: "https://carddeckservice.azurewebsites.net/"
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v0.0.1-preview
