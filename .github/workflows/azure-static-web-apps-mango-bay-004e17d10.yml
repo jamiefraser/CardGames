@@ -24,7 +24,7 @@ jobs:
         uses: benday-inc/set-property-value-in-appsettings@v1.1
         with:
           # Path to the json file to edit (appsettings.json)
-          pathToSettingsFile: appsettings.json
+          pathToSettingsFile: Game.Client/Client/wwwroot/appsettings.json
           # The name of the first level property in the json hierarchy.
           keyname1: TableServiceRoot
           valueToSet: https://cardtablesgameservice.azurewebsites.net/
