@@ -26,8 +26,8 @@ jobs:
           # Path to the json file to edit (appsettings.json)
           pathToSettingsFile: Game.Client/Client/wwwroot/appsettings.json
           # The name of the first level property in the json hierarchy.
-          keyname1: TableServiceRoot
-          valueToSet: https://cardtablesgameservice.azurewebsites.net
+          keyname1: "TableServiceRoot"
+          valueToSet: "https://cardtablesgameservice.azurewebsites.net"
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v0.0.1-preview
