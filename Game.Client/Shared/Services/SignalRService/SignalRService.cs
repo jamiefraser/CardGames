@@ -51,9 +51,16 @@ namespace Game.Client.Shared.Services.SignalRService
                 {
                     if(message.Action.Equals(TableAction.Added))
                     {
-                        Console.WriteLine(AvailableTables.Count());
+                        Console.WriteLine($"New table created.  It belongs to user {currentUserService.CurrentClaimsPrincipal.ToPlayer().PrincipalName}.  There are now  {AvailableTables.Count() + 1} tables to play");
+                        #region Check to see if the table already exists in which case this is *really* an update
+                        var t = AvailableTables.Where(tbl => tbl.Id.Equals(message.Table.Id)).FirstOrDefault();
+                        if (t != null)
+                        {
+                            AvailableTables.Remove(t);
+                        }
                         AvailableTables.Add(message.Table);
                         RaiseTableAdded(message.Table);
+                        #endregion
                     }
                     else
                     {

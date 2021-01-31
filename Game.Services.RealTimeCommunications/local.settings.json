@@ -1,7 +1,7 @@
 {
   "IsEncrypted": false,
   "Values": {
-    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "AzureWebJobsStorage": "DefaultEndpointsProtocol=https;AccountName=storagecardgamesdev;AccountKey=sTMDoVkz3v1ouN4NkBeastSCjw0JDmLHAlkC1pGvyFwTbFUzrHiPS9WEqWwNvSxLEYyDqBzXvlOmogIJ43Afbg==;EndpointSuffix=core.windows.net",
     "AZURE_STORAGE_CONNECTION_STRING": "DefaultEndpointsProtocol=https;AccountName=storagecardgamesdev;AccountKey=sTMDoVkz3v1ouN4NkBeastSCjw0JDmLHAlkC1pGvyFwTbFUzrHiPS9WEqWwNvSxLEYyDqBzXvlOmogIJ43Afbg==;EndpointSuffix=core.windows.net",
     "AzureSignalRConnectionString": "Endpoint=https://cardgamesrtc.service.signalr.net;AccessKey=vUx33qHTEHcMu83AmlCsJtfSOeSvS8hRpcDLpGu5BEI=;Version=1.0;"
   },

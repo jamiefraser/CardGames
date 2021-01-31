@@ -24,22 +24,30 @@ namespace Game.Services.Table
         public async Task<IActionResult>AdmitPlayer([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "tables/admit")] HttpRequest req,
                                                             ILogger log)
         {
-            string messageJson = await new StreamReader(req.Body).ReadToEndAsync();
-            var message = Newtonsoft.Json.JsonConvert.DeserializeObject<Entities.RequestToJoinTableMessage>(messageJson);
-            var user = req.UserInfo(_config);
-            var principal = await Helpers.Helpers.GetClaimsPrincipalAsync(req.GetAccessToken(), log);
-            var player = principal.ToPlayer();
-            if(message.Table.TableOwner.PrincipalId.Equals(player.PrincipalId))
+            try
             {
-                var service = Refit.RestService.For<IRTCService>(Environment.GetEnvironmentVariable("RTCBaseUrl"));
-                message.Table.PlayersRequestingAccess.Remove(message.RequestingPlayer);
-                await message.Table.Save();
-                await service.PublishPlayerAdmitted(message);
-                return new AcceptedResult();
+                string messageJson = await new StreamReader(req.Body).ReadToEndAsync();
+                var message = Newtonsoft.Json.JsonConvert.DeserializeObject<Entities.RequestToJoinTableMessage>(messageJson);
+                var user = req.UserInfo(_config);
+                var principal = await Helpers.Helpers.GetClaimsPrincipalAsync(req.GetAccessToken(), log);
+                var player = principal.ToPlayer();
+                if (message.Table.TableOwner.PrincipalId.Equals(player.PrincipalId))
+                {
+                    var service = Refit.RestService.For<IRTCService>(Environment.GetEnvironmentVariable("RTCBaseUrl"));
+                    message.Table.PlayersRequestingAccess.Remove(message.RequestingPlayer);
+                    message.Table.Players.Add(message.RequestingPlayer);
+                    await message.Table.Save();
+                    await service.PublishPlayerAdmitted(message);
+                    return new AcceptedResult();
+                }
+                else
+                {
+                    return new BadRequestObjectResult(message);
+                }
             }
-            else
+            catch(Exception ex)
             {
-                return new BadRequestObjectResult(message);
+                return new BadRequestObjectResult(ex);
             }
         }
         [FunctionName("RequestToJoinTable")]
@@ -81,15 +89,23 @@ namespace Game.Services.Table
             [HttpTrigger(AuthorizationLevel.Anonymous,  "post", Route = "tables")] HttpRequest req,
             ILogger log)
         {
-            string tableJson = await new StreamReader(req.Body).ReadToEndAsync();
-            var table = Newtonsoft.Json.JsonConvert.DeserializeObject<Game.Entities.Table>(tableJson);
-            var owner = req.UserInfo(_config);
-            table.TableOwner = owner;
-            table.Id = Guid.NewGuid();
-            table = await table.Save();
-            //var service = Refit.RestService.For<IRTCService>(Environment.GetEnvironmentVariable("RTCBaseUrl"));
-            //await service.PublishTableCreatedMessage(table);
-            return new AcceptedResult();
+            try
+            {
+                string tableJson = await new StreamReader(req.Body).ReadToEndAsync();
+                var table = Newtonsoft.Json.JsonConvert.DeserializeObject<Game.Entities.Table>(tableJson);
+                var owner = req.UserInfo(_config);
+                table.TableOwner = owner;
+                table.Id = Guid.NewGuid();
+                table = await table.Save();
+                //var service = Refit.RestService.For<IRTCService>(Environment.GetEnvironmentVariable("RTCBaseUrl"));
+                //await service.PublishTableCreatedMessage(table);
+                return new AcceptedResult();
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine($"{ex.Message}\r\n{ex.StackTrace}");
+                return new BadRequestObjectResult(ex);
+            }
         }
         [FunctionName("FetchTables")]
         public async Task<IActionResult>GetActiveTables([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route ="tables")] HttpRequest reg, ILogger log)

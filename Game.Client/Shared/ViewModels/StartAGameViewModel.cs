@@ -73,12 +73,15 @@ namespace Game.Client.Shared.ViewModels
             if (t == null)
             {
                 AvailableGameTables.Add(e.Table);
+                RaisePropertyChanged("AvailableGameTables");
             }
             else
             {
                 AvailableGameTables.Remove(t);
                 RaisePropertyChanged("AvailableGameTables");
                 AvailableGameTables.Add(e.Table);
+                RaisePropertyChanged("AvailableGameTables");
+
             }
             if (e.Table.TableOwner.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid))
             {

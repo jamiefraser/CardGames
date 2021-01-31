@@ -171,7 +171,14 @@ namespace Game.Client.Client
             }
             state.BeforeUnload += () =>
             {
-                return Helpers.UpdateStatus(services.GetRequiredService<ICurrentUserService>().CurrentClaimsPrincipal, services.GetRequiredService<IHttpClientFactory>(), false);
+                if (services.GetRequiredService<ICurrentUserService>().SigningOutClaimsPrincipal != null)
+                {
+                    var currentUserService = services.GetRequiredService<ICurrentUserService>();
+                    var signOutUser = currentUserService.SigningOutClaimsPrincipal;
+                    currentUserService.SigningOutClaimsPrincipal = null;
+                    return Helpers.UpdateStatus(currentUserService.SigningOutClaimsPrincipal, services.GetRequiredService<IHttpClientFactory>(), false);
+                }
+                return Task.CompletedTask;
             };
 
         }

@@ -33,7 +33,10 @@ namespace Game.Client.Shared.ViewModels
         private void SignalRService_PlayerAdmittedToTable(object sender, PlayerRequestingToJoinTableEventArgs e)
         {
             WaitingForPermissionToJoin = false;
-            nav.NavigateTo($"/games/play/{Table.Id}");
+            if (e.Message.RequestingPlayer.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid))
+            {
+                nav.NavigateTo($"/games/play/{Table.Id}");
+            }
         }
         #endregion
 
@@ -78,7 +81,7 @@ namespace Game.Client.Shared.ViewModels
  
                 Table = signalRService.AvailableTables.Where(t => t.Id.Equals(tableId)).FirstOrDefault();
                 if (table.InvitedPlayers == null) table.InvitedPlayers = new List<Entities.Player>();
-                if (table.InvitedPlayers.Where(p => p.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid)).Count() > 0)
+                if (table.InvitedPlayers.Union(table.Players).Where(p => p.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid)).Count() > 0)
                 {
                     WaitingForPermissionToJoin = false;
                     nav.NavigateTo($"/games/play/{Table.Id}");

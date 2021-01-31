@@ -54,7 +54,7 @@ namespace Game.Services.RealTimeCommunications
         public static async Task<IActionResult> UpdatePresence([HttpTrigger(AuthorizationLevel.Anonymous, "post")] Entities.PresenceStatusMessage statusMessage,
                                             [SignalR(HubName = "gameroom")] IAsyncCollector<SignalRMessage> signalRMessages)
         {
-            if (statusMessage.Player == null) return new AcceptedResult();
+            if (statusMessage.Player == null) return new OkObjectResult("A request to logout was registered with no user") ;
             try
             {
                 var queue = Helpers.Helpers.CreateQueueClient("presence-updates").CreateQueue();
