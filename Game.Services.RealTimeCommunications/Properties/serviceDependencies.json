@@ -10,6 +10,10 @@
     "signalr1": {
       "type": "signalr",
       "connectionId": "Azure__SignalR__ConnectionString"
+    },
+    "storage2": {
+      "type": "storage",
+      "connectionId": "AZURE_STORAGE_CONNECTION_STRING"
     }
   }
 }

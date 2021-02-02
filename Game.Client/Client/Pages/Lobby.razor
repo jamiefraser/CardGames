@@ -1,0 +1,20 @@
+﻿@using Game.Client.Shared.ViewModels; 
+@inject ILobbyViewModel vm; 
+@inject NavigationManager nav;
+@page "/games/lobby/{TableId}"
+<h3>Lobby</h3>
+@if(vm.WaitingForPermissionToJoin)
+{
+    <h1>
+        Hang tight - requesting permission to join this game...
+    </h1>
+}
+@code {
+    [Parameter]
+    public string TableId { get; set; }
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        vm.Initialize(Guid.Parse(TableId));
+    }
+}

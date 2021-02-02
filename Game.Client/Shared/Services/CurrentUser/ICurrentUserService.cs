@@ -9,5 +9,6 @@ namespace Game.Client.Shared.Services.CurrentUser
     {
         System.Security.Claims.ClaimsPrincipal CurrentClaimsPrincipal { get; set; }
         string CurrentClaimsPrincipalOid { get; set; }
+        System.Security.Claims.ClaimsPrincipal SigningOutClaimsPrincipal { get; set; }
     }
 }

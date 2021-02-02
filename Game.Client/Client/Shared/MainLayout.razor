@@ -4,7 +4,7 @@
 @using Microsoft.AspNetCore.SignalR.Client
 @inherits LayoutComponentBase
 @inject TasksStateService tasksStateService
-
+@inject NavigationManager nav; 
 <div class="page">
     <div class="sidebar">
         <NavMenu />
@@ -22,6 +22,14 @@
     </div>
 </div>
 @code
-{
-
+{ 
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        nav.LocationChanged += UserNavigated;
+    }
+    public void UserNavigated(object sender, LocationChangedEventArgs args)
+    {
+        Console.WriteLine(args.Location);
+    }
 }

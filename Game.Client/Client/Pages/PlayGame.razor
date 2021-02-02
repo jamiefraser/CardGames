@@ -1,0 +1,76 @@
+﻿@using Syncfusion.Blazor.DropDowns
+@using System.ComponentModel
+@inject Game.Client.Shared.Services.SignalRService.ISignalRService rtc;
+@inject Game.Client.Shared.ViewModels.IPlayGameViewModel vm;
+@inject Game.Client.Shared.Services.CurrentUser.ICurrentUserService currentUserService;
+@page "/games/play/{TableId}"
+@if (vm.Table == null)
+{
+    <p>Initializing....</p>
+}
+else
+{
+    if (vm.Table.TableOwner.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid))
+    {
+        <div class="flex-grid">
+            <div class="col" />
+            <div class="col" style="align-items:flex-end">
+                <SfListBox DataSource="vm.PlayersRequestingEntry"
+                           TItem="Entities.Player"
+                           TValue="string"
+                           Value="SelectedPlayers"
+                           @ref="PlayersRequestingEntry">
+                    <ListBoxFieldSettings Text="PrincipalName"
+                                          Value="PrincipalId" />
+                    <ListBoxEvents TValue="string"
+                                   TItem="Entities.Player"
+                                   ValueChange="SelectedPlayerChanged" />
+                </SfListBox>
+                <Syncfusion.Blazor.Buttons.SfButton OnClick="admitClicked">
+                    Admit!
+                </Syncfusion.Blazor.Buttons.SfButton>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="flex-grid">
+            <div class="col">
+                <p>Hello Friend.  Let's play!</p>
+            </div>
+        </div>
+    }
+}
+@code {
+    [Parameter]
+    public string TableId { get; set; }
+
+    public string SelectedPlayers { get; set; }
+    public Syncfusion.Blazor.DropDowns.SfListBox<string, Entities.Player> PlayersRequestingEntry;
+    protected override async Task OnInitializedAsync()
+    {
+        vm.PropertyChanged += vmPropertyChanged;
+        await InvokeAsync(() =>vm.Initialize(TableId));
+    }
+    protected override async void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+    }
+    public void SelectedPlayerChanged(ListBoxChangeEventArgs<string, Entities.Player> args)
+    {
+        if (PlayersRequestingEntry.Value == null) return;
+        var x = PlayersRequestingEntry.Value;
+        vm.PlayerToAdmit = PlayersRequestingEntry.GetDataByValue(x).FirstOrDefault();
+        StateHasChanged();
+    }
+    private async void vmPropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        await InvokeAsync(() => StateHasChanged());
+    }
+    private async void admitClicked(MouseEventArgs args)
+    {
+        await vm.Admit();
+        await InvokeAsync(() => StateHasChanged());
+    }
+}

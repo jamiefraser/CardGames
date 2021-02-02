@@ -20,20 +20,104 @@ using Microsoft.Extensions.Configuration;
 using Game.Entities;
 using Microsoft.Azure.Cosmos.Table;
 using Azure.Storage.Queues;
+using Azure.Storage.Blobs;
+using System.Text;
 
 namespace Game.Services.Helpers
 {
     public static class Helpers
     {
-
-        public static async Task<Game.Entities.Table> Save(this Entities.Table tbl)
+        public static async Task<Entities.Table>GetTable(string tableId)
         {
-            tbl.Timestamp = DateTime.Now;
-            var table = await GetTableReference("gametables");
-            var insertOrMergeOperation = Microsoft.Azure.Cosmos.Table.TableOperation.InsertOrMerge(tbl);
-            var result = await table.ExecuteAsync(insertOrMergeOperation);
-            return result.Result as Game.Entities.Table;
+            var container = GetBlobContainerClient("tables");
+            var blobClient = container.GetBlobClient(tableId);
+            
+            var content = blobClient.DownloadAsync().Result.Value;
+            var sr = new StreamReader(content.Content);
+            var tableJson = sr.ReadToEnd();
+            var table = Newtonsoft.Json.JsonConvert.DeserializeObject<Entities.Table>(tableJson);
+            return table;
         }
+        public static async Task<List<Entities.Table>>GetTables()
+        {
+            List<Entities.Table> tables = new List<Table>();
+            string connectionString = Environment.GetEnvironmentVariable("AZURE_STORAGE_CONNECTION_STRING");
+            BlobServiceClient blobServiceClient = new BlobServiceClient(connectionString);
+
+            //Create a unique name for the container
+            string containerName = "tables";
+
+            // Create the container and return a container client object
+
+            BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient(containerName);
+            foreach(var blob in (containerClient.GetBlobs()))
+            {
+                string name = blob.Name;
+                var downloadedBlob = containerClient.GetBlobClient(name);
+                
+                using (var sr = new StreamReader(downloadedBlob.OpenRead()))
+                {
+                    var json = sr.ReadToEnd();
+                    var table = Newtonsoft.Json.JsonConvert.DeserializeObject<Entities.Table>(json);
+                    tables.Add(table);
+                }
+            }
+            return tables;
+        }
+        public static async Task<Table> Save(this Table table)
+        {
+
+            var id = table.Id.Equals(null) ?  Guid.NewGuid().ToString() : table.Id.ToString();
+            table.Name = string.IsNullOrEmpty(table.Name) ? $"{table.Game.Name} - {table.TableOwner.PrincipalName} - {DateTime.Now.ToString("yyyy-MM-dd")}" : table.Name;
+            BlobContainerClient containerClient = GetBlobContainerClient("tables");
+            var blobClient = containerClient.GetBlobClient(id);
+            var json = Newtonsoft.Json.JsonConvert.SerializeObject(table);
+            var bytes = Encoding.ASCII.GetBytes(json);
+            try
+            {
+                var ms = new MemoryStream(bytes);
+                
+                await blobClient.UploadAsync(ms,true,new System.Threading.CancellationToken());
+            }
+            catch(Exception ex)
+            {
+                throw;
+            }
+            return table;
+        }
+
+        private static BlobContainerClient GetBlobContainerClient(string containerName)
+        {
+            string connectionString = Environment.GetEnvironmentVariable("AZURE_STORAGE_CONNECTION_STRING");
+            BlobServiceClient blobServiceClient = new BlobServiceClient(connectionString);
+
+            //Create a unique name for the container
+           
+
+            // Create the container and return a container client object
+            BlobContainerClient containerClient;
+            try
+            {
+                containerClient = blobServiceClient.GetBlobContainerClient(containerName);
+                var props = containerClient.GetProperties();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.GetType().Name);
+                containerClient = blobServiceClient.CreateBlobContainer(containerName);
+            }
+
+            return containerClient;
+        }
+
+        //public static async Task<Game.Entities.Table> Save(this Entities.Table tbl)
+        //{
+
+        //    var table = await GetTableReference("gametables");
+        //    var insertOrMergeOperation = Microsoft.Azure.Cosmos.Table.TableOperation.InsertOrMerge(tbl);
+        //    var result = await table.ExecuteAsync(insertOrMergeOperation);
+        //    return result.Result as Game.Entities.Table;
+        //}
         public static async Task<Microsoft.Azure.Cosmos.Table.CloudTable> GetTableReference(string tableName)
         {
             string connectionString = Environment.GetEnvironmentVariable("AZURE_STORAGE_CONNECTION_STRING");
@@ -95,7 +179,17 @@ namespace Game.Services.Helpers
             }
             return ret;
         }
-        
+        public static Entities.Player ToPlayer(this ClaimsPrincipal principal)
+        {
+            var player = new Entities.Player()
+            {
+                Hand = new List<Card>(),
+                PrincipalId = principal.Claims.Where(c => c.Type == "http://schemas.microsoft.com/identity/claims/objectidentifier").FirstOrDefault().Value,
+                PrincipalName = !string.IsNullOrEmpty(principal.Identities.FirstOrDefault().Name) ? principal.Identities.FirstOrDefault().Name : principal.Claims.Where(c => c.Type=="name").FirstOrDefault().Value,
+                PrincipalIdp = principal.Identities.FirstOrDefault().AuthenticationType
+            };
+            return player;
+        }
         public static async Task<ClaimsPrincipal> GetClaimsPrincipalAsync(string accessToken, ILogger log)
         {
             var audience = Constants.audience;

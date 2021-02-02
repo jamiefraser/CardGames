@@ -16,5 +16,6 @@ namespace Game.Client.Client
                 authorizedUrls: new[] { $"{deckBase}" },
                 scopes: new[] { "https://gameroomsdev.onmicrosoft.com/api/Access.API" });
         }
+        
     }
 }

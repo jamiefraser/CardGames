@@ -32,5 +32,17 @@ namespace Game.Client.Shared.Services.CurrentUser
                 currentClaimsPrincipalOid = value;
             }
         }
+        private ClaimsPrincipal signingoutclaimsprincipal;
+        public ClaimsPrincipal SigningOutClaimsPrincipal
+        {
+            get
+            {
+                return signingoutclaimsprincipal;
+            }
+            set
+            {
+                signingoutclaimsprincipal = value;
+            }
+        }
     }
 }

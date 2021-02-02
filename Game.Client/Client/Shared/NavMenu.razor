@@ -14,18 +14,13 @@
                     <span class="oi oi-home" aria-hidden="true"></span> Home
                 </NavLink>
             </li>
-            <li class="nav-item px-3">
-                <NavLink class="nav-link" href="counter">
-                    <span class="oi oi-plus" aria-hidden="true"></span> Counter
-                </NavLink>
-            </li>
             <AuthorizeView>
                 <Authorized>
-                    <li class="nav-item px-3">
+                    @*<li class="nav-item px-3">
                         <NavLink class="nav-link" href="games" Match="NavLinkMatch.All">
                             <span class="oi oi-list-rich" aria-hidden="true"></span> Games
                         </NavLink>
-                    </li>
+                    </li>*@
                     <li class="nav-item px-3">
                         <NavLink class="nav-link" href="games/new">
                             <span class="oi oi-list-rich" aria-hidden="true"></span> New Game
@@ -33,7 +28,7 @@
                     </li>
                     <li class="nav-item px-3">
                         <NavLink class="nav-link" href="games/start">
-                            <span class="oi oi-list-rich" aria-hidden="true"></span> Start Table
+                            <span class="oi oi-list-rich" aria-hidden="true"></span> Play!
                         </NavLink>
                     </li>
                 </Authorized>

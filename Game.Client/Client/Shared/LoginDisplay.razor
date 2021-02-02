@@ -42,8 +42,10 @@
     private List<string> messages = new List<string>();
     private async Task BeginLogout(MouseEventArgs args)
     {
+        currentUser.SigningOutClaimsPrincipal = currentUser.CurrentClaimsPrincipal;
         await SignOutManager.SetSignOutState();
         Navigation.NavigateTo("authentication/logout");
+        currentUser.SigningOutClaimsPrincipal = null;
     }
 
     protected override async Task OnInitializedAsync()
@@ -59,6 +61,7 @@
     private async void AuthenticationStateChanged(Task<AuthenticationState> task)
     {
         var state = await authenticationStateProvider.GetAuthenticationStateAsync();
+        var x = task.Result.User;
         if (state != null)
         {
             await Helpers.UpdateStatus(currentUser.CurrentClaimsPrincipal, factory, true);
