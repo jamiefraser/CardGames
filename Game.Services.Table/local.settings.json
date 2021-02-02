@@ -6,7 +6,8 @@
     "FUNCTIONS_WORKER_RUNTIME": "dotnet",
     "RunningLocally": "true",
     "LocalAZURE_STORAGE_CONNECTION_STRING": "UseDevelopmentStorage=true",
-    "RTCBaseUrl": "http://localhost:5864"
+    "RTCBaseUrl": "http://localhost:5864",
+    "AzureSignalRConnectionString": "Endpoint=https://cardgamesrtc.service.signalr.net;AccessKey=vUx33qHTEHcMu83AmlCsJtfSOeSvS8hRpcDLpGu5BEI=;Version=1.0;"
   },
   "Host": {
     "LocalHttpPort": 5863,

@@ -19,24 +19,24 @@ namespace Game.Services.RealTimeCommunications
                                 [SignalR(HubName = "gameroom")] IAsyncCollector<SignalRMessage> signalRMessages,
                                 ILogger log)
         {
-            if (blob.Properties.Created != blob.Properties.LastModified) return;
-            var sr = new StreamReader(s);
+            //if (blob.Properties.Created != blob.Properties.LastModified) return;
+            //var sr = new StreamReader(s);
             
-            var table = Newtonsoft.Json.JsonConvert.DeserializeObject<Entities.Table>(sr.ReadToEnd());
-            await signalRMessages.AddAsync(
-                new SignalRMessage
-                {
-                    Target = "newtable",
-                    Arguments = new[]
-                    {
-                        new Entities.TableCreationOrDeletionMessage()
-                        {
-                            Action = Entities.TableAction.Added,
-                            Table = table
-                        }
-                    }
-                });
-            log.LogInformation($"C# Blob trigger function Processed blob\n Name:{name}");
+            //var table = Newtonsoft.Json.JsonConvert.DeserializeObject<Entities.Table>(sr.ReadToEnd());
+            //await signalRMessages.AddAsync(
+            //    new SignalRMessage
+            //    {
+            //        Target = "newtable",
+            //        Arguments = new[]
+            //        {
+            //            new Entities.TableCreationOrDeletionMessage()
+            //            {
+            //                Action = Entities.TableAction.Added,
+            //                Table = table
+            //            }
+            //        }
+            //    });
+            //log.LogInformation($"C# Blob trigger function Processed blob\n Name:{name}");
         }
     }
 }

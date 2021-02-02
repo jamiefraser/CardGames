@@ -29,7 +29,10 @@ namespace Game.Client.Shared.Services.SignalRService
             _factory = factory;
             IDsOfTablesRequestedToJoin = new List<string>();
             var clientAddress = factory.CreateClient("PresenceServiceRoot").BaseAddress;
-            hubConnection = new HubConnectionBuilder().WithUrl($"{serviceBaseUrl}api").Build();
+            hubConnection = new HubConnectionBuilder()
+                                .WithUrl($"{serviceBaseUrl}api")
+                                .WithAutomaticReconnect()
+                                .Build();
             currentUserService = _currentUserService;
             var client = factory.CreateClient("presenceAPI");
             var tableClient = factory.CreateClient("tableAPI");
@@ -38,86 +41,75 @@ namespace Game.Client.Shared.Services.SignalRService
             {
                 await Initialize();
             });
-            Task.Run(async () =>
+        }
+
+        private void HandlePlayerRequestingToJoinTableMessage(RequestToJoinTableMessage message)
+        {
+            if (message.TableOwnerId.Equals(currentUserService.CurrentClaimsPrincipalOid))
             {
-                await hubConnection.StartAsync();
-                hubConnection.On<string>("broadcast", (message) =>
+                RaisePlayerRequestingToJoinTable(message);
+            }
+            else
+            {
+                Console.WriteLine("Received a request to join a table, but it doesn't belong to the logged in user");
+            }
+        }
+
+        private void HandlePlayerJoinedOrLeftMessage(ICurrentUserService _currentUserService, PresenceStatusMessage message)
+        {
+            Console.WriteLine($"{message.Player.PrincipalName} {(message.CurrentStatus.Equals(PlayerPresence.Online) ? " is online" : " is offline")}");
+            if (message.CurrentStatus.Equals(PlayerPresence.Online))
+            {
+                if (PlayersOnline.Contains(message.Player)) return;
+                if (message.Player.PrincipalId.Equals(_currentUserService.CurrentClaimsPrincipalOid)) return;
+                var playerQry = from Entities.Player player in PlayersOnline
+                                where player.PrincipalId.Equals(message.Player.PrincipalId)
+                                select player;
+                if (playerQry.Count() > 0) return;
+                var p = new Player()
                 {
-                    var encodedMsg = $"{message}";
-                    Console.WriteLine(encodedMsg);
-                    messages.Add(encodedMsg);
-                });
-                hubConnection.On<TableCreationOrDeletionMessage>("newtable", message =>
+                    ETag = message.Player.ETag,
+                    Hand = message.Player.Hand,
+                    PartitionKey = message.Player.PartitionKey,
+                    PrincipalId = message.Player.PrincipalId,
+                    PrincipalIdp = message.Player.PrincipalIdp,
+                    PrincipalName = message.Player.PrincipalName,
+                    RowKey = message.Player.RowKey,
+                    Timestamp = message.Player.Timestamp
+                };
+
+                PlayersOnline.Add(p);
+                RaisePlayerAdded(p);
+            }
+            else
+            {
+                var p = PlayersOnline.Where(po => po.PrincipalId.Equals(message.Player.PrincipalId)).FirstOrDefault();
+                if (p != null) PlayersOnline.Remove(p);
+                RaisePlayerRemoved(p);
+            }
+        }
+
+        private void HandleTableCreatedOrDeleted(TableCreationOrDeletionMessage message)
+        {
+            if (message.Action.Equals(TableAction.Added))
+            {
+                Console.WriteLine($"New table created.  It belongs to user {currentUserService.CurrentClaimsPrincipal.ToPlayer().PrincipalName}.  There are now  {AvailableTables.Count() + 1} tables to play");
+                #region Check to see if the table already exists in which case this is *really* an update
+                var t = AvailableTables.Where(tbl => tbl.Id.Equals(message.Table.Id)).FirstOrDefault();
+                if (t != null)
                 {
-                    if(message.Action.Equals(TableAction.Added))
-                    {
-                        Console.WriteLine($"New table created.  It belongs to user {currentUserService.CurrentClaimsPrincipal.ToPlayer().PrincipalName}.  There are now  {AvailableTables.Count() + 1} tables to play");
-                        #region Check to see if the table already exists in which case this is *really* an update
-                        var t = AvailableTables.Where(tbl => tbl.Id.Equals(message.Table.Id)).FirstOrDefault();
-                        if (t != null)
-                        {
-                            AvailableTables.Remove(t);
-                        }
-                        AvailableTables.Add(message.Table);
-                        RaiseTableAdded(message.Table);
-                        #endregion
-                    }
-                    else
-                    {
-                        var t = AvailableTables.Where(tbl => tbl.Id.Equals(message.Table.Id)).FirstOrDefault();
-                        AvailableTables.Remove(t);
-                        RaiseTableRemoved(message.Table);
-                    }
-                });
-                hubConnection.On<PresenceStatusMessage>("presence", (message) =>
-                {
-                    Console.WriteLine($"{message.Player.PrincipalName} {(message.CurrentStatus.Equals(PlayerPresence.Online) ? " is online" : " is offline")}");
-                    if(message.CurrentStatus.Equals(PlayerPresence.Online))
-                    {
-                        if (PlayersOnline.Contains(message.Player)) return;
-                        if (message.Player.PrincipalId.Equals(_currentUserService.CurrentClaimsPrincipalOid)) return;
-                        var playerQry = from Entities.Player player in PlayersOnline
-                                        where player.PrincipalId.Equals(message.Player.PrincipalId)
-                                        select player;
-                        if (playerQry.Count() > 0) return;
-                        var p = new Player()
-                        {
-                            ETag = message.Player.ETag,
-                            Hand = message.Player.Hand,
-                            PartitionKey = message.Player.PartitionKey,
-                            PrincipalId = message.Player.PrincipalId,
-                            PrincipalIdp = message.Player.PrincipalIdp,
-                            PrincipalName = message.Player.PrincipalName,
-                            RowKey = message.Player.RowKey,
-                            Timestamp = message.Player.Timestamp
-                        };
-                        
-                        PlayersOnline.Add(p);
-                        RaisePlayerAdded(p);
-                    }
-                    else
-                    {
-                        var p = PlayersOnline.Where(po => po.PrincipalId.Equals(message.Player.PrincipalId)).FirstOrDefault();
-                        if(p!=null)PlayersOnline.Remove(p);
-                        RaisePlayerRemoved(p);
-                    }
-                });
-                hubConnection.On<RequestToJoinTableMessage>("joinrequest", (message) =>
-                {
-                    if(message.TableOwnerId.Equals(currentUserService.CurrentClaimsPrincipalOid))
-                    {
-                        RaisePlayerRequestingToJoinTable(message);
-                    }
-                    else
-                    {
-                        Console.WriteLine("Received a request to join a table, but it doesn't belong to the logged in user");
-                    }
-                });
-                hubConnection.On<RequestToJoinTableMessage>("playeradmitted", (message) =>
-                 {
-                     RaisePlayerAdmittedToTable(message);
-                 });
-            });
+                    AvailableTables.Remove(t);
+                }
+                AvailableTables.Add(message.Table);
+                RaiseTableAdded(message.Table);
+                #endregion
+            }
+            else
+            {
+                var t = AvailableTables.Where(tbl => tbl.Id.Equals(message.Table.Id)).FirstOrDefault();
+                AvailableTables.Remove(t);
+                RaiseTableRemoved(message.Table);
+            }
         }
 
         public async Task Initialize()
@@ -129,6 +121,26 @@ namespace Game.Client.Shared.Services.SignalRService
             PlayersOnline = new ObservableCollection<Entities.Player>(players);
             var tables = await tableClient.GetFromJsonAsync<List<Entities.Table>>("api/tables");
             AvailableTables = new ObservableCollection<Table>(tables);
+            await hubConnection.StartAsync();
+            #region HubConnection Handlers
+            hubConnection.On("newtable", (Action<TableCreationOrDeletionMessage>)(message =>
+            {
+                HandleTableCreatedOrDeleted(message);
+            }));
+            hubConnection.On("presence", (Action<PresenceStatusMessage>)((message) =>
+            {
+                HandlePlayerJoinedOrLeftMessage(currentUserService, message);
+            }));
+            hubConnection.On("joinrequest", (Action<RequestToJoinTableMessage>)((message) =>
+            {
+                HandlePlayerRequestingToJoinTableMessage(message);
+            }));
+            hubConnection.On<RequestToJoinTableMessage>("playeradmitted", (message) =>
+            {
+                RaisePlayerAdmittedToTable(message);
+            });
+
+            #endregion
         }
         #endregion
 
