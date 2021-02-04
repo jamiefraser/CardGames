@@ -62,7 +62,8 @@ namespace Game.Services.Table
         }
         [FunctionName("RequestToJoinTable")]
         public async Task<IActionResult> RequestToJoinTable([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route ="tables/join")]HttpRequest req,
-                                                            ILogger log)
+                                                            ILogger log,
+                                                            [SignalR(ConnectionStringSetting = "AzureSignalRConnectionString", HubName = "gameroom")] IAsyncCollector<SignalRMessage> messages)
         {
             try
             {
@@ -72,21 +73,23 @@ namespace Game.Services.Table
                 string tableJson = await new StreamReader(req.Body).ReadToEndAsync();
                 var table = Newtonsoft.Json.JsonConvert.DeserializeObject<Game.Entities.Table>(tableJson);
                 var persistedTable = await Helpers.Helpers.GetTable(table.Id.ToString());
-                var service = Refit.RestService.For<IRTCService>(Environment.GetEnvironmentVariable("RTCBaseUrl"));
                 table.PlayersRequestingAccess.Add(player);
                 await table.Save();
-                await service.PublishRequestToJoinMessage(new Entities.RequestToJoinTableMessage()
+                var joinRequest = new Entities.RequestToJoinTableMessage()
                 {
                     RequestingPlayer = player,
                     Table = table,
                     TableOwnerId = table.TableOwner.PrincipalId
-                });
-                
-                //List<string> invitedPlayerIds = table.InvitedPlayerIds != null ? new List<string>(table.InvitedPlayerIds) : new List<string>();
-                //persistedTable.InvitedPlayers.Add(player);
-                //invitedPlayerIds.Add(player.PrincipalId);
-                //table.InvitedPlayerIds = invitedPlayerIds.ToArray();
-                //await table.Save();
+                };
+                await messages.AddAsync(
+                                     new SignalRMessage
+                                     {
+                                         Target = "joinrequest",
+                                         Arguments = new[]
+                                         {
+                                            joinRequest
+                                         }
+                                     });
                 return new OkResult();
             }
             catch(Exception ex)

@@ -168,16 +168,15 @@ namespace Game.Client.Client
             {
                 await state.Delete(errorStateKey);
             }
-            state.BeforeUnload += () =>
+            state.BeforeUnload += async () =>
             {
-                if (services.GetRequiredService<ICurrentUserService>().SigningOutClaimsPrincipal != null)
+                if (services.GetRequiredService<ICurrentUserService>().CurrentClaimsPrincipal != null)
                 {
                     var currentUserService = services.GetRequiredService<ICurrentUserService>();
-                    var signOutUser = currentUserService.SigningOutClaimsPrincipal;
+                    var signOutUser = currentUserService.CurrentClaimsPrincipal;
+                    await Helpers.UpdateStatus(currentUserService.CurrentClaimsPrincipal, services.GetRequiredService<IHttpClientFactory>(), false);
                     currentUserService.SigningOutClaimsPrincipal = null;
-                    return Helpers.UpdateStatus(currentUserService.SigningOutClaimsPrincipal, services.GetRequiredService<IHttpClientFactory>(), false);
                 }
-                return Task.CompletedTask;
             };
 
         }
