@@ -1,0 +1,4 @@
+﻿  "GameServiceRoot": "https://cardgameservice.azurewebsites.net/",
+  "DeckServiceRoot": "https://cardtablesgameservice.azurewebsites.net/",
+  "TableServiceRoot": "https://cardtablesgameservice.azurewebsites.net/",
+  "PresenceServiceRoot": "https://realtimecommunications.azurewebsites.net/"

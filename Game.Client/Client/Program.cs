@@ -151,11 +151,10 @@ namespace Game.Client.Client
             builder.Services.AddTransient(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
             builder.Services.AddStateManagemenet();
             var built = builder.Build();
-            await InitializeState(built.Services,
-               "stateSaved", "There are unsaved changes. Quit anyway?");
+            await InitializeState(built.Services, "stateSaved", "There are unsaved changes. Quit anyway?");
             await built.Services.EnableUnloadEvents();
-
             await built.RunAsync();
+            await built.Services.GetRequiredService<ISignalRService>().InitializeAsync();
             #endregion
         }
 

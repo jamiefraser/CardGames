@@ -11,7 +11,7 @@ using Game.Services.Helpers;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using Microsoft.Azure.WebJobs.Extensions.SignalRService;
-
+using System.Linq;
 namespace Game.Services.Table
 {
     public  class Service
@@ -23,7 +23,8 @@ namespace Game.Services.Table
         }
         [FunctionName("AdmitPlayer")]
         public async Task<IActionResult>AdmitPlayer([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "tables/admit")] HttpRequest req,
-                                                            ILogger log)
+                                                            ILogger log,
+                                                            [SignalR(ConnectionStringSetting = "AzureSignalRConnectionString", HubName = "gameroom")] IAsyncCollector<SignalRMessage> messages)
         {
             try
             {
@@ -34,11 +35,19 @@ namespace Game.Services.Table
                 var player = principal.ToPlayer();
                 if (message.Table.TableOwner.PrincipalId.Equals(player.PrincipalId))
                 {
-                    var service = Refit.RestService.For<IRTCService>(Environment.GetEnvironmentVariable("RTCBaseUrl"));
-                    message.Table.PlayersRequestingAccess.Remove(message.RequestingPlayer);
+                    var lookupPlayer = message.Table.PlayersRequestingAccess.Where(p => p.PrincipalId.Equals(message.RequestingPlayer.PrincipalId)).FirstOrDefault();
+                    message.Table.PlayersRequestingAccess.Remove(lookupPlayer);
                     message.Table.Players.Add(message.RequestingPlayer);
                     await message.Table.Save();
-                    await service.PublishPlayerAdmitted(message);
+                    var srMessage = new SignalRMessage
+                    {
+                        Target = "playeradmitted",
+                        Arguments = new[]
+                    {
+                        message
+                    }
+                    };
+                    await messages.AddAsync(srMessage);
                     return new AcceptedResult();
                 }
                 else

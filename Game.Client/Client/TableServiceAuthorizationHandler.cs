@@ -9,7 +9,9 @@ namespace Game.Client.Client
 {
     public class TableServiceAuthorizationHandler : AuthorizationMessageHandler
     {
-        public TableServiceAuthorizationHandler(IAccessTokenProvider provider, NavigationManager navigationManager, IConfiguration config) : base(provider, navigationManager)
+        public TableServiceAuthorizationHandler(IAccessTokenProvider provider, 
+                                                NavigationManager navigationManager, 
+                                                IConfiguration config) : base(provider, navigationManager)
         {
             var tableBase = config["TableServiceRoot"];
             ConfigureHandler(

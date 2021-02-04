@@ -83,7 +83,7 @@ namespace Game.Client.Shared.ViewModels
         #region Methods
         public async Task Initialize(string tableId)
         {
-            if (rtc.AvailableTables.Equals(null) || rtc.AvailableTables.Count == 0) await rtc.Initialize();
+            if (rtc.AvailableTables.Equals(null) || rtc.AvailableTables.Count == 0) await rtc.InitializeAsync();
             var t = rtc.AvailableTables.Where(table => table.Id.Equals(Guid.Parse(tableId))).FirstOrDefault();
             Table = t;
             PlayersRequestingEntry = new ObservableCollection<Player>(t.PlayersRequestingAccess);

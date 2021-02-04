@@ -9,7 +9,9 @@ namespace Game.Client.Client
 {
     public class GameServiceAuthorizationHandler : AuthorizationMessageHandler
     {
-        public GameServiceAuthorizationHandler(IAccessTokenProvider provider, NavigationManager navigationManager, IConfiguration config) : base(provider, navigationManager)
+        public GameServiceAuthorizationHandler(IAccessTokenProvider provider,
+                                               NavigationManager navigationManager, 
+                                               IConfiguration config) : base(provider, navigationManager)
         {
             var gameBase = config["GameServiceRoot"];
             ConfigureHandler(
