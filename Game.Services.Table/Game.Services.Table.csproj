@@ -4,13 +4,16 @@
     <AzureFunctionsVersion>v3</AzureFunctionsVersion>
     <_FunctionsSkipCleanOutput>true</_FunctionsSkipCleanOutput>
     <Configurations>Debug;Release;Debug-SignalR</Configurations>
+    <UserSecretsId>2d99bffd-e10a-409b-a024-de3aa529c9d9</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Startup.cs" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="2.15.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.SignalRService" Version="1.2.2" />
+    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Storage" Version="3.0.10" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.10" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="3.1.10" />
     <PackageReference Include="Microsoft.Extensions.Configuration.AzureAppConfiguration" Version="4.1.0" />

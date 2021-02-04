@@ -151,11 +151,10 @@ namespace Game.Client.Client
             builder.Services.AddTransient(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
             builder.Services.AddStateManagemenet();
             var built = builder.Build();
-            await InitializeState(built.Services,
-               "stateSaved", "There are unsaved changes. Quit anyway?");
+            await InitializeState(built.Services, "stateSaved", "There are unsaved changes. Quit anyway?");
             await built.Services.EnableUnloadEvents();
-
             await built.RunAsync();
+            await built.Services.GetRequiredService<ISignalRService>().InitializeAsync();
             #endregion
         }
 
@@ -169,16 +168,15 @@ namespace Game.Client.Client
             {
                 await state.Delete(errorStateKey);
             }
-            state.BeforeUnload += () =>
+            state.BeforeUnload += async () =>
             {
-                if (services.GetRequiredService<ICurrentUserService>().SigningOutClaimsPrincipal != null)
+                if (services.GetRequiredService<ICurrentUserService>().CurrentClaimsPrincipal != null)
                 {
                     var currentUserService = services.GetRequiredService<ICurrentUserService>();
-                    var signOutUser = currentUserService.SigningOutClaimsPrincipal;
+                    var signOutUser = currentUserService.CurrentClaimsPrincipal;
+                    await Helpers.UpdateStatus(currentUserService.CurrentClaimsPrincipal, services.GetRequiredService<IHttpClientFactory>(), false);
                     currentUserService.SigningOutClaimsPrincipal = null;
-                    return Helpers.UpdateStatus(currentUserService.SigningOutClaimsPrincipal, services.GetRequiredService<IHttpClientFactory>(), false);
                 }
-                return Task.CompletedTask;
             };
 
         }

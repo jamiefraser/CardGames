@@ -76,7 +76,7 @@ namespace Game.Client.Shared.ViewModels
             {
                 if (signalRService.AvailableTables == null || signalRService.AvailableTables.Count == 0)
                 {
-                    await signalRService.Initialize();
+                    await signalRService.InitializeAsync();
                 }
  
                 Table = signalRService.AvailableTables.Where(t => t.Id.Equals(tableId)).FirstOrDefault();

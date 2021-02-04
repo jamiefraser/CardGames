@@ -37,10 +37,6 @@ namespace Game.Client.Shared.Services.SignalRService
             var client = factory.CreateClient("presenceAPI");
             var tableClient = factory.CreateClient("tableAPI");
             PlayersOnline = new ObservableCollection<Player>();
-            Task.Run(async () =>
-            {
-                await Initialize();
-            });
         }
 
         private void HandlePlayerRequestingToJoinTableMessage(RequestToJoinTableMessage message)
@@ -112,15 +108,24 @@ namespace Game.Client.Shared.Services.SignalRService
             }
         }
 
-        public async Task Initialize()
+        public async Task InitializeAsync()
         {
             var clientAddress = _factory.CreateClient("PresenceServiceRoot").BaseAddress;
             var client = _factory.CreateClient("presenceAPI");
             var tableClient = _factory.CreateClient("tableAPI");
             var players = await client.GetFromJsonAsync<List<Entities.Player>>("api/players");
             PlayersOnline = new ObservableCollection<Entities.Player>(players);
-            var tables = await tableClient.GetFromJsonAsync<List<Entities.Table>>("api/tables");
-            AvailableTables = new ObservableCollection<Table>(tables);
+            try
+            {
+                var tables = await tableClient.GetFromJsonAsync<List<Entities.Table>>("api/tables");
+                AvailableTables = new ObservableCollection<Table>(tables);
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine($"{ex.Message}\r\n{ex.StackTrace}");
+                Console.WriteLine($"The tableClient {(tableClient == null ? "is" : "is not")} null");
+
+            }
             await hubConnection.StartAsync();
             #region HubConnection Handlers
             hubConnection.On("newtable", (Action<TableCreationOrDeletionMessage>)(message =>
@@ -138,6 +143,12 @@ namespace Game.Client.Shared.Services.SignalRService
             hubConnection.On<RequestToJoinTableMessage>("playeradmitted", (message) =>
             {
                 RaisePlayerAdmittedToTable(message);
+                var t = AvailableTables.Where(tbl => tbl.Id.Equals(message.Table.Id)).FirstOrDefault();
+                if(t!=null)
+                {
+                    availabletables.Remove(t);
+                    availabletables.Add(message.Table);
+                }
             });
 
             #endregion
