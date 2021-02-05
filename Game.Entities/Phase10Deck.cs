@@ -6,10 +6,10 @@ using System.Text;
 
 namespace Game.Entities
 {
-    public class UnoDeck : DeckBase
+    public class Phase10Deck : DeckBase, IDeck
     {
 
-        public UnoDeck()
+        public Phase10Deck()
         {
             List<Card> cards = new List<Card>();
             for (int i = 0; i < 2; i++)

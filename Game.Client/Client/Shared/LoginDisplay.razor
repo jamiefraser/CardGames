@@ -52,8 +52,9 @@
         Console.WriteLine(signalR.AccessToken);
         authenticationStateProvider.AuthenticationStateChanged += AuthenticationStateChanged;
         var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
-        if (authState != null && authState.User != null)
+        if (authState != null && authState.User != null && authState.User.Identities.First().IsAuthenticated)
         {
+            Console.WriteLine($"authState user is {authState.User.Identities.First().Name.ToString()}");
             await Helpers.UpdateStatus(authState.User, factory, true);
         }
     }
@@ -61,14 +62,16 @@
     {
         var state = await authenticationStateProvider.GetAuthenticationStateAsync();
         var x = task.Result.User;
-        if (state != null)
+        if (state != null && state.User.Identity.IsAuthenticated)
         {
+            await signalR.InitializeAsync();
             await Helpers.UpdateStatus(currentUser.CurrentClaimsPrincipal, factory, true);
         }
         else
         {
             await Helpers.UpdateStatus(currentUser.SigningOutClaimsPrincipal, factory, false);
             currentUser.SigningOutClaimsPrincipal = null;
+            await signalR.DisconnectSignalR();
         }
     }
 }

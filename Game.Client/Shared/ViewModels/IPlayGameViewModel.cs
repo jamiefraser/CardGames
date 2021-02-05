@@ -11,10 +11,12 @@ namespace Game.Client.Shared.ViewModels
     public interface IPlayGameViewModel : INotifyPropertyChanged
     {
         ObservableCollection<Entities.Player> PlayersRequestingEntry { get; set; }
+        ObservableCollection<Entities.Player> Players { get; set; }
         Task Admit();
         Task Decline(Entities.RequestToJoinTableMessage message);
         Entities.Table Table { get; set; }
         Entities.Player PlayerToAdmit { get; set; }
         Task Initialize(string tableId);
+        Task Deal();
     }
 }

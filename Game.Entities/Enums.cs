@@ -7,6 +7,6 @@ namespace Game.Entities
     public enum DeckType
     {
         Standard = 1,
-        Uno = 2
+        Phase10 = 2
     }
 }

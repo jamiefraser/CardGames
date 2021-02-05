@@ -1,0 +1,21 @@
+﻿<div style="width: calc(100% / 4); border-width: 2px; border-color: black; border-style: solid;background-color:@Colour.ToLower();">
+    <div>@Value</div>
+    @if(Wild)
+    {
+        <div>Wild</div>
+    }
+    @if(Skip)
+    {
+        <div>Skip</div>
+    }
+</div>
+@code {
+    [Parameter]
+    public string Colour { get; set; }
+    [Parameter]
+    public int Value { get; set; }
+    [Parameter]
+    public bool Wild { get; set; }
+    [Parameter]
+    public bool Skip { get; set; }
+}

@@ -1,4 +1,5 @@
 ﻿using Microsoft.WindowsAzure.Storage.Table;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -11,6 +12,7 @@ namespace Game.Entities
     {
         public Guid Id { get; set; }
         public EasyAuthUserInfo TableOwner { get; set; }
+
         public List<Player> InvitedPlayers
         {
             get;
@@ -66,6 +68,14 @@ namespace Game.Entities
             {
                 _game = value;
                 MaxPlayers = _game.MaxPlayers;
+                if (_game.DeckType.Equals(DeckType.Standard))
+                {
+                    Deck = new StandardDeck();
+                }
+                if (_game.DeckType.Equals(DeckType.Phase10))
+                {
+                    Deck = new Phase10Deck();
+                }
             }
         }
         public int CurrentPlayersCount
@@ -75,13 +85,26 @@ namespace Game.Entities
                 return Players.Count;
             }
         }
+
+        private DeckBase deck;
+        [JsonProperty]
+        public DeckBase Deck
+        {
+            get
+            {
+                return deck;
+            }
+            set
+            {
+                deck = value;
+            }
+        }
         public Table()
         {
             this.Players = new List<Player>();
             InvitedPlayers = new List<Player>();
             this.Finished = false;
             PlayersRequestingAccess = new List<Player>();
-
         }
     }
 }

@@ -1,3 +1,4 @@
+using Blazored.LocalStorage;
 using Game.Client.Shared.Services.CurrentUser;
 using Game.Client.Shared.Services.SignalRService;
 using Game.Client.Shared.Services.TableInvitationService;
@@ -110,19 +111,19 @@ namespace Game.Client.Client
             #endregion
 
             #region GraphAPI
-            builder.Services.AddScoped<GraphServiceAuthorizationHandler>();
+            //builder.Services.AddScoped<GraphServiceAuthorizationHandler>();
 
-            builder.Services.AddHttpClient("graphAPI",
-                client =>
-                {
-                    client.BaseAddress = new Uri($"{graphServiceRoot}");
-                })
-                .AddHttpMessageHandler<GraphServiceAuthorizationHandler>()
-                .AddPolicyHandler(httpTransientErrorRetryPolicy)
-                .AddPolicyHandler(timeoutPolicy);
+            //builder.Services.AddHttpClient("graphAPI",
+            //    client =>
+            //    {
+            //        client.BaseAddress = new Uri($"{graphServiceRoot}");
+            //    })
+            //    .AddHttpMessageHandler<GraphServiceAuthorizationHandler>()
+            //    .AddPolicyHandler(httpTransientErrorRetryPolicy)
+            //    .AddPolicyHandler(timeoutPolicy);
 
-            builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>()
-               .CreateClient("graphAPI"));
+            //builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>()
+            //   .CreateClient("graphAPI"));
             #endregion
 
             #region PresenceAPI
@@ -150,11 +151,12 @@ namespace Game.Client.Client
             builder.Services.AddSyncfusionBlazor();
             builder.Services.AddTransient(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
             builder.Services.AddStateManagemenet();
+            builder.Services.AddBlazoredLocalStorage();
             var built = builder.Build();
             await InitializeState(built.Services, "stateSaved", "There are unsaved changes. Quit anyway?");
             await built.Services.EnableUnloadEvents();
             await built.RunAsync();
-            await built.Services.GetRequiredService<ISignalRService>().InitializeAsync();
+            //await built.Services.GetRequiredService<ISignalRService>().InitializeAsync();
             #endregion
         }
 
@@ -172,6 +174,9 @@ namespace Game.Client.Client
             {
                 if (services.GetRequiredService<ICurrentUserService>().CurrentClaimsPrincipal != null)
                 {
+                    var storage = services.GetRequiredService<ILocalStorageService>();
+                    await storage.SetItemAsync<string>("Closing Message", DateTime.Now.ToShortTimeString());
+                    Console.WriteLine("Unloading the page");
                     var currentUserService = services.GetRequiredService<ICurrentUserService>();
                     var signOutUser = currentUserService.CurrentClaimsPrincipal;
                     await Helpers.UpdateStatus(currentUserService.CurrentClaimsPrincipal, services.GetRequiredService<IHttpClientFactory>(), false);

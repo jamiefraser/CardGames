@@ -6,58 +6,85 @@
 @page "/games/play/{TableId}"
 @if (vm.Table == null)
 {
-    <p>Initializing....</p>
-}
+<p>Initializing....</p> }
 else
 {
-    if (vm.Table.TableOwner.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid))
-    {
-        <div class="flex-grid">
-            <div class="col" />
-            <div class="col" style="align-items:flex-end">
-                <SfListBox DataSource="vm.PlayersRequestingEntry"
+if (vm.Table.TableOwner.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid))
+{
+<div class="flex-grid">
+    <div class="col" />
+    <div class="col" style="align-items:flex-end">
+        <SfListBox DataSource="vm.PlayersRequestingEntry"
+                   TItem="Entities.Player"
+                   TValue="string"
+                   Value="SelectedPlayers"
+                   @ref="PlayersRequestingEntry">
+            <ListBoxFieldSettings Text="PrincipalName"
+                                  Value="PrincipalId" />
+            <ListBoxEvents TValue="string"
                            TItem="Entities.Player"
-                           TValue="string"
-                           Value="SelectedPlayers"
-                           @ref="PlayersRequestingEntry">
-                    <ListBoxFieldSettings Text="PrincipalName"
-                                          Value="PrincipalId" />
-                    <ListBoxEvents TValue="string"
-                                   TItem="Entities.Player"
-                                   ValueChange="SelectedPlayerChanged" />
-                </SfListBox>
-                <Syncfusion.Blazor.Buttons.SfButton OnClick="admitClicked">
-                    Admit!
-                </Syncfusion.Blazor.Buttons.SfButton>
-            </div>
-        </div>
-    }
-    else
-    {
-        <div class="flex-grid">
-            <div class="col">
-                <p>Hello Friend.  Let's play!</p>
-            </div>
-        </div>
-    }
+                           ValueChange="SelectedRequestingPlayerChanged" />
+        </SfListBox>
+        <Syncfusion.Blazor.Buttons.SfButton OnClick="admitClicked">
+            Admit!
+        </Syncfusion.Blazor.Buttons.SfButton>
+    </div>
+</div> }
+else
+{
+<div class="flex-grid">
+    <div class="col">
+        <p>Hello Friend.  Let's play!</p>
+    </div>
+    <div class="col" style="align-items:flex-end">
+        <SfListBox DataSource="vm.Players"
+                   TItem="Entities.Player"
+                   TValue="string"
+                   Value="SelectedPlayer"
+                   @ref="Players">
+            <ListBoxFieldSettings Text="PrincipalName"
+                                  Value="PrincipalId" />
+        </SfListBox>
+    </div>
+</div>}
 }
-@code {
-    [Parameter]
+<div class="flex-grid">
+    <div class="col">
+        <div style="width: 100%;
+                        display: inline-flex;
+                        background-color: yellow;">
+            @foreach (Entities.Card c in vm.Players.Where(p => p.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid)).FirstOrDefault().Hand)
+            {
+                <UnoCard Colour="@c.Suit" Value="@c.Rank" />
+            }
+        </div>
+    </div>
+</div>
+<style>
+    .rest {
+            margin-left: -25px;
+          }
+</style>
+@code
+{ [Parameter]
     public string TableId { get; set; }
 
     public string SelectedPlayers { get; set; }
+    public string SelectedPlayer { get; set; }
     public Syncfusion.Blazor.DropDowns.SfListBox<string, Entities.Player> PlayersRequestingEntry;
+    public Syncfusion.Blazor.DropDowns.SfListBox<string, Entities.Player> Players;
     protected override async Task OnInitializedAsync()
     {
         vm.PropertyChanged += vmPropertyChanged;
-        await InvokeAsync(() =>vm.Initialize(TableId));
+        await InvokeAsync(() => vm.Initialize(TableId));
     }
     protected override async void OnParametersSet()
     {
         base.OnParametersSet();
+        vm.Deal();
 
     }
-    public void SelectedPlayerChanged(ListBoxChangeEventArgs<string, Entities.Player> args)
+    public void SelectedRequestingPlayerChanged(ListBoxChangeEventArgs<string, Entities.Player> args)
     {
         if (PlayersRequestingEntry.Value == null) return;
         var x = PlayersRequestingEntry.Value;
@@ -72,5 +99,4 @@ else
     {
         await vm.Admit();
         await InvokeAsync(() => StateHasChanged());
-    }
-}
+    } }

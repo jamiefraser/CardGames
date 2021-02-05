@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 namespace Game.Play
@@ -63,19 +64,23 @@ namespace Game.Play
             {
                 return new UnauthorizedResult();
             }
-            var tableConnection = await Helpers.GetTableReference("games");
-            var qry = tableConnection.CreateQuery<Game.Entities.Game>();
-            //new Microsoft.Azure.Cosmos.Table.TableQuery<Game.Entities.Game>();
-            qry.FilterString = "";
             try
             {
-                var games = await qry.ExecuteAsync<Game.Entities.Game>(new CancellationToken());
-                if(games==null || games.Count()==0)
-                {
-                    return new NotFoundResult();
-                }
-                return new OkObjectResult(games);
+                return new OkObjectResult(await Game.Services.Helpers.Helpers.GetGames());
             }
+            //var tableConnection = await Helpers.GetTableReference("games");
+            //var qry = tableConnection.CreateQuery<Game.Entities.Game>();
+            ////new Microsoft.Azure.Cosmos.Table.TableQuery<Game.Entities.Game>();
+            //qry.FilterString = "";
+            //try
+            //{
+            //    var games = await qry.ExecuteAsync<Game.Entities.Game>(new CancellationToken());
+            //    if(games==null || games.Count()==0)
+            //    {
+            //        return new OkObjectResult(new List<Entities.Game>());
+            //    }
+            //    return new OkObjectResult(games);
+            //}
             catch(Exception ex)
             {
                 return new BadRequestObjectResult(ex);
@@ -130,21 +135,34 @@ namespace Game.Play
         private static async Task<Game.Entities.Game> Save(this Entities.Game game)
         {
             game.Timestamp = DateTime.Now;
-            var table = await Helpers.GetTableReference("games");
-            var insertOrMergeOperation = Microsoft.Azure.Cosmos.Table.TableOperation.InsertOrMerge(game);
-            var result = await table.ExecuteAsync(insertOrMergeOperation);
-            return result.Result as Game.Entities.Game;
+            var containerClient = GetBlobContainerClient("games");
+            var blobClient = containerClient.GetBlobClient(game.Name);
+            var json = Newtonsoft.Json.JsonConvert.SerializeObject(game);
+            var bytes = Encoding.ASCII.GetBytes(json);
+            try
+            {
+                var ms = new MemoryStream(bytes);
+
+                await blobClient.UploadAsync(ms, true, new System.Threading.CancellationToken());
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+            return game;
+            //var table = await Helpers.GetTableReference("games");
+            //var insertOrMergeOperation = Microsoft.Azure.Cosmos.Table.TableOperation.InsertOrMerge(game);
+            //var result = await table.ExecuteAsync(insertOrMergeOperation);
+            //return result.Result as Game.Entities.Game;
         }
 
 
-        private static BlobContainerClient GetBlobContainerClient()
+        private static BlobContainerClient GetBlobContainerClient(string containerName)
         {
             string connectionString = Environment.GetEnvironmentVariable("AZURE_STORAGE_CONNECTION_STRING");
             BlobServiceClient blobServiceClient = new BlobServiceClient(connectionString);
 
             //Create a unique name for the container
-            string containerName = "games";
-
             // Create the container and return a container client object
 
             BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient(containerName);
