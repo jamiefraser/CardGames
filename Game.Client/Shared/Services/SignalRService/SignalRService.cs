@@ -110,22 +110,6 @@ namespace Game.Client.Shared.Services.SignalRService
 
         public async Task InitializeAsync()
         {
-            var clientAddress = _factory.CreateClient("PresenceServiceRoot").BaseAddress;
-            var client = _factory.CreateClient("presenceAPI");
-            var tableClient = _factory.CreateClient("tableAPI");
-            var players = await client.GetFromJsonAsync<List<Entities.Player>>("api/players");
-            PlayersOnline = new ObservableCollection<Entities.Player>(players);
-            try
-            {
-                var tables = await tableClient.GetFromJsonAsync<List<Entities.Table>>("api/tables");
-                AvailableTables = new ObservableCollection<Table>(tables);
-            }
-            catch(Exception ex)
-            {
-                Console.WriteLine($"{ex.Message}\r\n{ex.StackTrace}");
-                Console.WriteLine($"The tableClient {(tableClient == null ? "is" : "is not")} null");
-
-            }
             await hubConnection.StartAsync();
             #region HubConnection Handlers
             hubConnection.On("newtable", (Action<TableCreationOrDeletionMessage>)(message =>
@@ -144,12 +128,39 @@ namespace Game.Client.Shared.Services.SignalRService
             {
                 RaisePlayerAdmittedToTable(message);
                 var t = AvailableTables.Where(tbl => tbl.Id.Equals(message.Table.Id)).FirstOrDefault();
-                if(t!=null)
+                if (t != null)
                 {
                     availabletables.Remove(t);
                     availabletables.Add(message.Table);
                 }
             });
+
+            #endregion
+            var clientAddress = _factory.CreateClient("PresenceServiceRoot").BaseAddress;
+            var client = _factory.CreateClient("presenceAPI");
+            var tableClient = _factory.CreateClient("tableAPI");
+            var players = await client.GetFromJsonAsync<List<Entities.Player>>("api/players");
+            PlayersOnline = new ObservableCollection<Entities.Player>(players);
+            try
+            {
+                var tables = await tableClient.GetFromJsonAsync<List<Entities.Table>>("api/tables");
+                AvailableTables = new ObservableCollection<Table>(tables);
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine($"{ex.Message}\r\n{ex.StackTrace}");
+                Console.WriteLine($"The tableClient {(tableClient == null ? "is" : "is not")} null");
+
+            }
+        }
+        public async Task DisconnectSignalR()
+        {
+            await hubConnection.StopAsync();
+            #region HubConnection Handlers
+            hubConnection.Remove("newtable");
+            hubConnection.Remove("presence");
+            hubConnection.Remove("joinrequest");
+            hubConnection.Remove("playeradmitted");
 
             #endregion
         }

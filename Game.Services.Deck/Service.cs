@@ -50,7 +50,7 @@ namespace Game.Play
             }
             else
             {
-                deck = new UnoDeck();
+                deck = new Phase10Deck();
             }
             //var deck = new StandardDeck();
             deck.Shuffle();

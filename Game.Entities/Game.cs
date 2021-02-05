@@ -26,10 +26,21 @@ namespace Game.Entities
                 _numberofdecks = value;
             }
         }
-
+        private DeckType decktype;
         [Required]
         [EnumDataType(enumType: typeof(DeckType), ErrorMessage = "Please select a valid deck type")]
-        public DeckType DeckType { get; set; }
+        [JsonProperty]
+        public DeckType DeckType
+        {
+            get
+            {
+                return decktype;
+            }
+            set
+            {
+                decktype = value;
+            }
+        }
 
         [Required(AllowEmptyStrings =false, ErrorMessage = "Please provide a minimum number of players")]
         [GreaterThanZeroValidator(ErrorMessage = "Please set a minimum number of players that is greater than zero")]

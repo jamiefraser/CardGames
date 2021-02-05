@@ -21,10 +21,31 @@ namespace Game.Services.Table
         {
             _config = configuration;
         }
+        [FunctionName("DealHands")]
+        public async Task<IActionResult>DealHands([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route ="tables/deal/{tableId}")] HttpRequest req,
+                                                    string tableId,
+                                                    ILogger log, 
+                                                    [SignalR(ConnectionStringSetting="AzureSignalRConnectionString", HubName = "gameroom")]IAsyncCollector<SignalRMessage>message )
+        {
+            var table = await Helpers.Helpers.GetTable(tableId);
+            table.Deck.Shuffle();
+            foreach(Entities.Player p in table.Players)
+            {
+                p.Hand = new List<Entities.Card>();
+            }
+            for (int i = 0; i < table.Game.NumberOfCardsToDeal; i++)
+            {
+                foreach (Entities.Player p in table.Players)
+                {
+                    p.Hand.Add(table.Deck.Cards.Dequeue());
+                }
+            }
+            return new OkObjectResult(table);
+        }
         [FunctionName("AdmitPlayer")]
         public async Task<IActionResult>AdmitPlayer([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "tables/admit")] HttpRequest req,
-                                                            ILogger log,
-                                                            [SignalR(ConnectionStringSetting = "AzureSignalRConnectionString", HubName = "gameroom")] IAsyncCollector<SignalRMessage> messages)
+                                                    ILogger log,
+                                                    [SignalR(ConnectionStringSetting = "AzureSignalRConnectionString", HubName = "gameroom")] IAsyncCollector<SignalRMessage> messages)
         {
             try
             {
@@ -110,7 +131,15 @@ namespace Game.Services.Table
                 var owner = req.UserInfo(_config);
                 table.TableOwner = owner;
                 table.Id = Guid.NewGuid();
+                if(table.Game != null)
+                {
+                    if(table.Deck==null)
+                    {
+                        table.Game = table.Game;
+                    }
+                }
                 table = await table.Save();
+                
                 var message = new SignalRMessage
                 {
                     Target = "newtable",

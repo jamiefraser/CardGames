@@ -38,6 +38,32 @@ namespace Game.Services.Helpers
             var table = Newtonsoft.Json.JsonConvert.DeserializeObject<Entities.Table>(tableJson);
             return table;
         }
+        public static async Task<List<Entities.Game>>GetGames()
+        {
+            List<Entities.Game> games = new List<Entities.Game>();
+            string connectionString = Environment.GetEnvironmentVariable("AZURE_STORAGE_CONNECTION_STRING");
+            BlobServiceClient blobServiceClient = new BlobServiceClient(connectionString);
+
+            //Create a unique name for the container
+            string containerName = "games";
+
+            // Create the container and return a container client object
+
+            BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient(containerName);
+            foreach (var blob in (containerClient.GetBlobs()))
+            {
+                string name = blob.Name;
+                var downloadedBlob = containerClient.GetBlobClient(name);
+
+                using (var sr = new StreamReader(downloadedBlob.OpenRead()))
+                {
+                    var json = sr.ReadToEnd();
+                    var game = Newtonsoft.Json.JsonConvert.DeserializeObject<Entities.Game>(json);
+                    games.Add(game);
+                }
+            }
+            return games;
+        }
         public static async Task<List<Entities.Table>>GetTables()
         {
             List<Entities.Table> tables = new List<Table>();

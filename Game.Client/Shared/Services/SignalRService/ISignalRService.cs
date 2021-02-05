@@ -18,5 +18,6 @@ namespace Game.Client.Shared.Services.SignalRService
         event EventHandler<PlayerRequestingToJoinTableEventArgs> PlayerAdmittedToTable;
         event EventHandler<PlayerRequestingToJoinTableEventArgs> PlayerRequestingToJoinTable;
         Task InitializeAsync();
+        Task DisconnectSignalR();
     }
 }

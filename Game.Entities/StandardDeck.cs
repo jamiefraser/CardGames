@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Game.Entities
 {
-    public class StandardDeck : DeckBase
+    public class StandardDeck : DeckBase, IDeck
     {
         public StandardDeck(bool includeWilds = false)
         {

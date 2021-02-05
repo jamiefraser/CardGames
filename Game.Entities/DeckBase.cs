@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Game.Entities
 {
-    public class DeckBase
+    public class DeckBase :IDeck
     {
         [JsonProperty]
         public Guid Id { get; set; }
