@@ -3,73 +3,85 @@
 @inject Game.Client.Shared.Services.SignalRService.ISignalRService rtc;
 @inject Game.Client.Shared.ViewModels.IPlayGameViewModel vm;
 @inject Game.Client.Shared.Services.CurrentUser.ICurrentUserService currentUserService;
-@page "/games/play/{TableId}"
+@page "/games/play/{TableId}";
 @if (vm.Table == null)
 {
-<p>Initializing....</p> }
-else
-{
-if (vm.Table.TableOwner.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid))
-{
-<div class="flex-grid">
-    <div class="col" />
-    <div class="col" style="align-items:flex-end">
-        <SfListBox DataSource="vm.PlayersRequestingEntry"
-                   TItem="Entities.Player"
-                   TValue="string"
-                   Value="SelectedPlayers"
-                   @ref="PlayersRequestingEntry">
-            <ListBoxFieldSettings Text="PrincipalName"
-                                  Value="PrincipalId" />
-            <ListBoxEvents TValue="string"
-                           TItem="Entities.Player"
-                           ValueChange="SelectedRequestingPlayerChanged" />
-        </SfListBox>
-        <Syncfusion.Blazor.Buttons.SfButton OnClick="admitClicked">
-            Admit!
-        </Syncfusion.Blazor.Buttons.SfButton>
-    </div>
-</div> }
-else
-{
-<div class="flex-grid">
-    <div class="col">
-        <p>Hello Friend.  Let's play!</p>
-    </div>
-    <div class="col" style="align-items:flex-end">
-        <SfListBox DataSource="vm.Players"
-                   TItem="Entities.Player"
-                   TValue="string"
-                   Value="SelectedPlayer"
-                   @ref="Players">
-            <ListBoxFieldSettings Text="PrincipalName"
-                                  Value="PrincipalId" />
-        </SfListBox>
-    </div>
-</div>}
+    <p>Initializing....</p> 
 }
-<div class="flex-grid">
-    <div class="col">
-        <div style="width: 100%;
-                        display: inline-flex;
-                        background-color: yellow;">
-            @foreach (Entities.Card c in vm.Players.Where(p => p.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid)).FirstOrDefault().Hand)
+else
+{
+    <div class="flex-grid">
+        <div class="flex-row">
+            if (vm.Table.TableOwner.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid))
             {
-                <UnoCard Colour="@c.Suit" Value="@c.Rank" />
+                <div class="flex-grid">
+                    <div class="col" />
+                    <div class="col" style="align-items:flex-end">
+                        <SfListBox DataSource="vm.PlayersRequestingEntry"
+                                   TItem="Entities.Player"
+                                   TValue="string"
+                                   Value="SelectedPlayers"
+                                   @ref="PlayersRequestingEntry">
+                            <ListBoxFieldSettings Text="PrincipalName"
+                                                  Value="PrincipalId" />
+                            <ListBoxEvents TValue="string"
+                                           TItem="Entities.Player"
+                                           ValueChange="SelectedRequestingPlayerChanged" />
+                        </SfListBox>
+                        <Syncfusion.Blazor.Buttons.SfButton OnClick="admitClicked">
+                            Admit!
+                        </Syncfusion.Blazor.Buttons.SfButton>
+                    </div>
+                </div>
             }
+            else
+            {
+
+                <div class="flex-grid">
+                    <div class="col">
+                        <p>Hello Friend.  Let's play!</p>
+                    </div>
+                    <div class="col" style="align-items:flex-end">
+                        @*<SfListBox DataSource="vm.Players"
+                                       TItem="Entities.Player"
+                                       TValue="string"
+                                       Value="SelectedPlayer"
+                                       @ref="Players">
+                                <ListBoxFieldSettings Text="PrincipalName"
+                                                      Value="PrincipalId" />
+                            </SfListBox>*@
+                    </div>
+                </div>
+            }
+        }
+        <div class="flex-grid">
+            <div class="col">
+                <div style="width: 100%;
+                    display: inline-flex;
+                    background-color: yellow;">
+                    @foreach (Entities.Card c in vm.Players.Where(p => p.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid)).FirstOrDefault().Hand)
+                    {
+                        <UnoCard Colour="@c.Suit" Value="@c.Rank" />
+                    }
+                </div>
+            </div>
         </div>
     </div>
+        <div class="flex-row" style="align-content:flex-end">
+            <button disabled="@(!vm.CanStartGame)" onclick="@vm.StartGame();">Start Game!</button>
+        </div>
 </div>
 <style>
     .rest {
-            margin-left: -25px;
-          }
+        margin-left: -25px;
+    }
 </style>
 @code
-{ [Parameter]
-    public string TableId { get; set; }
+{ 
+        [Parameter]
+        public string TableId { get; set; }
 
-    public string SelectedPlayers { get; set; }
+public string SelectedPlayers { get; set; }
     public string SelectedPlayer { get; set; }
     public Syncfusion.Blazor.DropDowns.SfListBox<string, Entities.Player> PlayersRequestingEntry;
     public Syncfusion.Blazor.DropDowns.SfListBox<string, Entities.Player> Players;
@@ -81,8 +93,6 @@ else
     protected override async void OnParametersSet()
     {
         base.OnParametersSet();
-        vm.Deal();
-
     }
     public void SelectedRequestingPlayerChanged(ListBoxChangeEventArgs<string, Entities.Player> args)
     {
