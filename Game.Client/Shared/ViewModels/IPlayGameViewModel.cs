@@ -18,5 +18,8 @@ namespace Game.Client.Shared.ViewModels
         Entities.Player PlayerToAdmit { get; set; }
         Task Initialize(string tableId);
         Task Deal();
+        Task StartGame();
+        bool CanStartGame { get; set; }
+        bool Started { get; set; }
     }
 }

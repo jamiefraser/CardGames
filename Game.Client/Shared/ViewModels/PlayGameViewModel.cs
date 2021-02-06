@@ -49,6 +49,36 @@ namespace Game.Client.Shared.ViewModels
         #endregion
 
         #region Properties
+        private bool started = false;
+        public bool Started
+        {
+            get
+            {
+                return started;
+            }
+            set
+            {
+                started = value;
+                if (started)
+                {
+                    CanStartGame = false;
+                }
+                RaisePropertyChanged("Started");
+            }
+        }
+        private bool canstartgame = false;
+        public bool CanStartGame
+        {
+            get
+            {
+                return canstartgame;
+            }
+            set
+            {
+                canstartgame = value;
+                RaisePropertyChanged("CanStartGame");
+            }
+        }
         private ObservableCollection<Entities.Player> playersrequestingentry;
         public ObservableCollection<Entities.Player>PlayersRequestingEntry
         {
@@ -147,6 +177,10 @@ namespace Game.Client.Shared.ViewModels
                 Players.Add(PlayerToAdmit);
                 PlayersRequestingEntry.Remove(remove);
                 PlayerToAdmit = null;
+                if(Players.Count >= Table.Game.MinimumPlayers)
+                {
+                    CanStartGame = true;
+                }
                 RaisePropertyChanged("PlayersRequestingEntry");
             }
         }
@@ -162,6 +196,12 @@ namespace Game.Client.Shared.ViewModels
         {
             rtc.PlayerRequestingToJoinTable -= Rtc_PlayerRequestingToJoinTable;
             Players.CollectionChanged -= PlayersChanged;
+        }
+
+        public async Task StartGame()
+        {
+            await Deal();
+            Started = true;
         }
 
 
