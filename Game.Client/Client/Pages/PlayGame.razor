@@ -52,13 +52,16 @@ else
     }
 }
 <div class="flex-grid">
-    <div class="flex-row">
+    <div class="col">
         <div style="width: 100%;
                     display: inline-flex;
                     background-color: yellow;">
-            @foreach (Entities.Card c in vm.Players.Where(p => p.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid)).FirstOrDefault().Hand)
+            @if (vm.Table.Players.Where(p => p.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid)).FirstOrDefault() != null && vm.Table.Players.Where(p => p.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid)).FirstOrDefault().Hand != null)
             {
-                <UnoCard Colour="@c.Suit" Value="@c.Rank" />
+                foreach (Entities.Card c in vm.Table.Players.Where(p => p.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid)).FirstOrDefault().Hand)
+                {
+                    <UnoCard Colour="@c.Suit" Value="@c.Rank" />
+                }
             }
         </div>
     </div>
@@ -88,6 +91,11 @@ else
     {
         vm.PropertyChanged += vmPropertyChanged;
         await InvokeAsync(() => vm.Initialize(TableId));
+        Console.WriteLine($"The game {(vm.Started ? "has" : "has not")} started");
+        if(vm.Started)
+        {
+            await vm.Deal();
+        }
     }
     protected override async void OnParametersSet()
     {

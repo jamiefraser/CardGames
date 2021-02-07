@@ -40,6 +40,7 @@ namespace Game.Services.Table
                     p.Hand.Add(table.Deck.Cards.Dequeue());
                 }
             }
+            await table.Save();
             return new OkObjectResult(table);
         }
         [FunctionName("AdmitPlayer")]
@@ -130,7 +131,10 @@ namespace Game.Services.Table
                 var table = Newtonsoft.Json.JsonConvert.DeserializeObject<Game.Entities.Table>(tableJson);
                 var owner = req.UserInfo(_config);
                 table.TableOwner = owner;
-                table.Id = Guid.NewGuid();
+                if (table.Id.Equals(Guid.Empty))
+                {
+                    table.Id = Guid.NewGuid();
+                }
                 if(table.Game != null)
                 {
                     if(table.Deck==null)

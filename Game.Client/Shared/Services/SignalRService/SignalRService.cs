@@ -89,7 +89,7 @@ namespace Game.Client.Shared.Services.SignalRService
         {
             if (message.Action.Equals(TableAction.Added))
             {
-                Console.WriteLine($"New table created.  It belongs to user {currentUserService.CurrentClaimsPrincipal.ToPlayer().PrincipalName}.  There are now  {AvailableTables.Count() + 1} tables to play");
+                Console.WriteLine($"New table created.  It belongs to user {currentUserService.CurrentClaimsPrincipal.ToPlayer().PrincipalName}.  There are now  {AvailableTables.Count()} tables to play");
                 #region Check to see if the table already exists in which case this is *really* an update
                 var t = AvailableTables.Where(tbl => tbl.Id.Equals(message.Table.Id)).FirstOrDefault();
                 if (t != null)
@@ -126,13 +126,13 @@ namespace Game.Client.Shared.Services.SignalRService
             }));
             hubConnection.On<RequestToJoinTableMessage>("playeradmitted", (message) =>
             {
-                RaisePlayerAdmittedToTable(message);
                 var t = AvailableTables.Where(tbl => tbl.Id.Equals(message.Table.Id)).FirstOrDefault();
                 if (t != null)
                 {
                     availabletables.Remove(t);
                     availabletables.Add(message.Table);
                 }
+                RaisePlayerAdmittedToTable(message);
             });
 
             #endregion
@@ -151,6 +151,7 @@ namespace Game.Client.Shared.Services.SignalRService
             {
                 Console.WriteLine($"{ex.Message}\r\n{ex.StackTrace}");
                 Console.WriteLine($"The tableClient {(tableClient == null ? "is" : "is not")} null");
+                availabletables = new ObservableCollection<Table>();
                 RaiseReadyStateChanged(false);
             }
         }

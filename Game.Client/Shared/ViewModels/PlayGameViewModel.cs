@@ -137,13 +137,16 @@ namespace Game.Client.Shared.ViewModels
         #region Methods
         public async Task Deal()
         {
+            Console.WriteLine($"There are {Table.Players.Count} players at the table");
             var service = factory.CreateClient("tableAPI");
             var x = await service.PostAsJsonAsync($"api/tables/deal/{this.table.Id}","");
             var s = await x.Content.ReadAsStringAsync();
             var t = Newtonsoft.Json.JsonConvert.DeserializeObject<Entities.Table>(s);
-            var h = t.Players.Where(p => p.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid)).FirstOrDefault().Hand;
-            this.Table.Players.Where(p => p.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid)).FirstOrDefault().Hand = h;
+            this.Table = t;
+            //var h = t.Players.Where(p => p.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid)).FirstOrDefault().Hand;
+            //this.Table.Players.Where(p => p.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid)).FirstOrDefault().Hand = h;
             RaisePropertyChanged("Table");
+            Console.WriteLine($"There are {t.Players.Count} players at the table");
          }
         public async Task Initialize(string tableId)
         {
@@ -202,6 +205,8 @@ namespace Game.Client.Shared.ViewModels
         {
             await Deal();
             Started = true;
+            var tableService = factory.CreateClient("tableAPI");
+            var result = await tableService.PostAsJsonAsync<Entities.Table>("/api/tables", Table);
         }
 
 

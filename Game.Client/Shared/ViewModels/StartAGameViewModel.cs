@@ -56,7 +56,7 @@ namespace Game.Client.Shared.ViewModels
         public async Task Initialize()
         {
             var tableClient = factory.CreateClient("tableAPI");
-            if (signalRService.AvailableTables == null || signalRService.AvailableTables.Count() == 0) await signalRService.InitializeAsync();
+            if (signalRService.AvailableTables == null) await signalRService.InitializeAsync();
             AvailableGameTables = new ObservableCollection<Table>(signalRService.AvailableTables);
             Console.WriteLine($"The are {availablegametables.Count()} tables available to join");
         }
