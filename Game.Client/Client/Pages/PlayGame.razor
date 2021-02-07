@@ -63,9 +63,11 @@ else
         </div>
     </div>
 </div>
-<div class="flex-grid">
+<div class="flex-grid" hidden="@vm.Started">
     <div class="flex-row" style="align-content:flex-end">
-        <button disabled="@(!vm.CanStartGame)" onclick="@vm.StartGame();">Start Game!</button>
+        <Syncfusion.Blazor.Buttons.SfButton OnClick="startGameClicked" Disabled="@(!vm.CanStartGame)" >
+            Start Game!
+        </Syncfusion.Blazor.Buttons.SfButton>
     </div>
 </div>
 <style>
@@ -90,7 +92,6 @@ else
     protected override async void OnParametersSet()
     {
         base.OnParametersSet();
-
     }
     public void SelectedRequestingPlayerChanged(ListBoxChangeEventArgs<string, Entities.Player> args)
     {
@@ -107,5 +108,10 @@ else
     {
         await vm.Admit();
         await InvokeAsync(() => StateHasChanged());
-    } 
+    }
+    private async void startGameClicked(MouseEventArgs args)
+    {
+        await vm.StartGame();
+        await InvokeAsync(() => StateHasChanged());
+    }
 }
