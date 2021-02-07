@@ -54,8 +54,8 @@ else
 <div class="flex-grid">
     <div class="col">
         <div style="width: 100%;
-                        display: inline-flex;
-                        background-color: yellow;">
+                    display: inline-flex;
+                    background-color: yellow;">
             @foreach (Entities.Card c in vm.Players.Where(p => p.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid)).FirstOrDefault().Hand)
             {
                 <UnoCard Colour="@c.Suit" Value="@c.Rank" />
@@ -69,7 +69,8 @@ else
     }
 </style>
 @code
-{ [Parameter]
+{ 
+    [Parameter]
     public string TableId { get; set; }
 
     public string SelectedPlayers { get; set; }
@@ -102,4 +103,5 @@ else
     {
         await vm.Admit();
         await InvokeAsync(() => StateHasChanged());
-    } }
+    } 
+}
