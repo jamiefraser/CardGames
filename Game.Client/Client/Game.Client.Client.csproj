@@ -4,6 +4,7 @@
     <TargetFramework>net5.0</TargetFramework>
     <BlazorWebAssemblyEnableLinking>false</BlazorWebAssemblyEnableLinking>
     <Configurations>Debug;Release;Debug-SignalR</Configurations>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
 
   <ItemGroup>
