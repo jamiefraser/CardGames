@@ -52,7 +52,7 @@ else
     }
 }
 <div class="flex-grid">
-    <div class="col">
+    <div class="flex-row">
         <div style="width: 100%;
                     display: inline-flex;
                     background-color: yellow;">
@@ -61,6 +61,11 @@ else
                 <UnoCard Colour="@c.Suit" Value="@c.Rank" />
             }
         </div>
+    </div>
+</div>
+<div class="flex-grid">
+    <div class="flex-row" style="align-content:flex-end">
+        <button disabled="@(!vm.CanStartGame)" onclick="@vm.StartGame();">Start Game!</button>
     </div>
 </div>
 <style>
@@ -85,7 +90,6 @@ else
     protected override async void OnParametersSet()
     {
         base.OnParametersSet();
-        vm.Deal();
 
     }
     public void SelectedRequestingPlayerChanged(ListBoxChangeEventArgs<string, Entities.Player> args)

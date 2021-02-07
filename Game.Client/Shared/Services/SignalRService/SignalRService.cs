@@ -145,12 +145,13 @@ namespace Game.Client.Shared.Services.SignalRService
             {
                 var tables = await tableClient.GetFromJsonAsync<List<Entities.Table>>("api/tables");
                 AvailableTables = new ObservableCollection<Table>(tables);
+                RaiseReadyStateChanged(true);
             }
             catch(Exception ex)
             {
                 Console.WriteLine($"{ex.Message}\r\n{ex.StackTrace}");
                 Console.WriteLine($"The tableClient {(tableClient == null ? "is" : "is not")} null");
-
+                RaiseReadyStateChanged(false);
             }
         }
         public async Task DisconnectSignalR()
@@ -202,10 +203,19 @@ namespace Game.Client.Shared.Services.SignalRService
                 });
             }
         }
+        public event EventHandler<ReadyStateChangedEventArgs> ReadyStateChanged;
         public event EventHandler<PlayerRequestingToJoinTableEventArgs> PlayerAdmittedToTable;
         public event EventHandler<TableAddedEventArgs> TableAdded;
         public event EventHandler<TableRemovedEventArgs> TableRemoved;
 
+        private void RaiseReadyStateChanged(bool Ready)
+        {
+            if(ReadyStateChanged!=null)
+            {
+                {
+                    ReadyStateChanged(this, new ReadyStateChangedEventArgs() { Ready = Ready });
+                } }
+        }
         private void RaiseTableAdded(Entities.Table table)
         {
             if(TableAdded!=null)

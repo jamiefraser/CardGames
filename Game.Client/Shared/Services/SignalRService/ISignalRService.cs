@@ -8,6 +8,7 @@ namespace Game.Client.Shared.Services.SignalRService
 {
     public interface ISignalRService
     {
+        event EventHandler<ReadyStateChangedEventArgs> ReadyStateChanged;
         string AccessToken { get; set; }
         ObservableCollection<Entities.Player> PlayersOnline { get; set; }
         ObservableCollection<Entities.Table> AvailableTables { get; }
