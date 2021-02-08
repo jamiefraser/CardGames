@@ -21,18 +21,17 @@ namespace Game.Client.Shared.Services.SignalRService
         private IHttpClientFactory _factory;
         private readonly ICurrentUserService currentUserService;
         private List<string> IDsOfTablesRequestedToJoin;
+        private string _serviceBaseUrl;
         #endregion
 
         #region ctors
         public SignalRService(IHttpClientFactory factory, string serviceBaseUrl, ICurrentUserService _currentUserService)
         {
             _factory = factory;
+            _serviceBaseUrl = serviceBaseUrl;
             IDsOfTablesRequestedToJoin = new List<string>();
             var clientAddress = factory.CreateClient("PresenceServiceRoot").BaseAddress;
-            hubConnection = new HubConnectionBuilder()
-                                .WithUrl($"{serviceBaseUrl}api")
-                                .WithAutomaticReconnect()
-                                .Build();
+
             currentUserService = _currentUserService;
             var client = factory.CreateClient("presenceAPI");
             var tableClient = factory.CreateClient("tableAPI");
@@ -110,8 +109,16 @@ namespace Game.Client.Shared.Services.SignalRService
 
         public async Task InitializeAsync()
         {
+            hubConnection = new HubConnectionBuilder()
+                    .WithUrl($"{_serviceBaseUrl}api", (options) => options.Headers.Add("x-ms-signalr-userid", currentUserService.CurrentClaimsPrincipalOid.ToString()))
+                    .WithAutomaticReconnect()
+                    .Build();
             await hubConnection.StartAsync();
             #region HubConnection Handlers
+            hubConnection.On<string>("TargetedMessage", (message) =>
+             {
+                 Console.WriteLine(message.ToString());
+             });
             hubConnection.On("newtable", (Action<TableCreationOrDeletionMessage>)(message =>
             {
                 HandleTableCreatedOrDeleted(message);

@@ -22,7 +22,7 @@ namespace Game.Services.RealTimeCommunications
         [FunctionName("negotiate")]
         public static SignalRConnectionInfo Negotiate(
             [HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequest req,
-            [SignalRConnectionInfo(HubName = "gameroom")] SignalRConnectionInfo connectionInfo)
+            [SignalRConnectionInfo(HubName = "gameroom", UserId ="{headers.x-ms-signalr-userid}")] SignalRConnectionInfo connectionInfo)
         {  
             return connectionInfo;
         }

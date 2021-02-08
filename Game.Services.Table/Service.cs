@@ -41,6 +41,20 @@ namespace Game.Services.Table
                 }
             }
             await table.Save();
+            //test comms
+            foreach(Entities.Player p in table.Players)
+            {
+                var m = new SignalRMessage()
+                {
+                    UserId = p.PrincipalId,
+                    Arguments = new[]
+                    {
+                        $"This is a hello only intended for {p.PrincipalName}"
+                    },
+                    Target = "TargetedMessage"
+                };
+                await message.AddAsync(m);
+            }
             return new OkObjectResult(table);
         }
         [FunctionName("AdmitPlayer")]
