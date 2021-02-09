@@ -73,6 +73,13 @@ else
         </Syncfusion.Blazor.Buttons.SfButton>
     </div>
 </div>
+<div class="flex-grid" hidden="@(!vm.Started)">
+    <div class="flex-row" style="align-content:flex-end">
+        <Syncfusion.Blazor.Buttons.SfButton OnClick="dealClicked" Disabled="@(vm.CanStartGame)">
+            Deal!
+        </Syncfusion.Blazor.Buttons.SfButton>
+    </div>
+</div>
 <style>
     .rest {
         margin-left: -25px;
@@ -92,10 +99,6 @@ else
         vm.PropertyChanged += vmPropertyChanged;
         await InvokeAsync(() => vm.Initialize(TableId));
         Console.WriteLine($"The game {(vm.Started ? "has" : "has not")} started");
-        if(vm.Started)
-        {
-            await vm.Deal();
-        }
     }
     protected override async void OnParametersSet()
     {
@@ -110,6 +113,11 @@ else
     }
     private async void vmPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
+        await InvokeAsync(() => StateHasChanged());
+    }
+    private async void dealClicked(MouseEventArgs args)
+    {
+        await vm.Deal();
         await InvokeAsync(() => StateHasChanged());
     }
     private async void admitClicked(MouseEventArgs args)

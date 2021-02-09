@@ -24,6 +24,18 @@ namespace Game.Entities
             get;
             set;
         }
+        private bool _started;
+        public bool Started
+        {
+            get
+            {
+                return _started;
+            }
+            set
+            {
+                _started = value;
+            }
+        }
         private bool _finished;
         public bool Finished
         {

@@ -115,9 +115,21 @@ namespace Game.Client.Shared.Services.SignalRService
                     .Build();
             await hubConnection.StartAsync();
             #region HubConnection Handlers
-            hubConnection.On<string>("TargetedMessage", (message) =>
+            hubConnection.On<Game.Entities.TableStartedMessage>("tableStarted", (message) =>
+            {
+                Console.WriteLine($"Recieved a signalr message that the table {message.TableId} was started");
+                var tbl = AvailableTables.Where(t => t.Id.Equals(Guid.Parse(message.TableId))).FirstOrDefault();
+                foreach(var t in AvailableTables)
+                {
+                    Console.WriteLine(t.Id);
+                }
+                Console.WriteLine($"I was {(tbl != null ? "able" : "not able")} to find a corresponding table for this message's table id of {message.TableId.ToString()}");
+                AvailableTables.Where(t => t.Id.Equals(Guid.Parse(message.TableId))).FirstOrDefault()!.Started = true;
+                RaiseTableStarted(message.TableId);
+            });
+            hubConnection.On<Game.Entities.PlayerHandMessage>("handDealt", (message) =>
              {
-                 Console.WriteLine(message.ToString());
+                 RaisePlayerDealtNewHand(message.Hand);
              });
             hubConnection.On("newtable", (Action<TableCreationOrDeletionMessage>)(message =>
             {
@@ -181,6 +193,31 @@ namespace Game.Client.Shared.Services.SignalRService
         public event EventHandler<PlayerAddedEventArgs> PlayerAdded;
         public event EventHandler<PlayerRemovedEventArgs> PlayerRemoved;
         public event EventHandler<PlayerRequestingToJoinTableEventArgs> PlayerRequestingToJoinTable;
+        public event EventHandler<PlayerDealtNewHandEventArgs> PlayerDealtNewHand;
+        public event EventHandler<TableStartedEventArgs> TableStarted;
+
+        private void RaiseTableStarted(string tableId)
+        {
+            Console.WriteLine($"Raising Table Started for {tableId}");
+            if(TableStarted != null)
+            {
+                TableStarted(this, new TableStartedEventArgs()
+                {
+                    TableId = tableId
+                });
+            }
+        }
+        private void RaisePlayerDealtNewHand(List<Card> Hand)
+        {
+            if(PlayerDealtNewHand != null)
+            {
+                PlayerDealtNewHand(this, new PlayerDealtNewHandEventArgs()
+                {
+                    Hand = new ObservableCollection<Card>(Hand.ToArray())
+                });
+            }
+        }
+
         private void RaisePlayerRequestingToJoinTable(Entities.RequestToJoinTableMessage message)
         {
             if(PlayerRequestingToJoinTable != null)

@@ -28,10 +28,26 @@ namespace Game.Client.Shared.ViewModels
             rtc = _rtc;
             currentUserService = _currentUserService;
             factory = _factory;
-            rtc.PlayerRequestingToJoinTable += Rtc_PlayerRequestingToJoinTable;
             PlayersRequestingEntry = new ObservableCollection<Player>();
             Players = new ObservableCollection<Player>();
             Players.CollectionChanged += PlayersChanged;
+            rtc.PlayerDealtNewHand += PlayerDealtNewHand;
+            rtc.TableStarted += TableStarted;
+            rtc.PlayerRequestingToJoinTable += Rtc_PlayerRequestingToJoinTable;
+        }
+
+        private void TableStarted(object sender, TableStartedEventArgs e)
+        {
+            Console.WriteLine($"Received a table started message for {e.TableId}");
+            Started = true;
+            Table.Started = true;
+            RaisePropertyChanged("Table");
+        }
+
+        private void PlayerDealtNewHand(object sender, PlayerDealtNewHandEventArgs e)
+        {
+            Player.Hand = e.Hand.ToList();
+            RaisePropertyChanged("Player");
         }
 
         private void PlayersChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -49,6 +65,19 @@ namespace Game.Client.Shared.ViewModels
         #endregion
 
         #region Properties
+        private Player player;
+        public Player Player
+        {
+            get
+            {
+                return player;
+            }
+            set
+            {
+                player = value;
+                RaisePropertyChanged("Player"); 
+            }
+        }
         private bool started = false;
         public bool Started
         {
@@ -146,7 +175,6 @@ namespace Game.Client.Shared.ViewModels
             //var h = t.Players.Where(p => p.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid)).FirstOrDefault().Hand;
             //this.Table.Players.Where(p => p.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid)).FirstOrDefault().Hand = h;
             RaisePropertyChanged("Table");
-            Console.WriteLine($"There are {t.Players.Count} players at the table");
          }
         public async Task Initialize(string tableId)
         {
@@ -155,7 +183,15 @@ namespace Game.Client.Shared.ViewModels
             Table = t;
             Players = new ObservableCollection<Player>(t.Players.ToArray());
             PlayersRequestingEntry = new ObservableCollection<Player>(t.PlayersRequestingAccess);
-         }
+            Player = Players.Where(p => p.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid)).FirstOrDefault();
+            var service = factory.CreateClient("tableAPI");
+            try
+            {
+                var hand = await service.GetFromJsonAsync<List<Card>>($"api/tables/hand/{this.table.Id}");
+                Player.Hand = hand;
+            }
+            catch { }
+        }
         public async Task Admit()
         {
             if (PlayerToAdmit == null || table == null) return;
@@ -199,14 +235,17 @@ namespace Game.Client.Shared.ViewModels
         {
             rtc.PlayerRequestingToJoinTable -= Rtc_PlayerRequestingToJoinTable;
             Players.CollectionChanged -= PlayersChanged;
+            rtc.PlayerDealtNewHand -= PlayerDealtNewHand;
+            rtc.TableStarted -= TableStarted;
         }
 
         public async Task StartGame()
         {
-            await Deal();
-            Started = true;
+            //Started = true;
+            //Table.Started = true;
+            //rtc.AvailableTables.Where(tbl => tbl.Id.Equals(Table.Id)).FirstOrDefault()!.Started = true;
             var tableService = factory.CreateClient("tableAPI");
-            var result = await tableService.PostAsJsonAsync<Entities.Table>("/api/tables", Table);
+            var result = await tableService.PostAsJsonAsync<string>($"/api/tables/{Table.Id.ToString()}/start","");
         }
 
 

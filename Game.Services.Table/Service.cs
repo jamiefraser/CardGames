@@ -12,6 +12,8 @@ using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using Microsoft.Azure.WebJobs.Extensions.SignalRService;
 using System.Linq;
+using Game.Entities;
+
 namespace Game.Services.Table
 {
     public  class Service
@@ -21,6 +23,29 @@ namespace Game.Services.Table
         {
             _config = configuration;
         }
+        [FunctionName("Start")]
+        public async Task<IActionResult>StartGameAtTable([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "tables/{tableId}/start")] HttpRequest req,
+                                                    string tableId,
+                                                    ILogger log,
+                                                    [SignalR(ConnectionStringSetting = "AzureSignalRConnectionString", HubName = "gameroom")] IAsyncCollector<SignalRMessage> message)
+        {
+            var table = await Helpers.Helpers.GetTable(tableId);
+            table.Started = true;
+            await table.Save();
+            var msg = new SignalRMessage()
+            {
+                Target = "tableStarted",
+                Arguments = new[]
+                {
+                    new TableStartedMessage()
+                    {
+                        TableId = tableId
+                    }
+                }
+            };
+            await message.AddAsync(msg);
+            return new OkResult();
+        }
         [FunctionName("DealHands")]
         public async Task<IActionResult>DealHands([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route ="tables/deal/{tableId}")] HttpRequest req,
                                                     string tableId,
@@ -29,33 +54,69 @@ namespace Game.Services.Table
         {
             var table = await Helpers.Helpers.GetTable(tableId);
             table.Deck.Shuffle();
+            List<Entities.Player> players = new List<Entities.Player>(table.Players);
+            foreach(Entities.Player p in players)
+            {
+                p.Hand.Clear();
+            }
             foreach(Entities.Player p in table.Players)
             {
                 p.Hand = new List<Entities.Card>();
             }
             for (int i = 0; i < table.Game.NumberOfCardsToDeal; i++)
             {
-                foreach (Entities.Player p in table.Players)
+                foreach (Entities.Player p in players)
                 {
                     p.Hand.Add(table.Deck.Cards.Dequeue());
                 }
             }
-            await table.Save();
-            //test comms
-            foreach(Entities.Player p in table.Players)
+            //Save and send the hands to their players
+            foreach(Entities.Player p in players)
             {
                 var m = new SignalRMessage()
                 {
                     UserId = p.PrincipalId,
                     Arguments = new[]
                     {
-                        $"This is a hello only intended for {p.PrincipalName}"
+                        new PlayerHandMessage()
+                        {
+                            Hand = p.Hand,
+                            TableId = table.Id
+                        }
                     },
-                    Target = "TargetedMessage"
+                    Target = "handDealt"
                 };
+                try
+                {
+                    await p.Hand.Save(table, p);
+                }
+                catch (Exception ex)
+                {
+                    throw;
+                }
                 await message.AddAsync(m);
             }
             return new OkObjectResult(table);
+        }
+        [FunctionName("RetrieveHand")]
+        public async Task<IActionResult>RetrieveHand([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "tables/hand/{tableId}")] HttpRequest req,
+                                                     ILogger log,
+                                                     [SignalR(ConnectionStringSetting = "AzureSignalRConnectionString", HubName = "gameroom")] IAsyncCollector<SignalRMessage> messages,
+                                                     string tableId)
+        {
+            try
+            {
+                var t = await Helpers.Helpers.GetTable(tableId);
+                var principal = await Helpers.Helpers.GetClaimsPrincipalAsync(req.GetAccessToken(), log);
+                var player = principal.ToPlayer();
+                var hand = await Helpers.Helpers.GetPlayerHand(t, player);
+                return new OkObjectResult(hand);
+            }
+            catch(Exception ex)
+            {
+                log.LogError(ex.Message, ex);
+                return new NotFoundResult();
+            }
         }
         [FunctionName("AdmitPlayer")]
         public async Task<IActionResult>AdmitPlayer([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "tables/admit")] HttpRequest req,

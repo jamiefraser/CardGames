@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Game.Entities;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -21,5 +22,6 @@ namespace Game.Client.Shared.ViewModels
         Task StartGame();
         bool CanStartGame { get; set; }
         bool Started { get; set; }
+        Player Player { get; set; }
     }
 }

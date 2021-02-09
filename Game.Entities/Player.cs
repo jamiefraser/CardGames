@@ -7,6 +7,7 @@ namespace Game.Entities
 {
     public class Player : Microsoft.Azure.Cosmos.Table.TableEntity
     {
+        public bool Online { get; set; }
         public string PrincipalName { get; set; }
         public string PrincipalId { get; set; }
         public string PrincipalIdp { get; set; }

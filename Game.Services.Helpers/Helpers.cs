@@ -90,6 +90,42 @@ namespace Game.Services.Helpers
             }
             return tables;
         }
+        public static async Task<List<Card>>GetPlayerHand(Table table, Player player)
+        {
+            try
+            {
+                var name = $"{table.Id}/{player.PrincipalId}";
+                BlobContainerClient containerClient = GetBlobContainerClient("hands");
+                var blobClient = containerClient.GetBlobClient(name);
+                using (var sr = new StreamReader(blobClient.OpenRead()))
+                {
+                    var json = sr.ReadToEnd();
+                    var hand = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Card>>(json);
+                    return hand;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+        public static async Task Save(this List<Card>Hand, Table table, Player player)
+        {
+            var name = $"{table.Id}/{player.PrincipalId}";
+            BlobContainerClient containerClient = GetBlobContainerClient("hands");
+            var blobClient = containerClient.GetBlobClient(name);
+            var json = Newtonsoft.Json.JsonConvert.SerializeObject(Hand);
+            var bytes = Encoding.ASCII.GetBytes(json);
+            try
+            {
+                var ms = new MemoryStream(bytes);
+                await blobClient.UploadAsync(ms, true, new System.Threading.CancellationToken());
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
         public static async Task<Table> Save(this Table table)
         {
 
@@ -99,10 +135,10 @@ namespace Game.Services.Helpers
             var blobClient = containerClient.GetBlobClient(id);
             var json = Newtonsoft.Json.JsonConvert.SerializeObject(table);
             var bytes = Encoding.ASCII.GetBytes(json);
+
             try
             {
                 var ms = new MemoryStream(bytes);
-                
                 await blobClient.UploadAsync(ms,true,new System.Threading.CancellationToken());
             }
             catch(Exception ex)
