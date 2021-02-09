@@ -189,6 +189,10 @@ namespace Game.Client.Shared.ViewModels
             {
                 var hand = await service.GetFromJsonAsync<List<Card>>($"api/tables/hand/{this.table.Id}");
                 Player.Hand = hand;
+                if(Player.Hand != null)
+                {
+                    Started = true;
+                }
             }
             catch { }
         }
