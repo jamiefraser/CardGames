@@ -1,12 +1,18 @@
-﻿<div style="width: calc(100% / 4); border-width: 2px; border-color: black; border-style: solid;background-color:@Colour.ToLower();">
-    <div>@Value</div>
-    @if(Wild)
+﻿<div style="width: calc(100% / 4); border-width: 2px; border-color: black; border-style: solid;background-color:@Colour.ToLower();padding-bottom:8%;">
+    @if (Value < 100)
     {
-        <div>Wild</div>
+        <div>@Value</div>
     }
-    @if(Skip)
+    else
     {
-        <div>Skip</div>
+        @if (Value==100)
+        {
+            <div>Wild</div>
+        }
+        @if (Value==200)
+        {
+            <div>Skip</div>
+        }
     }
 </div>
 @code {

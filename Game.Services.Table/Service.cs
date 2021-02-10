@@ -96,7 +96,7 @@ namespace Game.Services.Table
                 }
                 await message.AddAsync(m);
             }
-            return new OkObjectResult(table);
+            return new OkResult();
         }
         [FunctionName("RetrieveHand")]
         public async Task<IActionResult>RetrieveHand([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "tables/hand/{tableId}")] HttpRequest req,
