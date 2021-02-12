@@ -42,6 +42,7 @@
 
   <ItemGroup>
     <Folder Include="ViewModels\" />
+    <Folder Include="wwwroot\faces\" />
   </ItemGroup>
 
 </Project>

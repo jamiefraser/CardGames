@@ -3,6 +3,15 @@
 .flex-grid {
     display: flex;
 }
+.card {
+    display: flex;
+    flex-direction: column;
+    width: calc(100% / 4);
+    border-width: 2px;
+    border-color: black;
+    border-style: solid;
+    padding-bottom: 8%;
+}
 
 .col {
     flex: 1;

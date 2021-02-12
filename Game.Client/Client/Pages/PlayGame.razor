@@ -54,8 +54,7 @@ else
 <div class="flex-grid">
     <div class="col">
         <div style="width: 100%;
-                    display: inline-flex;
-                    background-color: yellow;">
+                    display: inline-flex;">
             @if (vm.Table.Players.Where(p => p.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid)).FirstOrDefault() != null && vm.Table.Players.Where(p => p.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid)).FirstOrDefault().Hand != null)
             {
                 foreach (Entities.Card c in vm.Table.Players.Where(p => p.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid)).FirstOrDefault().Hand)

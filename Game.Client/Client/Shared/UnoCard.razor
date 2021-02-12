@@ -1,27 +1,92 @@
-﻿<div style="width: calc(100% / 4); border-width: 2px; border-color: black; border-style: solid;background-color:@Colour.ToLower();padding-bottom:8%;">
-    @if (Value < 100)
-    {
-        <div>@Value</div>
+﻿<style>
+    .cardvalue{
+        font-size:larger;
+        color:black;
+        font-weight:700
     }
-    else
-    {
-        @if (Value==100)
-        {
-            <div>Wild</div>
-        }
-        @if (Value==200)
-        {
-            <div>Skip</div>
-        }
+    .cardwild{
+        font-size:larger;
+        color:white;
+        font-weight:700
     }
+</style>
+<div class="card">
+    <div style="background-color: @RenderColour.ToLower();flex:100%;" class="col">
+        <div class="@ClassName">
+            @if (Value < 100)
+            {
+                @Value
+            }
+            else
+            {
+                if (Value == 100)
+                {
+                    @sWild
+                }
+                else
+                {
+                    @sSkip
+                }
+            }
+        </div>
+    </div>
+    <div class="col" />
+    <div style="background-color: @RenderColour.ToLower();
+                flex: 100%;
+                position: absolute;
+                bottom: 0;
+                transform:scale(-1,-1);"
+         class="col">
+        <div class="@ClassName">
+            @if (Value < 100)
+            {
+                @Value
+            }
+            else
+            {
+                if (Value == 100)
+                {
+                    @sWild
+                }
+                else
+                {
+                    @sSkip
+                }
+            }
+        </div>
+    </div>
 </div>
-@code {
-    [Parameter]
-    public string Colour { get; set; }
-    [Parameter]
-    public int Value { get; set; }
-    [Parameter]
-    public bool Wild { get; set; }
-    [Parameter]
-    public bool Skip { get; set; }
-}
+    @code {
+        [Parameter]
+        public string Colour { get; set; }
+        [Parameter]
+        public int Value { get; set; }
+        [Parameter]
+        public bool Wild { get; set; }
+        [Parameter]
+        public bool Skip { get; set; }
+        public const string sSkip = "Skip";
+        public const string sWild = "Wild";
+        public string ClassName { get; set; }
+        public string RenderColour { get; set; }
+        protected override void OnParametersSet()
+        {
+            switch (Value)
+            {
+                case < 100:
+                    {
+                        RenderColour = Colour;
+                        ClassName = "cardvalue";
+                        break;
+                    }
+                default:
+                    {
+                        RenderColour = "Black";
+                        ClassName = "cardwild";
+                        break;
+                    }
+            }
+            base.OnParametersSet();
+
+        }
+    }
