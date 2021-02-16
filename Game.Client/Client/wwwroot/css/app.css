@@ -3,6 +3,7 @@
 .flex-grid {
     display: flex;
 }
+
 .card {
     display: flex;
     flex-direction: column;
@@ -13,9 +14,20 @@
     padding-bottom: 8%;
 }
 
+.cardselected {
+    display: flex;
+    flex-direction: column;
+    width: calc(100% / 4);
+    border-width: 2px;
+    border-color: white;
+    border-style: solid;
+    padding-bottom: 8%;
+}
+
 .col {
     flex: 1;
 }
+
 .cell-label {
     padding-right: 20px;
 }
@@ -23,6 +35,7 @@
 .cell-value {
     padding-left: 20px;
 }
+
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }

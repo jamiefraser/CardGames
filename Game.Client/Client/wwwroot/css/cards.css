@@ -136,6 +136,7 @@
     margin-top: 2.4em;
 }
 
+
 .playingCards.inText .card input {
     margin-top: 0;
 }
@@ -453,7 +454,9 @@
 .playingCards.simpleCards .card.rank-k {
     background-image: none !important;
 }
-
+.playingCards.simpleCards .card.rank-100.nild{
+    content:"Wild";
+}
 /*____________ symbols in the middle (faces as dingbat symbols) ____________*/
 
 .playingCards.simpleCards .card .suit:after,

@@ -1,92 +1,152 @@
 ﻿<style>
-    .cardvalue{
-        font-size:larger;
-        color:black;
-        font-weight:700
+    .cardvalue {
+        font-size: larger;
+        color: black;
+        font-weight: 700
     }
-    .cardwild{
-        font-size:larger;
-        color:white;
-        font-weight:700
+
+    .cardwild {
+        font-size: larger;
+        color: white;
+        font-weight: 700
     }
 </style>
-<div class="card">
-    <div style="background-color: @RenderColour.ToLower();flex:100%;" class="col">
-        <div class="@ClassName">
-            @if (Value < 100)
-            {
-                @Value
-            }
-            else
-            {
-                if (Value == 100)
+@if (!Selected)
+{
+    <button class="card" @onclick="this.Clicked">
+        <div style="background-color: @RenderColour.ToLower();flex:100%;" class="col">
+            <div class="@ClassName">
+                @if (Value < 100)
                 {
-                    @sWild
+                    @Value
                 }
                 else
                 {
-                    @sSkip
+                    if (Value == 100)
+                    {
+                        @sWild
+                    }
+                    else
+                    {
+                        @sSkip
+                    }
                 }
-            }
+            </div>
         </div>
-    </div>
-    <div class="col" />
-    <div style="background-color: @RenderColour.ToLower();
+        <div class="col" />
+        <div style="background-color: @RenderColour.ToLower();
                 flex: 100%;
                 position: absolute;
                 bottom: 0;
                 transform:scale(-1,-1);"
-         class="col">
-        <div class="@ClassName">
-            @if (Value < 100)
-            {
-                @Value
-            }
-            else
-            {
-                if (Value == 100)
+             class="col">
+            <div class="@ClassName">
+                @if (Value < 100)
                 {
-                    @sWild
+                    @Value
                 }
                 else
                 {
-                    @sSkip
+                    if (Value == 100)
+                    {
+                        @sWild
+                    }
+                    else
+                    {
+                        @sSkip
+                    }
                 }
-            }
+            </div>
         </div>
-    </div>
-</div>
-    @code {
-        [Parameter]
-        public string Colour { get; set; }
-        [Parameter]
-        public int Value { get; set; }
-        [Parameter]
-        public bool Wild { get; set; }
-        [Parameter]
-        public bool Skip { get; set; }
-        public const string sSkip = "Skip";
-        public const string sWild = "Wild";
-        public string ClassName { get; set; }
-        public string RenderColour { get; set; }
-        protected override void OnParametersSet()
-        {
-            switch (Value)
-            {
-                case < 100:
+    </button>
+}
+else
+{
+    <button class="cardselected" @onclick="this.Clicked">
+        <div style="background-color: @RenderColour.ToLower();flex:100%;" class="col">
+            <div class="@ClassName">
+                @if (Value < 100)
+                {
+                    @Value
+                }
+                else
+                {
+                    if (Value == 100)
                     {
-                        RenderColour = Colour;
-                        ClassName = "cardvalue";
-                        break;
+                        @sWild
                     }
-                default:
+                    else
                     {
-                        RenderColour = "Black";
-                        ClassName = "cardwild";
-                        break;
+                        @sSkip
                     }
-            }
-            base.OnParametersSet();
+                }
+            </div>
+        </div>
+        <div class="col" />
+        <div style="background-color: @RenderColour.ToLower();
+                flex: 100%;
+                position: absolute;
+                bottom: 0;
+                transform:scale(-1,-1);"
+             class="col">
+            <div class="@ClassName">
+                @if (Value < 100)
+                {
+                    @Value
+                }
+                else
+                {
+                    if (Value == 100)
+                    {
+                        @sWild
+                    }
+                    else
+                    {
+                        @sSkip
+                    }
+                }
+            </div>
+        </div>
+    </button>
+}
+@code {
+    [Parameter]
+    public string Colour { get; set; }
+    [Parameter]
+    public int Value { get; set; }
+    [Parameter]
+    public bool Wild { get; set; }
+    [Parameter]
+    public bool Skip { get; set; }
 
+    public bool Selected { get; set; }
+    public const string sSkip = "Skip";
+    public const string sWild = "Wild";
+    public string ClassName { get; set; }
+    public string RenderColour { get; set; }
+    protected override void OnParametersSet()
+    {
+        switch (Value)
+        {
+            case < 100:
+                {
+                    RenderColour = Colour;
+                    ClassName = "cardvalue";
+                    break;
+                }
+            default:
+                {
+                    RenderColour = "Black";
+                    ClassName = "cardwild";
+                    break;
+                }
         }
+        base.OnParametersSet();
+
     }
+    protected void Clicked(MouseEventArgs args)
+    {
+        Selected = !Selected;
+        Console.WriteLine($"Selected is {Selected}");
+    }
+}

@@ -8,16 +8,18 @@
     },
     "iisExpress": {
       "applicationUrl": "http://localhost:49040",
-      "sslPort": 44350
+      "sslPort": 44343
     }
   },
   "profiles": {
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
+      "launchUrl": "paythemantabletest ",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
+      "nativeDebugging": false,
       "inspectUri": "{wsProtocol}://{url.hostname}:{url.port}/_framework/debug/ws-proxy?browser={browserInspectUri}"
     },
     "Game.Client": {

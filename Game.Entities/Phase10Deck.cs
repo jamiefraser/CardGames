@@ -18,7 +18,7 @@ namespace Game.Entities
                 {
                     for (int card = 0; card < standardcards.Count(); card++)
                     {
-                        cards.Add(new Card(card, standardsuits[suit]));
+                        cards.Add(new Card(System.Convert.ToInt32(standardcards[card]), standardsuits[suit]));
                     }
                 }
             }

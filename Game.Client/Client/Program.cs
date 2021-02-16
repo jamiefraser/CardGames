@@ -146,6 +146,7 @@ namespace Game.Client.Client
             builder.Services.AddTransient<IStartAGameViewModel, StartAGameViewModel>();
             builder.Services.AddTransient<ILobbyViewModel, LobbyViewModel>();
             builder.Services.AddTransient<IPlayGameViewModel, PlayGameViewModel>();
+            builder.Services.AddTransient<IPayTheManTableTestViewModel, PayTheManTableTestViewModel>();
             #endregion
             #region State Manager - wiring in for presence detection
             builder.Services.AddSyncfusionBlazor();

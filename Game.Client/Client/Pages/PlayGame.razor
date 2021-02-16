@@ -51,20 +51,8 @@ else
         </div>
     }
 }
-<div class="flex-grid">
-    <div class="col">
-        <div style="width: 100%;
-                    display: inline-flex;">
-            @if (vm.Table.Players.Where(p => p.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid)).FirstOrDefault() != null && vm.Table.Players.Where(p => p.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid)).FirstOrDefault().Hand != null)
-            {
-                foreach (Entities.Card c in vm.Table.Players.Where(p => p.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid)).FirstOrDefault().Hand)
-                {
-                    <UnoCard Colour="@c.Suit" Value="@c.Rank" />
-                }
-            }
-        </div>
-    </div>
-</div>
+<Hand Cards="@vm.Table.Players.Where(p => p.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid)).FirstOrDefault().Hand" />
+
 <div class="flex-grid" hidden="@vm.Started">
     <div class="flex-row" style="align-content:flex-end">
         <Syncfusion.Blazor.Buttons.SfButton OnClick="startGameClicked" Disabled="@(!vm.CanStartGame)" >

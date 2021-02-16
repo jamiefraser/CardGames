@@ -1,0 +1,76 @@
+﻿@*<div class="flex-grid">
+        <div class="col">
+            <div style="width: 100%;
+                        display: inline-flex;">
+                    @foreach (Game.Entities.Card c in Cards)
+                    {
+                        <UnoCard Colour="@c.Suit" Value="@c.Rank" />
+                    }
+            </div>
+        </div>
+    </div>*@
+
+<div class="playingCards playingCards  rotateHand">
+    <div class="table">
+        <ul class="hand">
+            @foreach (Game.Entities.Card c in Cards)
+            {
+                Console.WriteLine($"{c.Suit} {c.Rank}");
+                if (c.Suit.ToLower() == "yellow") c.Suit = "diams";
+                if (c.Suit.ToLower() == "green") c.Suit = "hearts";
+                if (c.Suit.ToLower() == "blue") c.Suit = "clubs";
+                if (c.Suit.ToLower() == "red") c.Suit = "spades";
+                Console.WriteLine($"{c.Suit} {c.Rank}");
+
+                <li>
+                    @if (c.Selected)
+                    {
+                        <strong>
+                            <a class="card rank-@c.Rank @c.Suit" href=# @onclick="Clicked">
+                                <span class="rank">
+                                    @switch (c.Suit.ToLower())
+                                    {
+                                        case "wild":
+                                            {
+                                                @Wild;
+                                                break;
+                                            }
+                                        case "skip":
+                                            {
+                                                @Skip;
+                                                break;
+                                            }
+                                        default:
+                                            {
+                                                @c.Rank;
+                                                break;
+                                            }
+                                    }
+                                </span>
+                                @*<span class="suit">@string.Concat(string.Concat("&", c.Suit), ";")</span>*@
+                            </a>
+                        </strong>
+                    }
+                    else
+                    {
+                        <a class="card rank-@c.Rank @c.Suit" @onclick="Clicked">
+                            <span class="rank">@c.Rank</span>
+                            @*<span class="suit">@string.Concat(string.Concat("&", c.Suit), ";")</span>*@
+                        </a>
+                    }
+                </li>
+            }
+        </ul>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public List<Game.Entities.Card> Cards { get; set; }
+    protected void Clicked(MouseEventArgs args)
+    {
+
+    }
+    public const string Wild = "Wild";
+    public const string Skip = "Skip";
+}
