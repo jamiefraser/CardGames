@@ -8,6 +8,23 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="wwwroot\css\faces\JC.gif" />
+    <Content Remove="wwwroot\css\faces\JD.gif" />
+    <Content Remove="wwwroot\css\faces\JH.gif" />
+    <Content Remove="wwwroot\css\faces\joker.gif" />
+    <Content Remove="wwwroot\css\faces\JS.gif" />
+    <Content Remove="wwwroot\css\faces\KC.gif" />
+    <Content Remove="wwwroot\css\faces\KD.gif" />
+    <Content Remove="wwwroot\css\faces\KH.gif" />
+    <Content Remove="wwwroot\css\faces\KS.gif" />
+    <Content Remove="wwwroot\css\faces\QC.gif" />
+    <Content Remove="wwwroot\css\faces\QD.gif" />
+    <Content Remove="wwwroot\css\faces\QH.gif" />
+    <Content Remove="wwwroot\css\faces\QS.gif" />
+    <Content Remove="wwwroot\css\faces\README" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Blazored.LocalStorage" Version="3.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Blazor.HttpClient" Version="3.2.0-preview3.20168.3" />
     <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="5.0.2" />
@@ -43,7 +60,23 @@
   <ItemGroup>
     <Folder Include="CSS Cards Sample Project\" />
     <Folder Include="ViewModels\" />
-    <Folder Include="wwwroot\faces\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\css\faces\JC.gif" />
+    <None Include="wwwroot\css\faces\JD.gif" />
+    <None Include="wwwroot\css\faces\JH.gif" />
+    <None Include="wwwroot\css\faces\joker.gif" />
+    <None Include="wwwroot\css\faces\JS.gif" />
+    <None Include="wwwroot\css\faces\KC.gif" />
+    <None Include="wwwroot\css\faces\KD.gif" />
+    <None Include="wwwroot\css\faces\KH.gif" />
+    <None Include="wwwroot\css\faces\KS.gif" />
+    <None Include="wwwroot\css\faces\QC.gif" />
+    <None Include="wwwroot\css\faces\QD.gif" />
+    <None Include="wwwroot\css\faces\QH.gif" />
+    <None Include="wwwroot\css\faces\QS.gif" />
+    <None Include="wwwroot\css\faces\README" />
   </ItemGroup>
 
 </Project>

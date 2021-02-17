@@ -18,17 +18,17 @@ namespace Game.Entities
                 {
                     for (int card = 0; card < standardcards.Count(); card++)
                     {
-                        cards.Add(new Card(System.Convert.ToInt32(standardcards[card]), standardsuits[suit]));
+                        cards.Add(new Card(standardcards[card], standardsuits[suit]));
                     }
                 }
             }
             for(int i = 0;i<8;i++)
             {
-                cards.Add(new Card(100, "Wild", true));
+                cards.Add(new Card(100.ToString(), "Wild", true));
             }
             for(int i=0;i<4;i++)
             {
-                cards.Add(new Card(200, "Skip", true));
+                cards.Add(new Card(200.ToString(), "Skip", true));
             }
             this.Cards = new Queue<Card>();
             this.Cards.Clear();

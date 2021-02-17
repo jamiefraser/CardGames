@@ -15,14 +15,14 @@ namespace Game.Entities
             {
                 for (int card = 0; card < standardcards.Count(); card++)
                 {
-                    cards.Add(new Card(card, standardsuits[suit]));
+                    cards.Add(new Card(standardcards[card], standardsuits[suit]));
                 }
             }
             if (includeWilds)
             {
                 foreach (string s in wildcards)
                 {
-                    cards.Add(new Card(100, s, true));
+                    cards.Add(new Card(100.ToString(), s, true));
                 }
             }
             this.Cards = new Queue<Card>();

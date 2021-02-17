@@ -40,6 +40,7 @@
     .playingCards label.card:hover,
     .playingCards strong .card {
         bottom: 1em;
+        border-width:thick
     }
 
 .playingCards label.card {

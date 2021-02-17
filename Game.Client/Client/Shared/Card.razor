@@ -1,0 +1,151 @@
+﻿<li>
+    @if (!Selected)
+    {
+    <a class="card rank-@Rank @Suit" @onclick="Clicked">
+        <span class="rank">
+            @if (DeckType.Equals(Entities.DeckType.Phase10))
+            {
+                @switch (Suit.ToLower())
+                {
+                    case "wild":
+                        {
+                            <div>
+                                Wild
+                            </div>
+                            break;
+                        }
+                    case "skip":
+                        {
+                            <div>
+                                Skip
+                            </div>
+                            break;
+                        }
+                    default:
+                        {
+                            @Rank;
+                            break;
+                        }
+                }
+            }
+            else
+            {
+                switch(Rank.All(Char.IsDigit))
+                {
+                    case true:
+                        {
+                            <span class="rank">
+                                @Rank
+                            </span>
+                            break;
+                        }
+                    case false:
+                        {
+                            <span class="rank">
+                                @Rank
+                            </span>
+                            <span class="suit">
+                                switch(Suit.ToLower())
+                                {
+                                    case "spades":
+                                    {
+                                        <div>
+                                            &spades;
+                                        </div>
+                                        break;
+                                    }
+                                    case "clubs":
+                                    {
+                                        <div>
+                                            &clubs;
+                                        </div>
+                                        break;
+                                    }
+                                    case "diams":
+                                    {
+                                        <div>
+                                            &diams;
+                                        </div>
+                                        break;
+                                    }
+                                    case "hearts":
+                                    {
+                                        <div>
+                                            &hearts;
+                                        </div>
+                                        break;
+                                    }
+                                }
+                            </span>
+                            break;
+                        }
+                }
+            }
+        </span>
+        @*This snippet below shows how to add the suit to the top left corner conditionally.  Helpful for, say, face cards*@
+        @*<span class="suit">
+                @switch (c.Suit.ToLower())
+                {
+                case "spades":
+                {
+                <div>
+                    &spades;
+                </div>
+                break;
+                    }
+                    default:
+                {
+                <div>
+                    &nbsp;
+                </div>
+                break;
+                    }
+                }
+            </span>*@
+    </a>
+    }
+    else
+    {
+        <strong>
+            <a class="card rank-@Rank @Suit" @onclick="Clicked">
+                <span class="rank">
+                    @switch (Suit.ToLower())
+            {
+                        case "wild":
+                        {
+                            <div>
+                                Wild
+                            </div> break;
+                        }
+                        case "skip":
+                        {
+                            <div>
+                                Skip
+                            </div> 
+                            break;
+                        }   
+                        default:
+                        {
+                            @Rank;
+                            break;
+                        }
+                    }
+                </span>
+            </a>
+        </strong>
+    }
+    </li>
+
+@code { 
+    [Parameter]
+    public string Suit { get; set; }
+    [Parameter]
+    public string Rank { get; set; }
+    [Parameter]
+    public Entities.DeckType DeckType { get; set; }
+    public bool Selected { get; set; }
+    protected void Clicked (MouseEventArgs args)
+    {
+        Selected = !Selected;
+    }
+}
