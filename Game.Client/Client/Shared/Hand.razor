@@ -10,10 +10,10 @@
         </div>
     </div>*@
 
-<div class="playingCards playingCards  rotateHand">
+<div class="playingCards  rotateHand fourColours">
     <div class="table">
         <ul class="hand">
-            @foreach (Game.Entities.Card c in Cards)
+            @foreach (Game.Entities.Card c in Cards.OrderBy(card => card.Suit).OrderBy(card => card.Rank))
             {
                 Console.WriteLine($"{c.Suit} {c.Rank}");
                 if (c.Suit.ToLower() == "yellow") c.Suit = "diams";
@@ -32,45 +32,64 @@
                                     {
                                         case "wild":
                                             {
-                                                @Wild;
-                                                break;
-                                            }
-                                        case "skip":
-                                            {
-                                                @Skip;
-                                                break;
-                                            }
-                                        default:
-                                            {
-                                                @c.Rank;
-                                                break;
-                                            }
-                                    }
+                        @Wild;
+                        break;
+                        }
+                        case "skip":
+                        {
+                        @Skip;
+                        break;
+                        }
+                        default:
+                        {
+                        @c.Rank;
+                        break;
+                        }
+                        }
                                 </span>
                                 @*<span class="suit">@string.Concat(string.Concat("&", c.Suit), ";")</span>*@
                             </a>
-                        </strong>
+                        </strong> 
                     }
                     else
                     {
                         <a class="card rank-@c.Rank @c.Suit" @onclick="Clicked">
-                            <span class="rank">@c.Rank</span>
-                            @*<span class="suit">@string.Concat(string.Concat("&", c.Suit), ";")</span>*@
+                            <span class="rank">
+                                @switch (c.Suit.ToLower())
+                                {
+                                    case "wild":
+                                        {
+                                            @Wild;
+                                            break;
+                                        }
+                                    case "skip":
+                                        {
+                                            @Skip;
+                                            break;
+                                        }
+                                    default:
+                                        {
+                                            @c.Rank;
+                                            break;
+                                        }
+                                }
+                            </span>
                         </a>
                     }
-                </li>
+                </li>           
             }
         </ul>
     </div>
 </div>
 
-@code {
+@code { 
     [Parameter]
     public List<Game.Entities.Card> Cards { get; set; }
     protected void Clicked(MouseEventArgs args)
     {
 
     }
+
     public const string Wild = "Wild";
     public const string Skip = "Skip";
-}
+    }

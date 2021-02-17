@@ -62,13 +62,21 @@
 .playingCards .card.diams {
     color: #f00 !important;
 }
+/*green*/
+.playingCards.fourColours .card.hearts {
+    color: #008800 !important;
+}
+[lang-de].playingCards.fourColours .card.hearts {
+    color: #008800 !important;
+}
 
+/*yellow*/
 .playingCards.fourColours .card.diams {
-    color: #00f !important;
+    color: #ffde00 !important;
 }
 
 [lang=de] .playingCards.fourColours .card.diams {
-    color: #f60 !important;
+    color: #ffde00 !important;
 }
 
 .playingCards .card.hearts {
@@ -79,20 +87,25 @@
     color: #000 !important;
 }
 
+/*red*/
 [lang=de] .playingCards.fourColours .card.spades {
-    color: #090 !important;
+    color: #ff0000 !important;
+}
+.playingCards.fourColours .card.spades {
+    color: #ff0000 !important;
 }
 
 .playingCards .card.clubs {
     color: #000 !important;
 }
 
+/*blue*/
 .playingCards.fourColours .card.clubs {
-    color: #090 !important;
+    color: #0000ff !important;
 }
 
 [lang=de] .playingCards.fourColours .card.clubs {
-    color: #000 !important;
+    color: #0000ff !important;
 }
 
 .playingCards .card.joker {
