@@ -170,10 +170,18 @@ namespace Game.Client.Shared.ViewModels
             var service = factory.CreateClient("tableAPI");
             var x = await service.PostAsJsonAsync($"api/tables/deal/{this.table.Id}","");
             var s = await x.Content.ReadAsStringAsync();
-            //var t = Newtonsoft.Json.JsonConvert.DeserializeObject<Entities.Table>(s);
-            //this.Table = t;
-            //var h = t.Players.Where(p => p.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid)).FirstOrDefault().Hand;
-            //this.Table.Players.Where(p => p.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid)).FirstOrDefault().Hand = h;
+            foreach(Player p in Table.Players.Where(player => !player.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid)))
+            {
+                p.Hand = new List<Card>();
+                for(int i=0;i<Table.Game.NumberOfCardsToDeal;i++)
+                {
+                    p.Hand.Add(new Card()
+                    {
+                        Suit = "red",
+                        Rank = "0"
+                    });
+                }
+            }
             RaisePropertyChanged("Table");
          }
         public async Task Initialize(string tableId)

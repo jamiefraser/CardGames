@@ -1,4 +1,12 @@
-﻿<li>
+﻿@if (OpponentsCard)
+{
+    <li class="card back">
+        *
+    </li>
+}
+else
+{
+<li>
     @if (!Selected)
     {
     <a class="card rank-@Rank @Suit" @onclick="Clicked">
@@ -30,7 +38,7 @@
             }
             else
             {
-                switch(Rank.All(Char.IsDigit))
+                switch (Rank.All(Char.IsDigit))
                 {
                     case true:
                         {
@@ -110,31 +118,32 @@
             <a class="card rank-@Rank @Suit" @onclick="Clicked">
                 <span class="rank">
                     @switch (Suit.ToLower())
-            {
+                    {
                         case "wild":
-                        {
+                            {
                             <div>
                                 Wild
                             </div> break;
-                        }
+                            }
                         case "skip":
-                        {
+                            {
                             <div>
                                 Skip
                             </div> 
-                            break;
-                        }   
+                                break;
+                            }
                         default:
-                        {
+                            {
                             @Rank;
-                            break;
-                        }
+                                break;
+                            }
                     }
                 </span>
             </a>
         </strong>
     }
     </li>
+}
 
 @code { 
     [Parameter]
@@ -143,6 +152,8 @@
     public string Rank { get; set; }
     [Parameter]
     public Entities.DeckType DeckType { get; set; }
+    [Parameter]
+    public bool OpponentsCard { get; set; }
     public bool Selected { get; set; }
     protected void Clicked (MouseEventArgs args)
     {

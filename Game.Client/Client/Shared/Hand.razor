@@ -1,6 +1,4 @@
-﻿<div class="playingCards faceImages  fourColours rotateHand">
-    <div class="table">
-        <ul class="hand">
+﻿        <ul class="@GetCorrectClass()">
             @foreach (Game.Entities.Card c in Cards.OrderByDescending(card => card.Rank))
             {
                 if (DeckType.Equals(Entities.DeckType.Phase10))
@@ -10,15 +8,33 @@
                     if (c.Suit.ToLower() == "blue") c.Suit = "clubs";
                     if (c.Suit.ToLower() == "red") c.Suit = "spades";
                 }
-                <Card Suit="@c.Suit" Rank="@c.Rank" DeckType="@DeckType" />
+                if (MyHand)
+                {
+                    <Card Suit="@c.Suit" Rank="@c.Rank" DeckType="@DeckType" OpponentsCard="false" />
+                }
+                else
+                {
+                    <Card Suit="@c.Suit" Rank="@c.Rank" DeckType="@DeckType" OpponentsCard="true" />
+                }
             }
         </ul>
-    </div>
-</div>
 
 @code {
     [Parameter]
     public List<Game.Entities.Card> Cards { get; set; }
     [Parameter]
     public Entities.DeckType DeckType { get; set; }
+    [Parameter]
+    public bool MyHand { get; set; }
+    public string GetCorrectClass()
+    {
+        if(MyHand)
+        {
+            return "hand";
+        }
+        else
+        {
+            return "hand";
+        }
+    }
 }

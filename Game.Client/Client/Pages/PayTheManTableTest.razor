@@ -1,7 +1,38 @@
 ﻿@inject Game.Client.Shared.ViewModels.IPayTheManTableTestViewModel vm
 @page "/paythemantabletest"
-<h3>PayTheManTableTest</h3>
-<Hand Cards="vm.Hand" DeckType="vm.DeckType" />
+<div style="position:relative;width:80%">
+    @{ 
+        var counter = 0;
+        foreach (Entities.Player p in vm.Table.Players)
+        {
+             Console.WriteLine($"{p.PrincipalName} has {p.Hand.Count()} cards in their hand.  Counter is equal to {counter}");
+            <div class="playingCards fourColours rotateHand simpleCards" style="position:relative;top:calc(50% * @Math.Sin(Radians * counter))px;left:calc(50% * @Math.Cos(Radians * counter))px;">
+                <div class="table">
+                    <div>
+                        @if (counter == 0)
+                        {
+                            <Hand Cards="p.Hand" DeckType="vm.DeckType" MyHand="true" /> 
+                        }
+                        else
+                        {
+                             <div class="table" style="position:relative;top:calc(50% * @Math.Sin(Radians * counter))px;left:calc(50% * @Math.Cos(Radians * counter))px;">
+                                <div>
+                                    <Hand Cards="p.Hand" DeckType="vm.DeckType" MyHand="false" />
+                                </div>
+                            </div>
+                        }
+                    </div> 
+                </div>
+            </div>
+            counter++;
+        }
+    }
+</div>
 @code {
-
+    public int Radians;
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        Radians = 360 / vm.Table.Players.Count;
+    }
 }

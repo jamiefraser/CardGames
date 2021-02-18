@@ -12,5 +12,6 @@ namespace Game.Client.Shared.ViewModels
         List<Player> Players { get; set; }
         List<Card> Hand { get; set; }
         Entities.DeckType DeckType { get; set; }
+        Entities.Table Table { get; set; }
     }
 }
