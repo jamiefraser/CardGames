@@ -1,0 +1,10 @@
+﻿<ul class="deck">
+    @foreach(Entities.Card c in Cards)
+    {
+        <li><div class="card back">*</div></li>
+    }
+</ul>
+@code {
+    [Parameter]
+    public Queue<Entities.Card> Cards { get; set; }
+}
