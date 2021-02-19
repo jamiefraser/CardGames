@@ -28,6 +28,9 @@
     flex: 1;
 }
 
+.col2{
+    flex:3;
+}
 .cell-label {
     padding-right: 20px;
 }
