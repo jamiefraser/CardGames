@@ -106,7 +106,7 @@ namespace Game.Client.Shared.Services.SignalRService
                 RaiseTableRemoved(message.Table);
             }
         }
-
+        private bool initializing = false;
         public async Task InitializeAsync()
         {
             hubConnection = new HubConnectionBuilder()
@@ -176,14 +176,18 @@ namespace Game.Client.Shared.Services.SignalRService
         }
         public async Task DisconnectSignalR()
         {
-            await hubConnection.StopAsync();
-            #region HubConnection Handlers
-            hubConnection.Remove("newtable");
-            hubConnection.Remove("presence");
-            hubConnection.Remove("joinrequest");
-            hubConnection.Remove("playeradmitted");
+            try
+            {
+                await hubConnection.StopAsync();
+                #region HubConnection Handlers
+                hubConnection.Remove("newtable");
+                hubConnection.Remove("presence");
+                hubConnection.Remove("joinrequest");
+                hubConnection.Remove("playeradmitted");
 
-            #endregion
+                #endregion
+            }
+            catch { }
         }
         #endregion
 

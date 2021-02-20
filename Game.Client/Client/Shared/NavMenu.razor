@@ -53,10 +53,13 @@
     {
         collapseNavMenu = !collapseNavMenu;
     }
-    protected override void OnInitialized()
+    protected override Task OnInitializedAsync()
     {
         rtc.ReadyStateChanged += ReadyStateChanged;
+        rtc.InitializeAsync();
+        return base.OnInitializedAsync();
     }
+
     protected async void ReadyStateChanged(object sender, ReadyStateChangedEventArgs args)
     {
         Ready = args.Ready;

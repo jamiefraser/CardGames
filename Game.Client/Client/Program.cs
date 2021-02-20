@@ -52,7 +52,7 @@ namespace Game.Client.Client
             {
                 builder.Configuration.Bind("AzureAdB2C", options.ProviderOptions.Authentication);
                 options.ProviderOptions.DefaultAccessTokenScopes.Add("https://gameroomsdev.onmicrosoft.com/api/Access.API");
-                options.ProviderOptions.Cache.CacheLocation = "sessionStorage";
+                options.ProviderOptions.Cache.CacheLocation = "localStorage";
             });
 
             //Now create a named service instances for HttpClients that points to the correct base addresses (based on your handler configuration) and 
@@ -148,6 +148,7 @@ namespace Game.Client.Client
             builder.Services.AddTransient<IPlayGameViewModel, PlayGameViewModel>();
             builder.Services.AddTransient<IPayTheManTableTestViewModel, PayTheManTableTestViewModel>();
             #endregion
+
             #region State Manager - wiring in for presence detection
             builder.Services.AddSyncfusionBlazor();
             builder.Services.AddTransient(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });

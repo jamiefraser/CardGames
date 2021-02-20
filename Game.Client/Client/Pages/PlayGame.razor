@@ -12,6 +12,7 @@ else
 {
     if (vm.Table.TableOwner.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid))
     {
+        /*Players Requesting Entry Dropdown and Admit Button */
         <div class="flex-grid" hidden="@vm.PlayersRequestingEntry.Count==0">
             <div class="col" />
             <div class="col" style="align-items:flex-end">
@@ -34,6 +35,7 @@ else
     }
     else
     {
+        /*Greeting message*/
         <div class="flex-grid">
             <div class="col">
                 <p>Hello Friend.  Let's play!</p>
@@ -51,40 +53,38 @@ else
         </div>
     }
 }
-<div class="flex-grid">
-    <div style="position:relative;width:80%" class="col">
-        @{
-            var counter = 0;
-            foreach (Entities.Player p in vm.Table.Players)
-            {
-                Console.WriteLine($"{p.PrincipalName} has {p.Hand.Count()} cards in their hand.  Counter is equal to {counter}");
-                <div class="playingCards fourColours rotateHand simpleCards" style="position:relative;top:calc((vh / 2) * @Math.Sin(Radians * counter));left:calc((vw/2) * @Math.Cos(Radians * counter));">
-                    <div class="table">
-                        <div>
-                            @if (p.PrincipalId==currentUserService.CurrentClaimsPrincipalOid)
-                            {
-                                <Hand Cards="p.Hand" DeckType="vm.Table.Game.DeckType" MyHand="true" />
-                            }
-                            else
-                            {
-                                <div class="table" style="position:relative;top:calc((vh/2) * @Math.Sin(Radians * counter));left:calc((vw/2) * @Math.Cos(Radians * counter));">
-                                    <div>
-                                        <Hand Cards="p.Hand" DeckType="vm.Table.Game.DeckType" MyHand="false" />
-                                    </div>
+<div style="position:relative;width:80%;background-color:aqua">
+    @{
+        var counter = 0;
+        foreach (Entities.Player p in vm.Table.Players)
+        {
+            Console.WriteLine($"{p.PrincipalName} has {p.Hand.Count()} cards in their hand.  Counter is equal to {counter}");
+            <div class="playingCards fourColours rotateHand simpleCards" style="position:absolute;top:calc(50vh * @Math.Sin(Radians * counter));left:calc(50vw * @Math.Cos(Radians * counter));">
+                <div class="table">
+                    <div>
+                        @if (p.PrincipalId == currentUserService.CurrentClaimsPrincipalOid)
+                        {
+                            <Hand Cards="p.Hand" DeckType="vm.Table.Game.DeckType" MyHand="true" />
+                        }
+                        else
+                        {
+                            <div class="table" style="position:absolute;top:calc(50vh * @Math.Sin(Radians * counter));left:calc(50vw * @Math.Cos(Radians * counter));">
+                                <div>
+                                    <Hand Cards="p.Hand" DeckType="vm.Table.Game.DeckType" MyHand="false" />
                                 </div>
-                            }
-                        </div>
+                            </div>
+                        }
                     </div>
                 </div>
-                counter++;
-            }
+            </div>
+            counter++;
         }
-    </div>
-    <div class="col">
+    }
+</div>
+    <div >
         <div class="playingCards fourColours rotateHand simpleCards">
             <Deck Cards="@vm.Table.Deck.Cards" />
         </div>
-    </div>
     </div>
         @**@
     <div class="flex-grid" hidden="@vm.Started">

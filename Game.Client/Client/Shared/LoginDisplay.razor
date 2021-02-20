@@ -56,6 +56,7 @@
         {
             Console.WriteLine($"authState user is {authState.User.Identities.First().Name.ToString()}");
             await Helpers.UpdateStatus(authState.User, factory, true);
+            await signalR.InitializeAsync();
         }
     }
     private async void AuthenticationStateChanged(Task<AuthenticationState> task)
