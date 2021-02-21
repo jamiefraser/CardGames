@@ -53,39 +53,63 @@ else
         </div>
     }
 }
-<div style="position:relative;width:80%;background-color:aqua">
-    @{
-        var counter = 0;
-        foreach (Entities.Player p in vm.Table.Players)
-        {
-            Console.WriteLine($"{p.PrincipalName} has {p.Hand.Count()} cards in their hand.  Counter is equal to {counter}");
-            <div class="playingCards fourColours rotateHand simpleCards" style="position:absolute;top:calc(50vh * @Math.Sin(Radians * counter));left:calc(50vw * @Math.Cos(Radians * counter));">
-                <div class="table">
-                    <div>
-                        @if (p.PrincipalId == currentUserService.CurrentClaimsPrincipalOid)
-                        {
-                            <Hand Cards="p.Hand" DeckType="vm.Table.Game.DeckType" MyHand="true" />
-                        }
-                        else
-                        {
-                            <div class="table" style="position:absolute;top:calc(50vh * @Math.Sin(Radians * counter));left:calc(50vw * @Math.Cos(Radians * counter));">
+<table width="100%" style="position:absolute">
+    <tr style="background-color:aqua">
+        <td>
+            <div style="background-color:aqua;width:100%;height:calc(50vw);position:relative">
+                @{
+                    var counter = 0;
+                    foreach (Entities.Player p in vm.Table.Players)
+                    {
+                        Console.WriteLine($"{p.PrincipalName} has {p.Hand.Count()} cards in their hand.  Counter is equal to {counter}");
+                        <div class="playingCards fourColours rotateHand simpleCards" style="position:absolute;top:calc(25vh * @Math.Sin(Radians * counter));left:calc(25vw * @Math.Cos(Radians * counter));">
+                            <div class="table">
                                 <div>
-                                    <Hand Cards="p.Hand" DeckType="vm.Table.Game.DeckType" MyHand="false" />
+                                    @if (p.PrincipalId == currentUserService.CurrentClaimsPrincipalOid)
+                                    {
+                                        <Hand Cards="p.Hand" DeckType="vm.Table.Game.DeckType" MyHand="true" />
+                                    }
+                                    else
+                                    {
+                                        <div class="table" style="position:absolute;top:calc(25vh * @Math.Sin(Radians * counter));left:calc(25vw * @Math.Cos(Radians * counter));">
+                                            <div>
+                                                <Hand Cards="p.Hand" DeckType="vm.Table.Game.DeckType" MyHand="false" />
+                                            </div>
+                                        </div>
+                                    }
                                 </div>
                             </div>
-                        }
-                    </div>
-                </div>
+                        </div>
+                        counter++;
+                    }
+                }
             </div>
-            counter++;
-        }
-    }
-</div>
-    <div >
-        <div class="playingCards fourColours rotateHand simpleCards">
-            <Deck Cards="@vm.Table.Deck.Cards" />
-        </div>
-    </div>
+        </td>
+    </tr>
+    <tr style="background-color:red">
+        <table width="100%">
+            <tr>
+                <td>
+                    <div class="playingCards fourColours rotateHand simpleCards">
+                        <Deck Cards="@vm.Table.Deck.Cards" />
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="flex-grid" hidden="@(!vm.Started)">
+                        <div class="flex-row" style="align-content:flex-end">
+                            <Syncfusion.Blazor.Buttons.SfButton OnClick="dealClicked" Disabled="@(vm.CanStartGame)">
+                                Deal!
+                            </Syncfusion.Blazor.Buttons.SfButton>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </tr>
+</table>
+
         @**@
     <div class="flex-grid" hidden="@vm.Started">
         <div class="flex-row" style="align-content:flex-end">
@@ -94,13 +118,7 @@ else
             </Syncfusion.Blazor.Buttons.SfButton>
         </div>
     </div>
-    <div class="flex-grid" hidden="@(!vm.Started)">
-        <div class="flex-row" style="align-content:flex-end">
-            <Syncfusion.Blazor.Buttons.SfButton OnClick="dealClicked" Disabled="@(vm.CanStartGame)">
-                Deal!
-            </Syncfusion.Blazor.Buttons.SfButton>
-        </div>
-    </div>
+
     <style>
         .rest {
             margin-left: -25px;
