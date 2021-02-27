@@ -4,7 +4,6 @@
 @inject Game.Client.Shared.ViewModels.IPlayGameViewModel vm;
 @inject Game.Client.Shared.Services.CurrentUser.ICurrentUserService currentUserService;
 @page "/games/play/{TableId}"
-<div style="width:100%;height:100%;display:flex;align-items:center;background-color:coral;margin-top:calc(25vh);">
 @if (vm.Table == null)
 {
     <p>Initializing....</p>
@@ -13,58 +12,78 @@ else
 {
     if (vm.Table.TableOwner.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid))
     {
-        /*Players Requesting Entry Dropdown and Admit Button */
-        <div class="flex-grid" hidden="@vm.PlayersRequestingEntry.Count==0">
-            <div class="col" />
-            <div class="col" style="align-items:flex-end">
-                <SfListBox DataSource="vm.PlayersRequestingEntry"
-                           TItem="Entities.Player"
-                           TValue="string"
-                           Value="SelectedPlayers"
-                           @ref="PlayersRequestingEntry">
-                    <ListBoxFieldSettings Text="PrincipalName"
-                                          Value="PrincipalId" />
-                    <ListBoxEvents TValue="string"
-                                   TItem="Entities.Player"
-                                   ValueChange="SelectedRequestingPlayerChanged" />
-                </SfListBox>
-                <Syncfusion.Blazor.Buttons.SfButton OnClick="admitClicked">
-                    Admit!
-                </Syncfusion.Blazor.Buttons.SfButton>
+        if (!vm.Started)
+        {
+            /*Players Requesting Entry Dropdown and Admit Button */
+            <div class="flex-grid">
+                <div class="col" />
+                <div class="col">
+                    <SfListBox DataSource="vm.PlayersRequestingEntry"
+                               TItem="Entities.Player"
+                               TValue="string"
+                               Value="SelectedPlayers"
+                               @ref="PlayersRequestingEntry">
+                        <ListBoxFieldSettings Text="PrincipalName"
+                                              Value="PrincipalId" />
+                        <ListBoxEvents TValue="string"
+                                       TItem="Entities.Player"
+                                       ValueChange="SelectedRequestingPlayerChanged" />
+                    </SfListBox>
+                    <Syncfusion.Blazor.Buttons.SfButton OnClick="admitClicked">
+                        Admit!
+                    </Syncfusion.Blazor.Buttons.SfButton>
+                </div>
             </div>
-        </div>
+            <div class="flex-grid" hidden="@vm.Started">
+                <div class="flex-row" style="align-content:flex-end">
+                    <Syncfusion.Blazor.Buttons.SfButton OnClick="startGameClicked" Disabled="@(!vm.CanStartGame)">
+                        Start Game!
+                    </Syncfusion.Blazor.Buttons.SfButton>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div style="width:100%;height:100%;display:flex;align-items:center;background-color:coral;margin-top:calc(25vh);">
+                <GameTable vm="@vm" />
+                @**@
+            </div>
+        }
     }
     else
     {
-        /*Greeting message*/
-        <div class="flex-grid">
-            <div class="col">
-                <p>Hello Friend.  Let's play!</p>
+        if (vm.Started)
+        {
+            <div style="width:100%;height:100%;display:flex;align-items:center;background-color:coral;margin-top:calc(25vh);">
+                <GameTable vm="@vm" />
+                @**@
             </div>
-            <div class="col" style="align-items:flex-end">
-                <SfListBox DataSource="vm.Players"
-                           TItem="Entities.Player"
-                           TValue="string"
-                           Value="SelectedPlayer"
-                           @ref="Players">
-                    <ListBoxFieldSettings Text="PrincipalName"
-                                          Value="PrincipalId" />
-                </SfListBox>
+        }
+        else
+        {
+            <div class="flex-grid" style="float:left">
+                <div class="col">
+                    Hang tight - the game will start when everybody has arrived.
+                </div>
+                <div class="col" style="align-items:flex-end">
+                    <SfListBox DataSource="vm.Players"
+                               TItem="Entities.Player"
+                               TValue="string"
+                               Value="SelectedPlayer"
+                               @ref="Players">
+                        <ListBoxFieldSettings Text="PrincipalName"
+                                              Value="PrincipalId" />
+                    </SfListBox>
+                </div>
             </div>
-        </div>
+        }
     }
-}
+    @*else
+        {
+            /*Greeting message*/
 
-<GameTable vm="@vm" />
-@**@
-<div class="flex-grid" hidden="@vm.Started">
-    <div class="flex-row" style="align-content:flex-end">
-        <Syncfusion.Blazor.Buttons.SfButton OnClick="startGameClicked" Disabled="@(!vm.CanStartGame)">
-            Start Game!
-        </Syncfusion.Blazor.Buttons.SfButton>
-    </div>
-</div>
-</div>
+        }*@
+}
 <style>
     .rest {
         margin-left: -25px;

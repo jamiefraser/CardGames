@@ -195,12 +195,7 @@ namespace Game.Client.Shared.ViewModels
             var service = factory.CreateClient("tableAPI");
             try
             {
-                var hand = await service.GetFromJsonAsync<List<Card>>($"api/tables/hand/{this.table.Id}");
-                Player.Hand = hand;
-                if(Player.Hand != null)
-                {
-                    Started = true;
-                }
+                Started = table.Started;
             }
             catch { }
         }
@@ -220,12 +215,12 @@ namespace Game.Client.Shared.ViewModels
                 Console.WriteLine($"Successfully admitted {playertoadmit.PrincipalName}");
                 var remove = table.PlayersRequestingAccess.Where(p => p.PrincipalId.Equals(playertoadmit.PrincipalId)).FirstOrDefault();
                 table.PlayersRequestingAccess.Remove(remove);
+                table.Players.Add(PlayerToAdmit);
                 Players.Clear();
                 foreach(Player p in table.Players)
                 {
                     Players.Add(p);
                 }
-                Players.Add(PlayerToAdmit);
                 PlayersRequestingEntry.Remove(remove);
                 PlayerToAdmit = null;
                 if(Players.Count >= Table.Game.MinimumPlayers)
@@ -258,6 +253,7 @@ namespace Game.Client.Shared.ViewModels
             //rtc.AvailableTables.Where(tbl => tbl.Id.Equals(Table.Id)).FirstOrDefault()!.Started = true;
             var tableService = factory.CreateClient("tableAPI");
             var result = await tableService.PostAsJsonAsync<string>($"/api/tables/{Table.Id.ToString()}/start","");
+            await Deal();
         }
 
 
