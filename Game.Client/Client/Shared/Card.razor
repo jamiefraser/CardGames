@@ -17,16 +17,12 @@ else
                 {
                     case "wild":
                         {
-                            <div>
-                                Wild
-                            </div>
+                            @Wild
                             break;
                         }
                     case "skip":
                         {
-                            <div>
-                                Skip
-                            </div>
+                            @Skip
                             break;
                         }
                     default:
@@ -121,15 +117,12 @@ else
                     {
                         case "wild":
                             {
-                            <div>
-                                Wild
-                            </div> break;
+                                @Wild
+                                break;
                             }
                         case "skip":
                             {
-                            <div>
-                                Skip
-                            </div> 
+                                @Skip
                                 break;
                             }
                         default:
@@ -159,4 +152,6 @@ else
     {
         Selected = !Selected;
     }
+    public string Wild = "Wild";
+    public string Skip = "Skip";
 }

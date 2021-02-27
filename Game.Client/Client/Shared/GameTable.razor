@@ -26,7 +26,7 @@
         var counter = 1;
         foreach (Entities.Player p in vm.Table.Players)
         {
-            <div class="playingCards fourColours rotateHand simpleCards" style="@getDivStyle(counter)">
+            <div class="playingCards fourColours rotateHand simpleCards" style="@getDivStyle(counter, p.PrincipalId)">
                 <div class="table">
                     <div>
                         @if (p.PrincipalId == currentUserService.CurrentClaimsPrincipalOid)
@@ -56,9 +56,16 @@
         await vm.Deal();
         await InvokeAsync(() => StateHasChanged());
     }
-    public string getDivStyle(int i)
+    public string getDivStyle(int i, string principalId)
     {
-        return $"--i: {i}";
+        if(principalId.Equals(currentUserService.CurrentClaimsPrincipalOid))
+        {
+            return $"--i: {i}";
+        }
+        else
+        {
+             return $"--i: {i}; pointer-events:none";
+        }
     }
     public string GetLayoutClass(string baseClassNames, int position)
     {

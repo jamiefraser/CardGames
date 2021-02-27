@@ -1,4 +1,4 @@
-﻿        <ul class="@GetCorrectClass()">
+﻿        <ul class="@GetCorrectClass()" style="@getStyle()">
             @foreach (Game.Entities.Card c in Cards.OrderByDescending(card => card.Rank))
             {
                 if (DeckType.Equals(Entities.DeckType.Phase10))
@@ -36,5 +36,13 @@
         {
             return "hand";
         }
+    }
+    public string getStyle()
+    {
+        if(!MyHand)
+        {
+            return "pointer-events:none";
+        }
+        return "";
     }
 }

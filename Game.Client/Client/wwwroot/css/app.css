@@ -5,7 +5,7 @@
 }
 
 .container {
-    --d: 3.5em; /* image size */
+    --d: 4.5em; /* image size */
     --rel: 1; /* how much extra space we want between images, 1 = one image size */
     --r: calc(.5*(1 + var(--rel))*var(--d)/var(--tan)); /* circle radius */
     --s: calc(2*var(--r) + var(--d)); /* container size */
