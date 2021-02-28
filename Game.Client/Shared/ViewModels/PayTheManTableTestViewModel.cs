@@ -14,14 +14,15 @@ namespace Game.Client.Shared.ViewModels
             Table = Newtonsoft.Json.JsonConvert.DeserializeObject<Entities.Table>(tablejson);
             Hand = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Card>>(handjson);
             DeckType = Table.Game.DeckType;
-            Table.Players.First().Hand = Hand;
-            Table.Players.Skip(1).Take(1).First().Hand = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Card>>(hand2json);
-            Table.Players.Add(new Player()
+            Table.Players.First().Value.Hand = Hand;
+            Table.Players.Skip(1).Take(1).First().Value.Hand = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Card>>(hand2json);
+            int key = Table.Players.Keys.Max()+1;
+            Table.Players.Add(key,new Player()
             {
                 PrincipalName = "Fake Player",
                 Hand = new List<Card>()
             });
-            var h = Table.Players.Last().Hand;
+            var h = Table.Players.Last().Value.Hand;
             Console.WriteLine($"There are {Table.Deck.Cards.Count()} cards in the table's deck");
             for(int i=0;i<13;i++)
             {

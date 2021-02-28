@@ -3,6 +3,7 @@
 @inject Game.Client.Shared.Services.SignalRService.ISignalRService rtc;
 @inject Game.Client.Shared.ViewModels.IPlayGameViewModel vm;
 @inject Game.Client.Shared.Services.CurrentUser.ICurrentUserService currentUserService;
+@inject IJSRuntime js;
 @page "/games/play/{TableId}"
 @if (vm.Table == null)
 {
@@ -34,8 +35,8 @@ else
                     </Syncfusion.Blazor.Buttons.SfButton>
                 </div>
             </div>
-            <div class="flex-grid" hidden="@vm.Started">
-                <div class="flex-row" style="align-content:flex-end">
+            <div hidden="@vm.Started">
+                <div>
                     <Syncfusion.Blazor.Buttons.SfButton OnClick="startGameClicked" Disabled="@(!vm.CanStartGame)">
                         Start Game!
                     </Syncfusion.Blazor.Buttons.SfButton>
@@ -44,20 +45,14 @@ else
         }
         else
         {
-            <div style="width:100%;height:100%;display:flex;align-items:center;background-color:coral;margin-top:calc(25vh);">
-                <GameTable vm="@vm" />
-                @**@
-            </div>
+                <FlatTableFlatHands vm="@vm" />
         }
     }
     else
     {
         if (vm.Started)
         {
-            <div style="width:100%;height:100%;display:flex;align-items:center;background-color:coral;margin-top:calc(25vh);">
-                <GameTable vm="@vm" />
-                @**@
-            </div>
+            <FlatTableFlatHands vm="@vm" />
         }
         else
         {
@@ -66,7 +61,7 @@ else
                     Hang tight - the game will start when everybody has arrived.
                 </div>
                 <div class="col" style="align-items:flex-end">
-                    <SfListBox DataSource="vm.Players"
+                    <SfListBox DataSource="vm.Players.Values"
                                TItem="Entities.Player"
                                TValue="string"
                                Value="SelectedPlayer"

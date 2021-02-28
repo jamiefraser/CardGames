@@ -9,11 +9,11 @@ else
 <li>
     @if (!Selected)
     {
-    <a class="card rank-@Rank @Suit" @onclick="Clicked">
-        <span class="rank">
+        <a class="card rank-@TheCard.Rank @TheCard.Suit">
+        <span class="rank" @onclick="Clicked">
             @if (DeckType.Equals(Entities.DeckType.Phase10))
             {
-                @switch (Suit.ToLower())
+                @switch (TheCard.Suit.ToLower())
                 {
                     case "wild":
                         {
@@ -27,29 +27,29 @@ else
                         }
                     default:
                         {
-                            @Rank;
+                            @TheCard.Rank;
                             break;
                         }
                 }
             }
             else
             {
-                switch (Rank.All(Char.IsDigit))
+                switch (TheCard.Rank.All(Char.IsDigit))
                 {
                     case true:
                         {
                             <span class="rank">
-                                @Rank
+                                @TheCard.Rank
                             </span>
                             break;
                         }
                     case false:
                         {
                             <span class="rank">
-                                @Rank
+                                @TheCard.Rank
                             </span>
                             <span class="suit">
-                                switch(Suit.ToLower())
+                                switch(TheCard.Suit.ToLower())
                                 {
                                     case "spades":
                                     {
@@ -111,9 +111,9 @@ else
     else
     {
         <strong>
-            <a class="card rank-@Rank @Suit" @onclick="Clicked">
+            <a class="card rank-@TheCard.Rank @TheCard.Suit" @onclick="Clicked">
                 <span class="rank">
-                    @switch (Suit.ToLower())
+                    @switch (TheCard.Suit.ToLower())
                     {
                         case "wild":
                             {
@@ -127,7 +127,7 @@ else
                             }
                         default:
                             {
-                            @Rank;
+                            @TheCard.Rank;
                                 break;
                             }
                     }
@@ -140,6 +140,10 @@ else
 
 @code { 
     [Parameter]
+    public Entities.Card TheCard { get; set; }
+    [Parameter]
+    public Action<Entities.Card> OnClicked { get; set; }
+    [Parameter]
     public string Suit { get; set; }
     [Parameter]
     public string Rank { get; set; }
@@ -151,6 +155,11 @@ else
     protected void Clicked (MouseEventArgs args)
     {
         Selected = !Selected;
+        Console.WriteLine($"A card was clicked! Suit:{this.Suit} Rank:{this.Rank} Selected: {this.Selected}");
+        if(this.OnClicked != null)
+        {
+            this.OnClicked(TheCard);
+        }
     }
     public string Wild = "Wild";
     public string Skip = "Skip";

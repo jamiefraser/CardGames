@@ -54,14 +54,14 @@ namespace Game.Services.Table
         {
             var table = await Helpers.Helpers.GetTable(tableId);
             table.Deck.Shuffle();
-            List<Entities.Player> players = new List<Entities.Player>(table.Players);
+            List<Entities.Player> players = new List<Entities.Player>(table.Players.Values);
             foreach(Entities.Player p in players)
             {
                 p.Hand.Clear();
             }
-            foreach(Entities.Player p in table.Players)
+            foreach(KeyValuePair<int,Entities.Player> p in table.Players)
             {
-                p.Hand = new List<Entities.Card>();
+                p.Value.Hand = new List<Entities.Card>();
             }
             for (int i = 0; i < table.Game.NumberOfCardsToDeal; i++)
             {
@@ -134,7 +134,8 @@ namespace Game.Services.Table
                 {
                     var lookupPlayer = message.Table.PlayersRequestingAccess.Where(p => p.PrincipalId.Equals(message.RequestingPlayer.PrincipalId)).FirstOrDefault();
                     message.Table.PlayersRequestingAccess.Remove(lookupPlayer);
-                    message.Table.Players.Add(message.RequestingPlayer);
+                    int key = message.Table.Players.Count == 0 ? 0 : message.Table.Players.Keys.Max() + 1;
+                    message.Table.Players.Add(key,message.RequestingPlayer);
                     await message.Table.Save();
                     var srMessage = new SignalRMessage
                     {

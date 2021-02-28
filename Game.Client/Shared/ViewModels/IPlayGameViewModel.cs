@@ -12,7 +12,7 @@ namespace Game.Client.Shared.ViewModels
     public interface IPlayGameViewModel : INotifyPropertyChanged
     {
         ObservableCollection<Entities.Player> PlayersRequestingEntry { get; set; }
-        ObservableCollection<Entities.Player> Players { get; set; }
+        SortedList<int, Entities.Player> Players { get; set; }
         Task Admit();
         Task Decline(Entities.RequestToJoinTableMessage message);
         Entities.Table Table { get; set; }
@@ -23,5 +23,7 @@ namespace Game.Client.Shared.ViewModels
         bool CanStartGame { get; set; }
         bool Started { get; set; }
         Player Player { get; set; }
+        Player Dealer { get; set; }
+        bool RoundCompleted { get; set; }
     }
 }

@@ -15,7 +15,6 @@
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
-      "launchUrl": "paythemantabletest ",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },

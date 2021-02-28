@@ -81,7 +81,7 @@ namespace Game.Client.Shared.ViewModels
  
                 Table = signalRService.AvailableTables.Where(t => t.Id.Equals(tableId)).FirstOrDefault();
                 if (table.InvitedPlayers == null) table.InvitedPlayers = new List<Entities.Player>();
-                if (table.InvitedPlayers.Union(table.Players).Where(p => p.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid)).Count() > 0)
+                if (table.InvitedPlayers.Union(table.Players.Values).Where(p => p.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid)).Count() > 0)
                 {
                     WaitingForPermissionToJoin = false;
                     nav.NavigateTo($"/games/play/{Table.Id}");

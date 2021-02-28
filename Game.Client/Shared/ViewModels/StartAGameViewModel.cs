@@ -101,7 +101,8 @@ namespace Game.Client.Shared.ViewModels
             gametable.Game = selectedgame;
             var tableService = factory.CreateClient("tableAPI");
             //gametable.InvitedPlayers.Add(currentUserService.CurrentClaimsPrincipal.ToPlayer());
-            gametable.Players.Add(currentUserService.CurrentClaimsPrincipal.ToPlayer());
+            gametable.Players.Add(0,currentUserService.CurrentClaimsPrincipal.ToPlayer());
+            gametable.Dealer = currentUserService.CurrentClaimsPrincipal.ToPlayer();
             List<string> ids = gametable.InvitedPlayerIds != null ? new List<string>(gametable.InvitedPlayerIds) : new List<string>();
             ids.Add(currentUserService.CurrentClaimsPrincipalOid);
             gametable.InvitedPlayerIds = ids.ToArray();

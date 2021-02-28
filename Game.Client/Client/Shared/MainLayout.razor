@@ -4,25 +4,19 @@
 @using Microsoft.AspNetCore.SignalR.Client
 @inherits LayoutComponentBase
 @inject TasksStateService tasksStateService
-@inject NavigationManager nav; 
+@inject NavigationManager nav;
 <div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
-
     <div class="main">
-        <div class="top-row px-4 auth">
+        <div class="top-row px-4 auth" id="topRow">
             <LoginDisplay />
-            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
         </div>
-
         <div class="content px-4">
             @Body
         </div>
     </div>
 </div>
 @code
-{ 
+{
     protected override void OnInitialized()
     {
         base.OnInitialized();

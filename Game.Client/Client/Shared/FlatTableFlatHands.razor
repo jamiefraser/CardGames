@@ -1,0 +1,75 @@
+﻿@using Game.Client.Shared.Services.CurrentUser
+@using Game.Client.Shared.ViewModels
+@inject ICurrentUserService currentUserService
+<div class="playingCards fourColours rotateHand simpleCards">
+    <table>
+        @foreach (KeyValuePair<int,Game.Entities.Player> pr in vm.Table.Players.Where(player => !player.Value.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid)))
+        {
+            <tr>
+                <td>
+                    <div>@pr.Value.PrincipalName</div>
+                </td>
+                <td>
+                    <Hand Cards="@pr.Value.Hand" DeckType="@vm.Table.Game.DeckType" MyHand="false" />
+                </td>
+            </tr>
+        }
+        <tr>
+            @{
+                var p = vm.Table.Players.Where(player => player.Value.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid)).FirstOrDefault();
+            }
+            <td>
+                <table>
+                    <tr>
+                        <td>
+                            <div>@p.Value.PrincipalName</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            @if (vm.Dealer.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid) && vm.RoundCompleted)
+                            {
+                                <Syncfusion.Blazor.Buttons.SfButton>Deal</Syncfusion.Blazor.Buttons.SfButton>
+                            }
+                            else
+                            {
+                                <table>
+                                    <tr>
+                                        <td>
+                                            <Syncfusion.Blazor.Buttons.SfButton>Discard</Syncfusion.Blazor.Buttons.SfButton>
+                                        </td>
+                                        <td>
+                                            <Syncfusion.Blazor.Buttons.SfButton>Play</Syncfusion.Blazor.Buttons.SfButton>
+                                        </td>
+                                    </tr>
+                                </table>
+                            }
+                        </td>
+                    </tr>
+                </table>
+            </td>
+            <td>
+                <Hand Cards="@p.Value.Hand" DeckType="@vm.Table.Game.DeckType" MyHand="true" />
+            </td>
+        </tr>
+    </table>
+</div>
+@*<div class="playingCards fourColours rotateHand simpleCards">
+        <div class="flex-grid">
+            @foreach (Game.Entities.Player p in vm.Table.Players)
+            {
+                <div class="flex-row">
+                    <Hand Cards="@p.Hand" DeckType="@vm.Table.Game.DeckType" MyHand="@currentUserService.CurrentClaimsPrincipalOid.Equals(p.PrincipalId)" />
+                </div>
+            }
+        </div>
+    </div>*@
+@code {
+    [Parameter]
+    public IPlayGameViewModel vm { get; set; }
+    private async void dealClicked(MouseEventArgs args)
+    {
+        await vm.Deal();
+        await InvokeAsync(() => StateHasChanged());
+    }
+}

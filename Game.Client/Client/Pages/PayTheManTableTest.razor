@@ -3,21 +3,21 @@
 <div style="position:relative;width:80%">
     @{ 
         var counter = 0;
-        foreach (Entities.Player p in vm.Table.Players)
+        foreach (KeyValuePair<int,Entities.Player> p in vm.Table.Players)
         {
-             Console.WriteLine($"{p.PrincipalName} has {p.Hand.Count()} cards in their hand.  Counter is equal to {counter}");
+             Console.WriteLine($"{p.Value.PrincipalName} has {p.Value.Hand.Count()} cards in their hand.  Counter is equal to {counter}");
             <div class="playingCards fourColours rotateHand simpleCards" style="position:relative;top:calc(50% * @Math.Sin(Radians * counter));left:calc(50% * @Math.Cos(Radians * counter));">
                 <div class="table">
                     <div>
                         @if (counter == 0)
                         {
-                            <Hand Cards="p.Hand" DeckType="vm.DeckType" MyHand="true" /> 
+                            <Hand Cards="p.Value.Hand" DeckType="vm.DeckType" MyHand="true" /> 
                         }
                         else
                         {
                              <div class="table" style="position:relative;top:calc(50% * @Math.Sin(Radians * counter));left:calc(50% * @Math.Cos(Radians * counter));">
                                 <div>
-                                    <Hand Cards="p.Hand" DeckType="vm.DeckType" MyHand="false" />
+                                    <Hand Cards="p.Value.Hand" DeckType="vm.DeckType" MyHand="false" />
                                 </div>
                             </div>
                         }

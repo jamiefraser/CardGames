@@ -29,8 +29,8 @@ namespace Game.Client.Shared.ViewModels
             currentUserService = _currentUserService;
             factory = _factory;
             PlayersRequestingEntry = new ObservableCollection<Player>();
-            Players = new ObservableCollection<Player>();
-            Players.CollectionChanged += PlayersChanged;
+            Players = new SortedList<int, Player>();
+            //Players.CollectionChanged += PlayersChanged;
             rtc.PlayerDealtNewHand += PlayerDealtNewHand;
             rtc.TableStarted += TableStarted;
             rtc.PlayerRequestingToJoinTable += Rtc_PlayerRequestingToJoinTable;
@@ -65,6 +65,32 @@ namespace Game.Client.Shared.ViewModels
         #endregion
 
         #region Properties
+        private bool roundcompleted;
+        public bool RoundCompleted
+        {
+            get
+            {
+                return roundcompleted;
+            }
+            set
+            {
+                roundcompleted = value;
+                RaisePropertyChanged("RoundCompleted");
+            }
+        }
+        private Player dealer;
+        public Player Dealer
+        {
+            get
+            {
+                return dealer;
+            }
+            set
+            {
+                dealer = value;
+                RaisePropertyChanged("Dealer");
+            }
+        }
         private Player player;
         public Player Player
         {
@@ -148,8 +174,8 @@ namespace Game.Client.Shared.ViewModels
                 RaisePropertyChanged("PlayerToAdmit");
             }
         }
-        private ObservableCollection<Player> players;
-        public ObservableCollection<Player>Players
+        private SortedList<int,Player> players;
+        public SortedList<int,Player>Players
         {
             get 
             {
@@ -170,12 +196,12 @@ namespace Game.Client.Shared.ViewModels
             var service = factory.CreateClient("tableAPI");
             var x = await service.PostAsJsonAsync($"api/tables/deal/{this.table.Id}","");
             var s = await x.Content.ReadAsStringAsync();
-            foreach(Player p in Table.Players.Where(player => !player.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid)))
+            foreach(KeyValuePair<int,Player> p in Table.Players.Where(player => !player.Value.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid)))
             {
-                p.Hand = new List<Card>();
+                p.Value.Hand = new List<Card>();
                 for(int i=0;i<Table.Game.NumberOfCardsToDeal;i++)
                 {
-                    p.Hand.Add(new Card()
+                    p.Value.Hand.Add(new Card()
                     {
                         Suit = "red",
                         Rank = "0"
@@ -189,13 +215,22 @@ namespace Game.Client.Shared.ViewModels
             if (rtc.AvailableTables.Equals(null) || rtc.AvailableTables.Count == 0) await rtc.InitializeAsync();
             var t = rtc.AvailableTables.Where(table => table.Id.Equals(Guid.Parse(tableId))).FirstOrDefault();
             Table = t;
-            Players = new ObservableCollection<Player>(t.Players.ToArray());
+            Players = t.Players;
             PlayersRequestingEntry = new ObservableCollection<Player>(t.PlayersRequestingAccess);
-            Player = Players.Where(p => p.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid)).FirstOrDefault();
+            Player = Players.Where(p => p.Value.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid)).FirstOrDefault().Value;
             var service = factory.CreateClient("tableAPI");
             try
             {
                 Started = table.Started;
+                if(table.Dealer != null)
+                {
+                    Dealer = table.Dealer;
+                }
+                else
+                {
+                    Dealer = Players.Values.First();
+                    table.Dealer = Players.Values.First();
+                }
             }
             catch { }
         }
@@ -215,12 +250,9 @@ namespace Game.Client.Shared.ViewModels
                 Console.WriteLine($"Successfully admitted {playertoadmit.PrincipalName}");
                 var remove = table.PlayersRequestingAccess.Where(p => p.PrincipalId.Equals(playertoadmit.PrincipalId)).FirstOrDefault();
                 table.PlayersRequestingAccess.Remove(remove);
-                table.Players.Add(PlayerToAdmit);
-                Players.Clear();
-                foreach(Player p in table.Players)
-                {
-                    Players.Add(p);
-                }
+                int key = Players.Count == 0 ? 0 : Players.Keys.Max()+1;
+                Players.Add(key, PlayerToAdmit);
+                //table.Players.Add(key,PlayerToAdmit);
                 PlayersRequestingEntry.Remove(remove);
                 PlayerToAdmit = null;
                 if(Players.Count >= Table.Game.MinimumPlayers)
@@ -228,6 +260,7 @@ namespace Game.Client.Shared.ViewModels
                     CanStartGame = true;
                 }
                 RaisePropertyChanged("PlayersRequestingEntry");
+                RaisePropertyChanged("Players");
             }
         }
 
@@ -241,7 +274,6 @@ namespace Game.Client.Shared.ViewModels
         public void Dispose()
         {
             rtc.PlayerRequestingToJoinTable -= Rtc_PlayerRequestingToJoinTable;
-            Players.CollectionChanged -= PlayersChanged;
             rtc.PlayerDealtNewHand -= PlayerDealtNewHand;
             rtc.TableStarted -= TableStarted;
         }

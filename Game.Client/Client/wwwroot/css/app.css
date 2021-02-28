@@ -5,10 +5,10 @@
 }
 
 .container {
-    --d: 4.5em; /* image size */
+    --d: 60px; /* image size */
     --rel: 1; /* how much extra space we want between images, 1 = one image size */
     --r: calc(.5*(1 + var(--rel))*var(--d)/var(--tan)); /* circle radius */
-    --s: calc(2*var(--r) + var(--d)); /* container size */
+    --s: calc(2*var(--manualRadius) + var(--d)); /* container size */
     position: relative;
     width: var(--s);
     height: var(--s);
@@ -23,7 +23,7 @@
         width: var(--d);
         height: var(--d);
         --az: calc(var(--i)*1turn/var(--m));
-        transform: rotate(var(--az)) translate(var(--r)) rotate(calc(-1*var(--az)))
+        transform: rotate(var(--az)) translate(var(--manualRadius)) rotate(calc(-1*var(--az)))
     }
 
 div {

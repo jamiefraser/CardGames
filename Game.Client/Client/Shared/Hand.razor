@@ -1,48 +1,61 @@
-﻿        <ul class="@GetCorrectClass()" style="@getStyle()">
-            @foreach (Game.Entities.Card c in Cards.OrderByDescending(card => card.Rank))
-            {
-                if (DeckType.Equals(Entities.DeckType.Phase10))
-                {
-                    if (c.Suit.ToLower() == "yellow") c.Suit = "diams";
-                    if (c.Suit.ToLower() == "green") c.Suit = "hearts";
-                    if (c.Suit.ToLower() == "blue") c.Suit = "clubs";
-                    if (c.Suit.ToLower() == "red") c.Suit = "spades";
-                }
-                if (MyHand)
-                {
-                    <Card Suit="@c.Suit" Rank="@c.Rank" DeckType="@DeckType" OpponentsCard="false" />
-                }
-                else
-                {
-                    <Card Suit="@c.Suit" Rank="@c.Rank" DeckType="@DeckType" OpponentsCard="true" />
-                }
-            }
-        </ul>
-
-@code {
-    [Parameter]
-    public List<Game.Entities.Card> Cards { get; set; }
-    [Parameter]
-    public Entities.DeckType DeckType { get; set; }
-    [Parameter]
-    public bool MyHand { get; set; }
-    public string GetCorrectClass()
+﻿@using Game.Client.Shared.ViewModels 
+<ul class="@GetCorrectClass()" style="@getStyle()">
+    @foreach (Game.Entities.Card c in Cards.OrderByDescending(card => card.Rank))
     {
-        if(MyHand)
+        if (DeckType.Equals(Entities.DeckType.Phase10))
         {
-            return "hand";
+            if (c.Suit.ToLower() == "yellow") c.Suit = "diams";
+            if (c.Suit.ToLower() == "green") c.Suit = "hearts";
+            if (c.Suit.ToLower() == "blue") c.Suit = "clubs";
+            if (c.Suit.ToLower() == "red") c.Suit = "spades";
+        }
+        if (MyHand)
+        {
+            <Card Suit="@c.Suit" Rank="@c.Rank" DeckType="@DeckType" OpponentsCard="false" OnClicked="CardClicked"/>
         }
         else
         {
-            return "hand";
+            <Card Suit="@c.Suit" Rank="@c.Rank" DeckType="@DeckType" OpponentsCard="true" />
         }
     }
-    public string getStyle()
-    {
-        if(!MyHand)
+</ul>
+
+
+@code {
+        [Parameter]
+        public IPlayGameViewModel vm { get; set; }
+        [Parameter]
+        public List<Game.Entities.Card> Cards { get; set; }
+        [Parameter]
+        public Entities.DeckType DeckType { get; set; }
+        [Parameter]
+        public bool MyHand { get; set; }
+        public string GetCorrectClass()
         {
-            return "pointer-events:none";
+            if (MyHand)
+            {
+                return "hand";
+            }
+            else
+            {
+                return "hand";
+            }
         }
-        return "";
+        public string getStyle()
+        {
+            if (!MyHand)
+            {
+                return "pointer-events:none;";
+            }
+            return "";
+        }
+    public Action<Entities.Card> CardClicked;
+    protected override Task OnParametersSetAsync()
+    {
+        CardClicked = new Action<Entities.Card>((card) =>
+        {
+
+        });
+        return base.OnParametersSetAsync();
     }
 }

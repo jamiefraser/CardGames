@@ -13,13 +13,25 @@ namespace Game.Entities
         public Guid Id { get; set; }
         public EasyAuthUserInfo TableOwner { get; set; }
 
+        private Player dealer;
+        public Player Dealer
+        {
+            get
+            {
+                return dealer;
+            }
+            set
+            {
+                dealer = value;
+            }
+        }
         public List<Player> InvitedPlayers
         {
             get;
             set;
         }
         public string[] InvitedPlayerIds { get; set; }
-        public List<Player> Players
+        public SortedList<int,Player> Players
         {
             get;
             set;
@@ -113,7 +125,7 @@ namespace Game.Entities
         }
         public Table()
         {
-            this.Players = new List<Player>();
+            this.Players = new SortedList<int,Player>();
             InvitedPlayers = new List<Player>();
             this.Finished = false;
             PlayersRequestingAccess = new List<Player>();
