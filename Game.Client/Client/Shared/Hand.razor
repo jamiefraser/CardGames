@@ -1,17 +1,17 @@
 ﻿@using Game.Client.Shared.ViewModels 
+@using Game.Client.Shared 
+@inject IHttpClientFactory clientFactory; 
 <ul class="@GetCorrectClass()" style="@getStyle()">
     @foreach (Game.Entities.Card c in Cards.OrderByDescending(card => card.Rank))
     {
         if (DeckType.Equals(Entities.DeckType.Phase10))
         {
-            if (c.Suit.ToLower() == "yellow") c.Suit = "diams";
-            if (c.Suit.ToLower() == "green") c.Suit = "hearts";
-            if (c.Suit.ToLower() == "blue") c.Suit = "clubs";
-            if (c.Suit.ToLower() == "red") c.Suit = "spades";
+            var converted = c.ConvertColourToSuit();
+            c.Suit = converted.Suit;
         }
         if (MyHand)
         {
-            <Card Suit="@c.Suit" Rank="@c.Rank" DeckType="@DeckType" OpponentsCard="false" OnClicked="CardClicked"/>
+            <Card TheCard="@c" DeckType="@DeckType" OpponentsCard="false" OnClicked="CardClicked"/>
         }
         else
         {
@@ -22,39 +22,57 @@
 
 
 @code {
-        [Parameter]
-        public IPlayGameViewModel vm { get; set; }
-        [Parameter]
-        public List<Game.Entities.Card> Cards { get; set; }
-        [Parameter]
-        public Entities.DeckType DeckType { get; set; }
-        [Parameter]
-        public bool MyHand { get; set; }
-        public string GetCorrectClass()
+    [Parameter]
+    public IPlayGameViewModel vm { get; set; }
+    [Parameter]
+    public List<Game.Entities.Card> Cards { get; set; }
+    [Parameter]
+    public Entities.DeckType DeckType { get; set; }
+    [Parameter]
+    public bool MyHand { get; set; }
+    public string GetCorrectClass()
+    {
+        if (MyHand)
         {
-            if (MyHand)
-            {
-                return "hand";
-            }
-            else
-            {
-                return "hand";
-            }
+            return "hand";
         }
-        public string getStyle()
+        else
         {
-            if (!MyHand)
-            {
-                return "pointer-events:none;";
-            }
-            return "";
+            return "hand";
         }
+    }
+    public string getStyle()
+    {
+        if (!MyHand)
+        {
+            return "pointer-events:none;";
+        }
+        return "";
+    }
     public Action<Entities.Card> CardClicked;
     protected override Task OnParametersSetAsync()
     {
-        CardClicked = new Action<Entities.Card>((card) =>
+        CardClicked = new Action<Entities.Card>(async(card) =>
         {
-
+            var index = this.Cards.IndexOf(card);
+            if (card.Selected)
+            {
+                vm.SelectedCards.Add(card);
+            }
+            else
+            {
+                try
+                {
+                    vm.SelectedCards.Remove(card);
+                }
+                catch { }
+            }
+            var client = clientFactory.CreateClient("tableAPI");
+            await client.GetAsync($"api/tables/hand/{vm.Table.Id}/selected/{index}");
+            vm.PropertyChanged += async (s, e) =>
+            {
+                await InvokeAsync(() => StateHasChanged());
+            };
         });
         return base.OnParametersSetAsync();
     }

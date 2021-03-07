@@ -1,12 +1,42 @@
 ﻿<ul class="deck">
-    @foreach(Entities.Card c in Cards)
+    @foreach (Game.Entities.Card c in Cards.Reverse())
     {
-        <li>
-            <div class="card back">*</div>
-        </li>
+        if (DeckType.Equals(Entities.DeckType.Phase10))
+        {
+            if (c.Suit.ToLower() == "yellow") c.Suit = "diams";
+            if (c.Suit.ToLower() == "green") c.Suit = "hearts";
+            if (c.Suit.ToLower() == "blue") c.Suit = "clubs";
+            if (c.Suit.ToLower() == "red") c.Suit = "spades";
+        }
+        Entities.Card secret = new Entities.Card()
+        {
+            Rank = "*"
+        };
+        if (!CardsAreSecret)
+        {
+            <Card TheCard="@c" DeckType="@DeckType" OpponentsCard="false" OnClicked="CardClicked" />
+        }
+        else
+        {
+            <Card TheCard="@secret" DeckType="@DeckType" OpponentsCard="true" OnClicked="CardClicked" />
+        }
     }
 </ul>
 @code {
     [Parameter]
-    public Queue<Entities.Card> Cards { get; set; }
+    public bool CardsAreSecret { get; set; }
+    [Parameter]
+    public Stack<Game.Entities.Card> Cards { get; set; }
+    [Parameter]
+    public Game.Entities.DeckType DeckType { get; set; }
+    public Action<Entities.Card> CardClicked;
+    protected override Task OnParametersSetAsync()
+    {
+        CardClicked = new Action<Entities.Card>((card) =>
+        {
+            Console.WriteLine($"Call back hit!  The card is Rank: {card.Rank} Suit: {card.Suit} Selected: {card.Selected}");
+        });
+        return base.OnParametersSetAsync();
+    }
+
 }

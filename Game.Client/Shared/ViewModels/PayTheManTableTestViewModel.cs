@@ -26,7 +26,7 @@ namespace Game.Client.Shared.ViewModels
             Console.WriteLine($"There are {Table.Deck.Cards.Count()} cards in the table's deck");
             for(int i=0;i<13;i++)
             {
-                h.Add(Table.Deck.Cards.Dequeue());
+                h.Add(Table.Deck.Cards.Pop());
             }
             //Hand = Table.Players.First().Hand;
 

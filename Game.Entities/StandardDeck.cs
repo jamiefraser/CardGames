@@ -25,11 +25,11 @@ namespace Game.Entities
                     cards.Add(new Card(100.ToString(), s, true));
                 }
             }
-            this.Cards = new Queue<Card>();
+            this.Cards = new Stack<Card>();
             this.Cards.Clear();
             foreach (Card c in cards)
             {
-                this.Cards.Enqueue(c);
+                this.Cards.Push(c);
             }
             Id = Guid.NewGuid();
         }

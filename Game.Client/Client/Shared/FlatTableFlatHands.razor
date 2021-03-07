@@ -5,16 +5,37 @@
     <table>
         @foreach (KeyValuePair<int,Game.Entities.Player> pr in vm.Table.Players.Where(player => !player.Value.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid)))
         {
-            <tr>
+            <tr style="background-color:purple">
                 <td>
                     <div>@pr.Value.PrincipalName</div>
                 </td>
                 <td>
-                    <Hand Cards="@pr.Value.Hand" DeckType="@vm.Table.Game.DeckType" MyHand="false" />
+                    <Hand Cards="@pr.Value.Hand" DeckType="@vm.Table.Game.DeckType" MyHand="false" vm="@vm"/>
                 </td>
             </tr>
         }
         <tr>
+            <td>
+
+            </td>
+            <td>
+                <table style="position:absolute;left:calc(75vw);width:calc(25vw)">
+                    <tr>
+                        <td style="background-color:red">
+                            <div class="playingCards fourColours simpleCards" >
+                                <Deck Cards="@vm.Table.Deck.Cards" DeckType="@vm.Table.Game.DeckType" CardsAreSecret="true"/>
+                            </div>
+                        </td>
+                        <td style="background-color:navy">
+                            <div class="playingCards fourColours simpleCards" >
+                                <Deck Cards="@vm.Table.DiscardPile.Cards" DeckType="@vm.Table.Game.DeckType" CardsAreSecret="false"/>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr style="background-color:orange">
             @{
                 var p = vm.Table.Players.Where(player => player.Value.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid)).FirstOrDefault();
             }
@@ -36,10 +57,14 @@
                                 <table>
                                     <tr>
                                         <td>
-                                            <Syncfusion.Blazor.Buttons.SfButton>Discard</Syncfusion.Blazor.Buttons.SfButton>
+                                            <Syncfusion.Blazor.Buttons.SfButton OnClick="discardClicked" Disabled="@vm.CannotDiscard">
+                                                Discard
+                                            </Syncfusion.Blazor.Buttons.SfButton>
                                         </td>
                                         <td>
-                                            <Syncfusion.Blazor.Buttons.SfButton>Play</Syncfusion.Blazor.Buttons.SfButton>
+                                            <Syncfusion.Blazor.Buttons.SfButton>
+                                                Play
+                                            </Syncfusion.Blazor.Buttons.SfButton>
                                         </td>
                                     </tr>
                                 </table>
@@ -49,7 +74,7 @@
                 </table>
             </td>
             <td>
-                <Hand Cards="@p.Value.Hand" DeckType="@vm.Table.Game.DeckType" MyHand="true" />
+                <Hand Cards="@p.Value.Hand" DeckType="@vm.Table.Game.DeckType" MyHand="true" vm="@vm"/>
             </td>
         </tr>
     </table>
@@ -71,5 +96,18 @@
     {
         await vm.Deal();
         await InvokeAsync(() => StateHasChanged());
+    }
+    protected async void discardClicked(MouseEventArgs args)
+    {
+        await vm.DiscardSelectedCards();
+    }
+    protected override async Task OnParametersSetAsync()
+    {
+
+        vm.PropertyChanged += async (s, e) =>
+        {
+            await InvokeAsync(() => StateHasChanged());
+        };
+        await base.OnParametersSetAsync();
     }
 }

@@ -1,4 +1,5 @@
-﻿using Game.Client.Shared.Services.CurrentUser;
+﻿using Game.Client.Shared;
+using Game.Client.Shared.Services.CurrentUser;
 using Game.Client.Shared.Services.SignalRService;
 using Game.Entities;
 using System;
@@ -30,10 +31,31 @@ namespace Game.Client.Shared.ViewModels
             factory = _factory;
             PlayersRequestingEntry = new ObservableCollection<Player>();
             Players = new SortedList<int, Player>();
+            selectedcards = new ObservableCollection<Card>();
             //Players.CollectionChanged += PlayersChanged;
             rtc.PlayerDealtNewHand += PlayerDealtNewHand;
             rtc.TableStarted += TableStarted;
             rtc.PlayerRequestingToJoinTable += Rtc_PlayerRequestingToJoinTable;
+            rtc.CardAddedToDiscardPile += CardAddedToDiscardPile;
+            rtc.PlayerSelectedCard += PlayerSelectedCard;
+            selectedcards.CollectionChanged += (s, a) =>
+            {
+                RaisePropertyChanged("CanDiscard");
+            };
+        }
+
+        private void PlayerSelectedCard(object sender, PlayerSelectedCardEventArgs e)
+        {
+            Console.WriteLine($"A remote player selected a card: {e.Message.CardIndex}");
+            var p = this.Players.Values.Where(player => player.PrincipalId.Equals(e.Message.Player.PrincipalId)).FirstOrDefault();
+            p.Hand[e.Message.CardIndex].Selected = !p.Hand[e.Message.CardIndex].Selected;
+            RaisePropertyChanged("DiscardPile");
+        }
+
+        private void CardAddedToDiscardPile(object sender, NewCardOnDiscardPileEventArgs e)
+        {
+            this.table.DiscardPile.Cards.Push(e.Card);
+            RaisePropertyChanged("DiscardPile");
         }
 
         private void TableStarted(object sender, TableStartedEventArgs e)
@@ -65,6 +87,26 @@ namespace Game.Client.Shared.ViewModels
         #endregion
 
         #region Properties
+        public bool CannotDiscard
+        {
+            get
+            {
+                return selectedcards.Count != 1;
+            }
+        }
+        private ObservableCollection<Entities.Card> selectedcards;
+        public ObservableCollection<Entities.Card>SelectedCards
+        {
+            get
+            {
+                return selectedcards;
+            }
+            set
+            {
+                selectedcards = value;
+                RaisePropertyChanged("SelectedCards");
+            }
+        }
         private bool roundcompleted;
         public bool RoundCompleted
         {
@@ -267,6 +309,31 @@ namespace Game.Client.Shared.ViewModels
         public async Task Decline(Entities.RequestToJoinTableMessage message)
         {
             throw new NotImplementedException();
+        }
+
+        public void PickupFromDiscardPile(Player player)
+        {
+            throw new NotImplementedException();
+        }
+        public void PickupFromDeck(Player player)
+        {
+            throw new NotImplementedException();
+        }
+        public void PlaySelectedCards(Player player, List<Card> cards)
+        {
+            throw new NotImplementedException();
+        }
+        public async Task DiscardSelectedCards()
+        {
+            var client = factory.CreateClient("tableAPI");
+            await client.PostAsJsonAsync<Entities.Card>($"api/tables/hand/{this.table.Id.ToString()}/discard", this.selectedcards.First().ConvertSuitToColour());
+            Player.Hand.Remove(this.selectedcards.First());
+            this.selectedcards.Clear();
+            foreach(Card c in player.Hand)
+            {
+                c.Selected = false;
+            }
+            RaisePropertyChanged("Hand");
         }
         #endregion
 

@@ -25,5 +25,11 @@ namespace Game.Client.Shared.ViewModels
         Player Player { get; set; }
         Player Dealer { get; set; }
         bool RoundCompleted { get; set; }
+        void PickupFromDiscardPile(Player player);
+        void PickupFromDeck(Player player);
+        void PlaySelectedCards(Player player, List<Card> cards);
+        Task DiscardSelectedCards();
+        ObservableCollection<Entities.Card> SelectedCards { get; set; }
+        bool CannotDiscard { get; }
     }
 }

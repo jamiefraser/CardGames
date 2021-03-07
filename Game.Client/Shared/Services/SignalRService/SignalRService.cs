@@ -115,11 +115,15 @@ namespace Game.Client.Shared.Services.SignalRService
                     .Build();
             await hubConnection.StartAsync();
             #region HubConnection Handlers
+            hubConnection.On<Game.Entities.NewDiscardedCardMessage>("newCardOnDiscardPile", (message) =>
+            {
+                RaiseCardAddedToDiscardPile(message.Card);
+            });
             hubConnection.On<Game.Entities.TableStartedMessage>("tableStarted", (message) =>
             {
                 Console.WriteLine($"Recieved a signalr message that the table {message.TableId} was started");
                 var tbl = AvailableTables.Where(t => t.Id.Equals(Guid.Parse(message.TableId))).FirstOrDefault();
-                foreach(var t in AvailableTables)
+                foreach (var t in AvailableTables)
                 {
                     Console.WriteLine(t.Id);
                 }
@@ -153,7 +157,11 @@ namespace Game.Client.Shared.Services.SignalRService
                 }
                 RaisePlayerAdmittedToTable(message);
             });
-
+            hubConnection.On<CardSelectedMessage>("playerSelectedCard", (message) =>
+            {
+                Console.WriteLine($"SignalRService has heard that a player has selected a card! {message.CardIndex}");
+                RaisePlayerSelectedCard(message);
+            });
             #endregion
             var clientAddress = _factory.CreateClient("PresenceServiceRoot").BaseAddress;
             var client = _factory.CreateClient("presenceAPI");
@@ -184,7 +192,7 @@ namespace Game.Client.Shared.Services.SignalRService
                 hubConnection.Remove("presence");
                 hubConnection.Remove("joinrequest");
                 hubConnection.Remove("playeradmitted");
-
+                hubConnection.Remove("newCardOnDiscardPile");
                 #endregion
             }
             catch { }
@@ -199,6 +207,25 @@ namespace Game.Client.Shared.Services.SignalRService
         public event EventHandler<PlayerRequestingToJoinTableEventArgs> PlayerRequestingToJoinTable;
         public event EventHandler<PlayerDealtNewHandEventArgs> PlayerDealtNewHand;
         public event EventHandler<TableStartedEventArgs> TableStarted;
+        public event EventHandler<NewCardOnDiscardPileEventArgs> CardAddedToDiscardPile;
+        public event EventHandler<PlayerSelectedCardEventArgs> PlayerSelectedCard;
+        private void RaisePlayerSelectedCard(CardSelectedMessage message)
+        {
+            if(PlayerSelectedCard != null)
+            {
+                PlayerSelectedCard(this, new PlayerSelectedCardEventArgs(message));
+            }
+        }   
+        private void RaiseCardAddedToDiscardPile(Entities.Card card)
+        {
+            if(CardAddedToDiscardPile != null)
+            {
+                CardAddedToDiscardPile(this, new NewCardOnDiscardPileEventArgs()
+                {
+                    Card = card
+                });
+            }
+        }
 
         private void RaiseTableStarted(string tableId)
         {

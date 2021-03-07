@@ -44,7 +44,7 @@ else
         <div class="container" style="@getContainerStyle(m, tan)">
             <div>
                 <div class="playingCards fourColours rotateHand simpleCards">
-                    <Deck Cards="@vm.Table.Deck.Cards" />
+                    <Deck Cards="@vm.Table.Deck.Cards" />  
                 </div>
             </div>
             @{
@@ -56,13 +56,13 @@ else
                                 <div>
                                     @if (p.Value.PrincipalId == currentUserService.CurrentClaimsPrincipalOid)
                                     {
-                                        <Hand Cards="p.Value.Hand" DeckType="vm.Table.Game.DeckType" MyHand="true" />
+                                        <Hand Cards="p.Value.Hand" DeckType="vm.Table.Game.DeckType" MyHand="true" vm="@vm" />
                                     }
                                     else
                                     {
                                         <div>
                                             <div>
-                                                <Hand Cards="p.Value.Hand" DeckType="vm.Table.Game.DeckType" MyHand="false" />
+                                                <Hand Cards="p.Value.Hand" DeckType="vm.Table.Game.DeckType" MyHand="false" vm="@vm" />
                                             </div>
                                         </div>
                                     }

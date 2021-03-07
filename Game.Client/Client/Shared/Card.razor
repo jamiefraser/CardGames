@@ -9,8 +9,8 @@ else
 <li>
     @if (!Selected)
     {
-        <a class="card rank-@TheCard.Rank @TheCard.Suit">
-        <span class="rank" @onclick="Clicked">
+        <a class="card rank-@TheCard.Rank @TheCard.Suit"  @onclick="Clicked">
+        <span class="rank">
             @if (DeckType.Equals(Entities.DeckType.Phase10))
             {
                 @switch (TheCard.Suit.ToLower())
@@ -111,7 +111,7 @@ else
     else
     {
         <strong>
-            <a class="card rank-@TheCard.Rank @TheCard.Suit" @onclick="Clicked">
+            <a class="card rank-@TheCard.Rank @TheCard.Suit" @onclick="Clicked" >
                 <span class="rank">
                     @switch (TheCard.Suit.ToLower())
                     {
@@ -155,9 +155,11 @@ else
     protected void Clicked (MouseEventArgs args)
     {
         Selected = !Selected;
-        Console.WriteLine($"A card was clicked! Suit:{this.Suit} Rank:{this.Rank} Selected: {this.Selected}");
+        TheCard.Selected = Selected;
+        Console.WriteLine($"A card was clicked! Suit:{this.TheCard.Suit} Rank:{this.TheCard.Rank} Selected: {this.TheCard.Selected}");
         if(this.OnClicked != null)
         {
+            Console.WriteLine($"TheCard {(TheCard == null ? "is" : "is not")} null!");
             this.OnClicked(TheCard);
         }
     }

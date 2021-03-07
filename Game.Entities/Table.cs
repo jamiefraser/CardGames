@@ -10,6 +10,8 @@ namespace Game.Entities
 {
     public class Table
     {
+        public List<Entities.Card>DealtCards
+        { get; set; }
         public Guid Id { get; set; }
         public EasyAuthUserInfo TableOwner { get; set; }
 
@@ -95,10 +97,14 @@ namespace Game.Entities
                 if (_game.DeckType.Equals(DeckType.Standard))
                 {
                     Deck = new StandardDeck();
+                    DiscardPile = new StandardDeck();
+                    DiscardPile.Cards = new Stack<Card>();
                 }
                 if (_game.DeckType.Equals(DeckType.Phase10))
                 {
                     Deck = new Phase10Deck();
+                    DiscardPile = new Phase10Deck();
+                    DiscardPile.Cards = new Stack<Card>();
                 }
             }
         }
@@ -123,12 +129,26 @@ namespace Game.Entities
                 deck = value;
             }
         }
+
+        private DeckBase discardpile;
+        public DeckBase DiscardPile
+        {
+            get
+            {
+                return discardpile;
+            }
+            set
+            {
+                discardpile = value;
+            }
+        }
         public Table()
         {
             this.Players = new SortedList<int,Player>();
             InvitedPlayers = new List<Player>();
             this.Finished = false;
             PlayersRequestingAccess = new List<Player>();
+            DealtCards = new List<Card>();
         }
     }
 }

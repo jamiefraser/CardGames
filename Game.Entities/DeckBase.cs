@@ -9,7 +9,7 @@ namespace Game.Entities
     {
         [JsonProperty]
         public Guid Id { get; set; }
-        public Queue<Card> Cards { get; set; }
+        public Stack<Card> Cards { get; set; }
         public DeckBase Shuffle()
         {
             Card[] cards = this.Cards.ToArray();
@@ -28,7 +28,7 @@ namespace Game.Entities
             var c = new List<Card>(cards);
             foreach (Card card in c)
             {
-                this.Cards.Enqueue(card);
+                this.Cards.Push(card);
             }
             return this;
         }

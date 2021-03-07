@@ -57,6 +57,12 @@
     /* yes, it's intentional that Mozilla, Webkit, Opera and IE all will get different backgrounds ... why not? :) */
 }
 
+.playingCards a.card.back.active,
+.playingCards strong .card.back{
+    bottom:1em;
+    border-width:thick
+}
+
 /* suit colours
 ********************************************************************/
 
