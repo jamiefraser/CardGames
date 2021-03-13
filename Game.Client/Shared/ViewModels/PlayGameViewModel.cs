@@ -88,6 +88,7 @@ namespace Game.Client.Shared.ViewModels
         #endregion
 
         #region Properties
+        
         public bool IsMyTurn
         {
             get
@@ -349,14 +350,22 @@ namespace Game.Client.Shared.ViewModels
         public async Task DiscardSelectedCards()
         {
             var client = factory.CreateClient("tableAPI");
-            await client.PostAsJsonAsync<Entities.Card>($"api/tables/hand/{this.table.Id.ToString()}/discard", this.selectedcards.First().ConvertSuitToColour());
-            Player.Hand.Remove(this.selectedcards.First());
-            this.selectedcards.Clear();
-            foreach(Card c in player.Hand)
+            CurrentPlayer = null;
+            try
             {
-                c.Selected = false;
+                await client.PostAsJsonAsync<Entities.Card>($"api/tables/hand/{this.table.Id.ToString()}/discard", this.selectedcards.First().ConvertSuitToColour());
+                this.selectedcards.Clear();
+                foreach (Card c in player.Hand)
+                {
+                    c.Selected = false;
+                }
+                RaisePropertyChanged("Hand");
             }
-            RaisePropertyChanged("Hand");
+            catch(Exception ex)
+            {
+                Player.Hand.Remove(this.selectedcards.First());
+                CurrentPlayer = currentUserService.CurrentClaimsPrincipal.ToPlayer();
+            }
         }
         #endregion
 
