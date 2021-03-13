@@ -55,6 +55,7 @@ namespace Game.Client.Shared.ViewModels
         private void CardAddedToDiscardPile(object sender, NewCardOnDiscardPileEventArgs e)
         {
             this.table.DiscardPile.Cards.Push(e.Card);
+            this.CurrentPlayer = e.NextPlayer;
             RaisePropertyChanged("DiscardPile");
         }
 
@@ -87,6 +88,28 @@ namespace Game.Client.Shared.ViewModels
         #endregion
 
         #region Properties
+        public bool IsMyTurn
+        {
+            get
+            {
+                return CurrentPlayer != null ? CurrentPlayer.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid) : false;
+            }
+        }
+        private Player currentplayer;
+        public Player CurrentPlayer
+        {
+            get
+            {
+                if (currentplayer == null) currentplayer = Dealer;
+                return currentplayer;
+            }
+            private set
+            {
+                currentplayer = value;
+                RaisePropertyChanged("CurrentPlayer");
+                RaisePropertyChanged("IsMyTurn");
+            }
+        }
         public bool CannotDiscard
         {
             get

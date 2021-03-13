@@ -54,20 +54,23 @@
                             }
                             else
                             {
-                                <table>
-                                    <tr>
-                                        <td>
-                                            <Syncfusion.Blazor.Buttons.SfButton OnClick="discardClicked" Disabled="@vm.CannotDiscard">
-                                                Discard
-                                            </Syncfusion.Blazor.Buttons.SfButton>
-                                        </td>
-                                        <td>
-                                            <Syncfusion.Blazor.Buttons.SfButton>
-                                                Play
-                                            </Syncfusion.Blazor.Buttons.SfButton>
-                                        </td>
-                                    </tr>
-                                </table>
+                                @if (vm.IsMyTurn)
+                                {
+                                    <table>
+                                        <tr>
+                                            <td>
+                                                <Syncfusion.Blazor.Buttons.SfButton OnClick="discardClicked" Disabled="@vm.CannotDiscard">
+                                                    Discard
+                                                </Syncfusion.Blazor.Buttons.SfButton>
+                                            </td>
+                                            <td>
+                                                <Syncfusion.Blazor.Buttons.SfButton>
+                                                    Play
+                                                </Syncfusion.Blazor.Buttons.SfButton>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                }
                             }
                         </td>
                     </tr>

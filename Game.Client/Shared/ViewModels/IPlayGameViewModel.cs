@@ -21,6 +21,8 @@ namespace Game.Client.Shared.ViewModels
         Task Deal();
         Task StartGame();
         bool CanStartGame { get; set; }
+        bool IsMyTurn { get; }
+        Player CurrentPlayer { get; }
         bool Started { get; set; }
         Player Player { get; set; }
         Player Dealer { get; set; }

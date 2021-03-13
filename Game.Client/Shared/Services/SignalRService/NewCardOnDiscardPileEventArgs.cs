@@ -9,5 +9,6 @@ namespace Game.Client.Shared.Services.SignalRService
     public class NewCardOnDiscardPileEventArgs
     {
         public Entities.Card Card { get; set; }
+        public Entities.Player NextPlayer { get; set; }
     }
 }

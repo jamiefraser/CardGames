@@ -163,19 +163,31 @@ namespace Game.Services.Table
                 var principal = await Helpers.Helpers.GetClaimsPrincipalAsync(req.GetAccessToken(), log);
                 var player = principal.ToPlayer();
                 var hand = await Helpers.Helpers.GetPlayerHand(t, player);
-                
+                var thisPlayerIndex = t.Players.IndexOfValue(t.Players.Where(p => p.Value.PrincipalId.Equals(player.PrincipalId)).FirstOrDefault().Value);
+                Player nextPlayer;
+                if (thisPlayerIndex  +1 < t.Players.Count)
+                {
+                    nextPlayer = t.Players.Skip(thisPlayerIndex +1 ).Take(1).First().Value;
+                }
+                else
+                {
+                    //wrap around
+                    nextPlayer = t.Players.First().Value;
+                }
                 var p = t.Players.Where(p => p.Value.PrincipalId.Equals(player.PrincipalId)).FirstOrDefault().Value;
                 var cardInHand = p.Hand.Where(c => c.Suit.Equals(card.Suit) && c.Rank.Equals(card.Rank)).FirstOrDefault();
                 var index = p?.Hand.IndexOf(cardInHand);
                 hand.RemoveAt(index.Value);
                 p.Hand.RemoveAt(index.Value);
+                
                 var msg = new SignalRMessage()
                 {
                     Arguments = new[]
                     {
                         new NewDiscardedCardMessage()
                         {
-                            Card = card
+                            Card = card,
+                            NextPlayer = nextPlayer
                         }
                     },
                     Target = "newCardOnDiscardPile"

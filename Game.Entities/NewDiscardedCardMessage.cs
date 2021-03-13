@@ -7,5 +7,6 @@ namespace Game.Entities
     public class NewDiscardedCardMessage
     {
         public Entities.Card Card { get; set; }
+        public Player NextPlayer { get; set; }
     }
 }

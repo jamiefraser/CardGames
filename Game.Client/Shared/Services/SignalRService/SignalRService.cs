@@ -117,7 +117,7 @@ namespace Game.Client.Shared.Services.SignalRService
             #region HubConnection Handlers
             hubConnection.On<Game.Entities.NewDiscardedCardMessage>("newCardOnDiscardPile", (message) =>
             {
-                RaiseCardAddedToDiscardPile(message.Card);
+                RaiseCardAddedToDiscardPile(message.Card, message.NextPlayer);
             });
             hubConnection.On<Game.Entities.TableStartedMessage>("tableStarted", (message) =>
             {
@@ -216,13 +216,14 @@ namespace Game.Client.Shared.Services.SignalRService
                 PlayerSelectedCard(this, new PlayerSelectedCardEventArgs(message));
             }
         }   
-        private void RaiseCardAddedToDiscardPile(Entities.Card card)
+        private void RaiseCardAddedToDiscardPile(Entities.Card card, Entities.Player player)
         {
             if(CardAddedToDiscardPile != null)
             {
                 CardAddedToDiscardPile(this, new NewCardOnDiscardPileEventArgs()
                 {
-                    Card = card
+                    Card = card,
+                    NextPlayer = player
                 });
             }
         }

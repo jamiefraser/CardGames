@@ -7,73 +7,39 @@
     var m = n_imgs - has_mid;
     decimal tan = System.Convert.ToDecimal(Math.Tan(Math.PI / m));
 }
-@*@if (vm.Table.Players.Count <= 2)
-    {
-            <table width="100%" style="background-color:navy">
-                <tr>
-                    <td></td>
-                    <td>
-                        <div class="playingCards fourColours rotateHand simpleCards">
-                            <Hand DeckType="@vm.Table.Game.DeckType" Cards="@vm.Table.Players.Where(p => p.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid)).First().Hand" MyHand="true"></Hand>
-                        </div>
-                    </td>
-                    <td />
-                </tr>
-                <tr>
-                    <td/>
-                    <td>
-                        <div class="playingCards fourColours rotateHand simpleCards">
-                            <Deck Cards="@vm.Table.Deck.Cards" />
-                        </div>
-                    </td>
-                    <td />
-                </tr>
-                <tr>
-                    <td />
-                    <td>
-                        <div class="playingCards fourColours rotateHand simpleCards">
-                            <Hand DeckType="@vm.Table.Game.DeckType" Cards="@vm.Table.Players.Where(p =>!p.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid)).First().Hand" MyHand="false"></Hand>
-                        </div>
-                    </td>
-                    <td />
-                </tr>
-            </table>
-    }
-else
-    {*@
-        <div class="container" style="@getContainerStyle(m, tan)">
-            <div>
-                <div class="playingCards fourColours rotateHand simpleCards">
-                    <Deck Cards="@vm.Table.Deck.Cards" />  
-                </div>
-            </div>
-            @{
-                var counter = 1;
-                foreach (KeyValuePair<int,Entities.Player> p in vm.Table.Players)
-                {
-                        <div class="playingCards fourColours rotateHand simpleCards" style="@getDivStyle(counter, p.Value.PrincipalId, vm.Table.Players.Count);width:calc(20px * @p.Value.Hand.Count);--manualRadius:calc(2.5px * @p.Value.Hand.Count);">
-                            <div class="table">
+<div class="container" style="@getContainerStyle(m, tan)">
+    <div>
+        <div class="playingCards fourColours rotateHand simpleCards">
+            <Deck Cards="@vm.Table.Deck.Cards" />
+        </div>
+    </div>
+    @{
+        var counter = 1;
+        foreach (KeyValuePair<int, Entities.Player> p in vm.Table.Players)
+        {
+            <div class="playingCards fourColours rotateHand simpleCards" style="@getDivStyle(counter, p.Value.PrincipalId, vm.Table.Players.Count);width:calc(20px * @p.Value.Hand.Count);--manualRadius:calc(2.5px * @p.Value.Hand.Count);">
+                <div class="table">
+                    <div>
+                        @if (p.Value.PrincipalId == currentUserService.CurrentClaimsPrincipalOid)
+                        {
+                            <Hand Cards="p.Value.Hand" DeckType="vm.Table.Game.DeckType" MyHand="true" vm="@vm" />
+                        }
+                        else
+                        {
+                            <div>
                                 <div>
-                                    @if (p.Value.PrincipalId == currentUserService.CurrentClaimsPrincipalOid)
-                                    {
-                                        <Hand Cards="p.Value.Hand" DeckType="vm.Table.Game.DeckType" MyHand="true" vm="@vm" />
-                                    }
-                                    else
-                                    {
-                                        <div>
-                                            <div>
-                                                <Hand Cards="p.Value.Hand" DeckType="vm.Table.Game.DeckType" MyHand="false" vm="@vm" />
-                                            </div>
-                                        </div>
-                                    }
+                                    <Hand Cards="p.Value.Hand" DeckType="vm.Table.Game.DeckType" MyHand="false" vm="@vm" />
                                 </div>
                             </div>
-                        </div>
-                    counter++;
-                }
-            }
-        </div>
-    @*}*@
+                        }
+                    </div>
+                </div>
+            </div>
+            counter++;
+        }
+    }
+</div>
+@*}*@
 @code{
     [Parameter]
     public Game.Client.Shared.ViewModels.IPlayGameViewModel vm { get; set; }
@@ -87,7 +53,7 @@ else
         string styleText = "";
         if (principalId.Equals(currentUserService.CurrentClaimsPrincipalOid))
         {
-            styleText = styleText +  $"--i: {i}; ";
+            styleText = styleText + $"--i: {i}; ";
         }
         else
         {
@@ -104,4 +70,8 @@ else
         return $"--m: {m}; --tan: {Math.Abs(tan)}";
     }
     private string[] layoutPositions = { "deg0", "deg45", "deg135", "deg180", "deg225", "deg315" };
+    protected override async Task OnInitializedAsync()
+    {
+        vm.PropertyChanged += async (s,e) => await InvokeAsync(() => StateHasChanged());
+    }
 }
