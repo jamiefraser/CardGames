@@ -30,6 +30,7 @@ namespace Game.Services.Table
         {
             var table = await Helpers.Helpers.GetTable(tableId);
             table.Started = true;
+            table.Dealer = table.Players.First().Value;
             await table.Save();
             var msg = new SignalRMessage()
             {
@@ -38,7 +39,8 @@ namespace Game.Services.Table
                 {
                     new TableStartedMessage()
                     {
-                        TableId = tableId
+                        TableId = tableId,
+                        Dealer = table.Dealer
                     }
                 }
             };

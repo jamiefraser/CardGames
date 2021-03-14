@@ -50,7 +50,7 @@
                         <td>
                             @if (vm.Dealer.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid) && vm.RoundCompleted)
                             {
-                                <Syncfusion.Blazor.Buttons.SfButton>Deal</Syncfusion.Blazor.Buttons.SfButton>
+                                <Syncfusion.Blazor.Buttons.SfButton OnClick="@dealClicked">Deal</Syncfusion.Blazor.Buttons.SfButton>
                             }
                             else
                             {

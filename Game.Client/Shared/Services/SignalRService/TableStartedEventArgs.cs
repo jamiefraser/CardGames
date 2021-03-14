@@ -9,5 +9,6 @@ namespace Game.Client.Shared.Services.SignalRService
     public class TableStartedEventArgs
     {
         public string TableId { get; set; }
+        public Entities.Player Dealer { get; set; }
     }
 }

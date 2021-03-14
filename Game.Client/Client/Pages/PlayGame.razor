@@ -102,7 +102,6 @@ else
         await InvokeAsync(() => vm.Initialize(TableId));
         Radians = 360 / vm.Table.Players.Count;
         Console.WriteLine($"The game {(vm.Started ? "has" : "has not")} started");
-        await vm.Deal();
     }
     protected override async void OnParametersSet()
     {

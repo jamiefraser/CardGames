@@ -129,7 +129,7 @@ namespace Game.Client.Shared.Services.SignalRService
                 }
                 Console.WriteLine($"I was {(tbl != null ? "able" : "not able")} to find a corresponding table for this message's table id of {message.TableId.ToString()}");
                 AvailableTables.Where(t => t.Id.Equals(Guid.Parse(message.TableId))).FirstOrDefault()!.Started = true;
-                RaiseTableStarted(message.TableId);
+                RaiseTableStarted(message.TableId, message.Dealer);
             });
             hubConnection.On<Game.Entities.PlayerHandMessage>("handDealt", (message) =>
              {
@@ -228,14 +228,15 @@ namespace Game.Client.Shared.Services.SignalRService
             }
         }
 
-        private void RaiseTableStarted(string tableId)
+        private void RaiseTableStarted(string tableId, Entities.Player dealer)
         {
             Console.WriteLine($"Raising Table Started for {tableId}");
             if(TableStarted != null)
             {
                 TableStarted(this, new TableStartedEventArgs()
                 {
-                    TableId = tableId
+                    TableId = tableId,
+                    Dealer = dealer
                 });
             }
         }

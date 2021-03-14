@@ -64,6 +64,9 @@ namespace Game.Client.Shared.ViewModels
             Console.WriteLine($"Received a table started message for {e.TableId}");
             Started = true;
             Table.Started = true;
+            Table.Dealer = e.Dealer;
+            RoundCompleted = true;
+            this.Dealer = Table.Dealer;
             RaisePropertyChanged("Table");
         }
 
@@ -274,6 +277,7 @@ namespace Game.Client.Shared.ViewModels
                     });
                 }
             }
+            RoundCompleted = false;
             RaisePropertyChanged("Table");
          }
         public async Task Initialize(string tableId)
@@ -379,12 +383,8 @@ namespace Game.Client.Shared.ViewModels
 
         public async Task StartGame()
         {
-            //Started = true;
-            //Table.Started = true;
-            //rtc.AvailableTables.Where(tbl => tbl.Id.Equals(Table.Id)).FirstOrDefault()!.Started = true;
             var tableService = factory.CreateClient("tableAPI");
             var result = await tableService.PostAsJsonAsync<string>($"/api/tables/{Table.Id.ToString()}/start","");
-            await Deal();
         }
 
 
