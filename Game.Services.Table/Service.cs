@@ -13,6 +13,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Net.Http.Json;
+using System.Collections;
 namespace Game.Services.Table
 {
     public class Service
@@ -47,6 +48,14 @@ namespace Game.Services.Table
             await message.AddAsync(msg);
             return new OkResult();
         }
+        [FunctionName("PlayTrick")]
+        public async Task<IActionResult> PlayTrick([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "tables/playtrick/{tableId}")] HttpRequest req,
+                                                    string tableId,
+                                                    ILogger log,
+                                                    [SignalR(ConnectionStringSetting = "AzureSignalRConnectionString", HubName = "gameroom")] IAsyncCollector<SignalRMessage> message)
+        {
+            return new AcceptedResult();
+        }
         [FunctionName("DealHands")]
         public async Task<IActionResult> DealHands([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "tables/deal/{tableId}")] HttpRequest req,
                                                     string tableId,
@@ -60,8 +69,27 @@ namespace Game.Services.Table
             }
             table.DealtCards.Clear();
             table.Deck.Shuffle();
-            List<Entities.Player> players = new List<Entities.Player>(table.Players.Values);
-            foreach (Entities.Player p in players)
+            var dealer = (await Helpers.Helpers.GetClaimsPrincipalAsync(req.GetAccessToken(), log)).ToPlayer();
+            SortedList<int,Entities.Player> players = new System.Collections.Generic.SortedList<int,Player>();
+            int startingIndex = table.Players.Values.IndexOf(table.Players.Values.Where(p => p.PrincipalId.Equals(dealer.PrincipalId)).FirstOrDefault()) + 1;
+            if (startingIndex >= table.Players.Count) startingIndex = 0;
+            var currIndex = startingIndex;
+            var counter = 0;
+            while(currIndex < table.Players.Count)
+            {
+                players.Add(counter, table.Players[currIndex]);
+                counter++;
+                currIndex++;
+            }
+            currIndex = 0;
+            while(currIndex < startingIndex)
+            {
+                players.Add(counter, table.Players[currIndex]);
+                counter++;
+                currIndex++;
+            }
+            //List<Entities.Player> players = new List<Entities.Player>(table.Players.Values);
+            foreach (Entities.Player p in players.Values)
             {
                 p.Hand.Clear();
             }
@@ -71,7 +99,7 @@ namespace Game.Services.Table
             }
             for (int i = 0; i < table.Game.NumberOfCardsToDeal; i++)
             {
-                foreach (Entities.Player p in players)
+                foreach (Entities.Player p in players.Values)
                 {
                     var card = table.Deck.Cards.Pop();
                     p.Hand.Add(card);
@@ -79,7 +107,7 @@ namespace Game.Services.Table
                 }
             }
             //Save and send the hands to their players
-            foreach (Entities.Player p in players)
+            foreach (Entities.Player p in players.Values)
             {
                 var m = new SignalRMessage()
                 {
@@ -112,7 +140,8 @@ namespace Game.Services.Table
                 {
                     new NewDiscardedCardMessage()
                     {
-                        Card = c
+                        Card = c,
+                        NextPlayer = table.Players[startingIndex]
                     }
                 },
                 Target = "newCardOnDiscardPile"
@@ -181,7 +210,7 @@ namespace Game.Services.Table
                 var index = p?.Hand.IndexOf(cardInHand);
                 hand.RemoveAt(index.Value);
                 p.Hand.RemoveAt(index.Value);
-                
+                await p.Hand.Save(t, p);
                 var msg = new SignalRMessage()
                 {
                     Arguments = new[]
