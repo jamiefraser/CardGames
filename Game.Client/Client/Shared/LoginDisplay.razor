@@ -16,7 +16,7 @@
 @inject IHttpClientFactory factory
 @inject AuthenticationStateProvider authenticationStateProvider
 @inject ISignalRService rtc;
-
+@inject Microsoft.AspNetCore.Components.WebAssembly.Authentication.IAccessTokenProvider tokenProvider; 
 <AuthorizeView>
     <Authorized>
         <table width="100%" style="display:flex;">
@@ -48,6 +48,12 @@
         </table>
         @{
             currentUser.CurrentClaimsPrincipal = @context.User;
+            Task.Run(async () =>
+            {
+                var t = await tokenProvider.RequestAccessToken();
+                System.Diagnostics.Debug.WriteLine(t);
+            });
+
             currentUser.CurrentClaimsPrincipalOid = @context.User.Claims.Where(c => c.Type == "oid").FirstOrDefault().Value;
             //Helpers.UpdateStatus(currentUser.CurrentClaimsPrincipal, factory, true);
         }
@@ -129,9 +135,12 @@
         var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
         if (authState != null && authState.User != null && authState.User.Identities.First().IsAuthenticated)
         {
-            Console.WriteLine($"authState user is {authState.User.Identities.First().Name.ToString()}");
-            await Helpers.UpdateStatus(authState.User, factory, true);
+            AccessToken t;
+            Console.WriteLine(authState.User.Identities.First().BootstrapContext);
+            var acquiredToken = (await tokenProvider.RequestAccessToken()).TryGetToken(out t);
+            currentUser.AuthToken = t.Value.ToString();
             await signalR.InitializeAsync();
+            await signalR.UpdateStatus(true);
         }
     }
     private async void AuthenticationStateChanged(Task<AuthenticationState> task)
@@ -140,12 +149,15 @@
         var x = task.Result.User;
         if (state != null && state.User.Identity.IsAuthenticated)
         {
+            AccessToken t;
+            var acquiredToken = (await tokenProvider.RequestAccessToken()).TryGetToken(out t);
+            currentUser.AuthToken = t.Value.ToString();
             await signalR.InitializeAsync();
-            await Helpers.UpdateStatus(currentUser.CurrentClaimsPrincipal, factory, true);
+            await signalR.UpdateStatus(true);
         }
         else
         {
-            await Helpers.UpdateStatus(currentUser.SigningOutClaimsPrincipal, factory, false);
+            await signalR.UpdateStatus(false);
             currentUser.SigningOutClaimsPrincipal = null;
             await signalR.DisconnectSignalR();
         }

@@ -106,6 +106,7 @@ else
         <button type="submit" disabled="@(vm.SelectedGameTable==null ? true : false)">Join!</button>
     </EditForm>
 
+            <button title="Say Hello!" @onclick="sayHelloClick">Say Hello!</button>
 
 }
 @code
@@ -123,6 +124,10 @@ else
     public string selectedGameTableId { get; set; }
     public string selectedGame { get; set; }
     public string selectedGameId { get; set; }
+    public void sayHelloClick()
+    {
+        vm.sayHello("signalR is awesome!");
+    }
     public void selectedItemChanged(ListBoxChangeEventArgs<string, Entities.Table> args)
     {
         var x = AvailableTablesList.Value;

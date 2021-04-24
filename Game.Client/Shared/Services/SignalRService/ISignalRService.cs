@@ -24,5 +24,8 @@ namespace Game.Client.Shared.Services.SignalRService
         event EventHandler<PlayerSelectedCardEventArgs> PlayerSelectedCard;
         Task InitializeAsync();
         Task DisconnectSignalR();
+        Task SayHello(string message);
+        Task Deal(string tableId);
+        Task UpdateStatus(bool online);
     }
 }

@@ -261,22 +261,23 @@ namespace Game.Client.Shared.ViewModels
         #region Methods
         public async Task Deal()
         {
-            Console.WriteLine($"There are {Table.Players.Count} players at the table");
-            var service = factory.CreateClient("tableAPI");
-            var x = await service.PostAsJsonAsync($"api/tables/deal/{this.table.Id}","");
-            var s = await x.Content.ReadAsStringAsync();
-            foreach(KeyValuePair<int,Player> p in Table.Players.Where(player => !player.Value.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid)))
-            {
-                p.Value.Hand = new List<Card>();
-                for(int i=0;i<Table.Game.NumberOfCardsToDeal;i++)
-                {
-                    p.Value.Hand.Add(new Card()
-                    {
-                        Suit = "red",
-                        Rank = "0"
-                    });
-                }
-            }
+            await rtc.Deal(this.table.Id.ToString());
+            //Console.WriteLine($"There are {Table.Players.Count} players at the table");
+            //var service = factory.CreateClient("tableAPI");
+            //var x = await service.PostAsJsonAsync($"api/tables/deal/{this.table.Id}","");
+            //var s = await x.Content.ReadAsStringAsync();
+            //foreach(KeyValuePair<int,Player> p in Table.Players.Where(player => !player.Value.PrincipalId.Equals(currentUserService.CurrentClaimsPrincipalOid)))
+            //{
+            //    p.Value.Hand = new List<Card>();
+            //    for(int i=0;i<Table.Game.NumberOfCardsToDeal;i++)
+            //    {
+            //        p.Value.Hand.Add(new Card()
+            //        {
+            //            Suit = "red",
+            //            Rank = "0"
+            //        });
+            //    }
+        //}
             RoundCompleted = false;
             RaisePropertyChanged("Table");
          }

@@ -9,7 +9,7 @@
     <PackageReference Include="Microsoft.Graph" Version="3.21.0" />
     <PackageReference Include="Microsoft.Identity.Client" Version="4.24.0" />
     <PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" Version="2.16.7" />
-    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="3.0.11" />
+    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="3.0.3" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Game.Entities\Game.Entities.csproj" />

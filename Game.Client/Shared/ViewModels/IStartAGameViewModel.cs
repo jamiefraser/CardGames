@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace Game.Client.Shared.ViewModels
 {
@@ -22,5 +23,6 @@ namespace Game.Client.Shared.ViewModels
         Task StartGame();
         Task Initialize();
         event EventHandler<PlayerRequestingToJoinTableEventArgs> OwnGameCreated;
+        Task sayHello(string message);
     }
 }

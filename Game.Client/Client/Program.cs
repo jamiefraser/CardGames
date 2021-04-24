@@ -127,7 +127,7 @@ namespace Game.Client.Client
             #endregion
 
             #region PresenceAPI
-            builder.Services.AddScoped<GraphServiceAuthorizationHandler>();
+            builder.Services.AddScoped<SignalRServiceAuthorizationHandler>();
 
             builder.Services.AddHttpClient("presenceAPI",
                 client =>
@@ -135,7 +135,9 @@ namespace Game.Client.Client
                     client.BaseAddress = new Uri($"{presenceServiceRoot}");
                 })
                 .AddPolicyHandler(httpTransientErrorRetryPolicy)
-                .AddPolicyHandler(timeoutPolicy);
+                .AddPolicyHandler(timeoutPolicy)
+                .AddHttpMessageHandler<SignalRServiceAuthorizationHandler>();
+
 
             builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>()
                .CreateClient("presenceAPI"));
@@ -181,7 +183,8 @@ namespace Game.Client.Client
                     Console.WriteLine("Unloading the page");
                     var currentUserService = services.GetRequiredService<ICurrentUserService>();
                     var signOutUser = currentUserService.CurrentClaimsPrincipal;
-                    await Helpers.UpdateStatus(currentUserService.CurrentClaimsPrincipal, services.GetRequiredService<IHttpClientFactory>(), false);
+                    var signalR = services.GetRequiredService<ISignalRService>();
+                    await signalR.UpdateStatus(false);
                     currentUserService.SigningOutClaimsPrincipal = null;
                 }
             };

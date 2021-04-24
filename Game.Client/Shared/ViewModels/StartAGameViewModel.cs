@@ -14,6 +14,8 @@ using System.Net.Http.Json;
 using System.Threading.Tasks;
 using Game.Client.Shared;
 using Microsoft.AspNetCore.Components;
+using System.Windows.Input;
+using Microsoft.AspNet.SignalR.Messaging;
 
 namespace Game.Client.Shared.ViewModels
 {
@@ -52,7 +54,10 @@ namespace Game.Client.Shared.ViewModels
                 Console.WriteLine(Games.Count);
             });
         }
-
+       public async Task sayHello(string message)
+        {
+            signalRService.SayHello(message);
+        }
         public async Task Initialize()
         {
             var tableClient = factory.CreateClient("tableAPI");

@@ -45,6 +45,7 @@ namespace Game.Client.Client
         }
         public static async Task  UpdateStatus(System.Security.Claims.ClaimsPrincipal claimsPrincipal, IHttpClientFactory factory, bool online)
         {
+
             var client = factory.CreateClient("presenceAPI");
             var presenceMessage = new Entities.PresenceStatusMessage()
             {

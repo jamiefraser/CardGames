@@ -106,11 +106,25 @@ namespace Game.Client.Shared.Services.SignalRService
                 RaiseTableRemoved(message.Table);
             }
         }
+        public async Task UpdateStatus(bool online)
+        {
+            var presenceMessage = new Entities.PresenceStatusMessage()
+            {
+                CurrentStatus = online ? Entities.PlayerPresence.Online : Entities.PlayerPresence.Offline,
+                InAGame = false,
+                Player = currentUserService.CurrentClaimsPrincipal.ToPlayer()
+            };
+            await hubConnection.InvokeAsync("registerPlayerStatus", presenceMessage);
+        }
         private bool initializing = false;
         public async Task InitializeAsync()
         {
             hubConnection = new HubConnectionBuilder()
-                    .WithUrl($"{_serviceBaseUrl}api", (options) => options.Headers.Add("x-ms-signalr-userid", currentUserService.CurrentClaimsPrincipalOid.ToString()))
+                    .WithUrl($"{_serviceBaseUrl}api", async(options) =>
+                    {
+                        options.Headers.Add("x-ms-signalr-user-id", currentUserService.CurrentClaimsPrincipalOid.ToString());
+                        options.AccessTokenProvider = () => Task.FromResult(currentUserService.AuthToken);
+                    })
                     .WithAutomaticReconnect()
                     .Build();
             await hubConnection.StartAsync();
@@ -163,24 +177,34 @@ namespace Game.Client.Shared.Services.SignalRService
                 RaisePlayerSelectedCard(message);
             });
             #endregion
-            var clientAddress = _factory.CreateClient("PresenceServiceRoot").BaseAddress;
-            var client = _factory.CreateClient("presenceAPI");
-            var tableClient = _factory.CreateClient("tableAPI");
-            var players = await client.GetFromJsonAsync<List<Entities.Player>>("api/players");
-            PlayersOnline = new ObservableCollection<Entities.Player>(players);
+            //var clientAddress = _factory.CreateClient("PresenceServiceRoot").BaseAddress;
+            //var client = _factory.CreateClient("presenceAPI");
+            //var tableClient = _factory.CreateClient("tableAPI");
+            List<Player> players;
             try
             {
-                var tables = await tableClient.GetFromJsonAsync<List<Entities.Table>>("api/tables");
-                AvailableTables = new ObservableCollection<Table>(tables);
-                RaiseReadyStateChanged(true);
+                //players = await client.GetFromJsonAsync<List<Entities.Player>>("api/players");
+                //PlayersOnline = new ObservableCollection<Entities.Player>(players);
+            }
+            catch
+            {
+
+            }
+            
+            try
+            {
+                //var tables = await tableClient.GetFromJsonAsync<List<Entities.Table>>("api/tables");
+                //AvailableTables = new ObservableCollection<Table>(tables);
+                //RaiseReadyStateChanged(true);
             }
             catch(Exception ex)
             {
                 Console.WriteLine($"{ex.Message}\r\n{ex.StackTrace}");
-                Console.WriteLine($"The tableClient {(tableClient == null ? "is" : "is not")} null");
+                //Console.WriteLine($"The tableClient {(tableClient == null ? "is" : "is not")} null");
                 availabletables = new ObservableCollection<Table>();
                 RaiseReadyStateChanged(false);
             }
+            RaiseReadyStateChanged(true);
         }
         public async Task DisconnectSignalR()
         {
@@ -356,6 +380,17 @@ namespace Game.Client.Shared.Services.SignalRService
         {
             get;
             set;
+        }
+        #endregion
+
+        #region Methods
+        public async Task Deal(string tableId)
+        {
+            await hubConnection.InvokeAsync("DealHands", tableId);
+        }
+        public async Task SayHello(string message)
+        {
+            await hubConnection.InvokeAsync("AdmitFromSignalR", "My Hello Message");
         }
         #endregion
     }

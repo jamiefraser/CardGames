@@ -23,6 +23,8 @@ namespace Game.Services.Table
         {
             _config = configuration;
         }
+
+        #region Start Game
         [FunctionName("Start")]
         public async Task<IActionResult> StartGameAtTable([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "tables/{tableId}/start")] HttpRequest req,
                                                     string tableId,
@@ -48,6 +50,9 @@ namespace Game.Services.Table
             await message.AddAsync(msg);
             return new OkResult();
         }
+        #endregion
+
+        #region Play Trick
         [FunctionName("PlayTrick")]
         public async Task<IActionResult> PlayTrick([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "tables/playtrick/{tableId}")] HttpRequest req,
                                                     string tableId,
@@ -56,100 +61,11 @@ namespace Game.Services.Table
         {
             return new AcceptedResult();
         }
-        [FunctionName("DealHands")]
-        public async Task<IActionResult> DealHands([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "tables/deal/{tableId}")] HttpRequest req,
-                                                    string tableId,
-                                                    ILogger log,
-                                                    [SignalR(ConnectionStringSetting = "AzureSignalRConnectionString", HubName = "gameroom")] IAsyncCollector<SignalRMessage> message)
-        {
-            var table = await Helpers.Helpers.GetTable(tableId);
-            foreach (Entities.Card card in table.DealtCards)
-            {
-                table.Deck.Cards.Push(card);
-            }
-            table.DealtCards.Clear();
-            table.Deck.Shuffle();
-            var dealer = (await Helpers.Helpers.GetClaimsPrincipalAsync(req.GetAccessToken(), log)).ToPlayer();
-            SortedList<int,Entities.Player> players = new System.Collections.Generic.SortedList<int,Player>();
-            int startingIndex = table.Players.Values.IndexOf(table.Players.Values.Where(p => p.PrincipalId.Equals(dealer.PrincipalId)).FirstOrDefault()) + 1;
-            if (startingIndex >= table.Players.Count) startingIndex = 0;
-            var currIndex = startingIndex;
-            var counter = 0;
-            while(currIndex < table.Players.Count)
-            {
-                players.Add(counter, table.Players[currIndex]);
-                counter++;
-                currIndex++;
-            }
-            currIndex = 0;
-            while(currIndex < startingIndex)
-            {
-                players.Add(counter, table.Players[currIndex]);
-                counter++;
-                currIndex++;
-            }
-            //List<Entities.Player> players = new List<Entities.Player>(table.Players.Values);
-            foreach (Entities.Player p in players.Values)
-            {
-                p.Hand.Clear();
-            }
-            foreach (KeyValuePair<int, Entities.Player> p in table.Players)
-            {
-                p.Value.Hand = new List<Entities.Card>();
-            }
-            for (int i = 0; i < table.Game.NumberOfCardsToDeal; i++)
-            {
-                foreach (Entities.Player p in players.Values)
-                {
-                    var card = table.Deck.Cards.Pop();
-                    p.Hand.Add(card);
-                    table.DealtCards.Add(card);
-                }
-            }
-            //Save and send the hands to their players
-            foreach (Entities.Player p in players.Values)
-            {
-                var m = new SignalRMessage()
-                {
-                    UserId = p.PrincipalId,
-                    Arguments = new[]
-                    {
-                        new PlayerHandMessage()
-                        {
-                            Hand = p.Hand,
-                            TableId = table.Id
-                        }
-                    },
-                    Target = "handDealt"
-                };
-                try
-                {
-                    await p.Hand.Save(table, p);
-                }
-                catch (Exception ex)
-                {
-                    throw;
-                }
-                await message.AddAsync(m);
-            }
-            var c = table.Deck.Cards.Pop();
-            table.DealtCards.Add(c);
-            var msg = new SignalRMessage()
-            {
-                Arguments = new[]
-                {
-                    new NewDiscardedCardMessage()
-                    {
-                        Card = c,
-                        NextPlayer = table.Players[startingIndex]
-                    }
-                },
-                Target = "newCardOnDiscardPile"
-            };
-            await message.AddAsync(msg);
-            await table.Save();
-            return new OkResult();
-        }
+        #endregion
+
+
+
+        #region Publish Player Selected Card Message
         [FunctionName("PlayerSelectedCard")]
         public async Task<IActionResult>PlayerSelectedCard([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "tables/hand/{tableId}/selected/{cardIndex}")] HttpRequest req,
                                                      ILogger log,
@@ -180,6 +96,9 @@ namespace Game.Services.Table
             }
             return new OkResult();
         }
+        #endregion
+
+        #region Publish Player is Discarding Card Message
         [FunctionName("PlayerDiscardingCard")]
         public async Task<IActionResult>DiscardCard([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "tables/hand/{tableId}/discard")] HttpRequest req,
                                                      ILogger log,
@@ -232,6 +151,9 @@ namespace Game.Services.Table
                 return new NotFoundResult();
             }
         }
+        #endregion
+
+        #region Get Hand for calling player
         [FunctionName("RetrieveHand")]
         public async Task<IActionResult> RetrieveHand([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "tables/hand/{tableId}")] HttpRequest req,
                                                      ILogger log,
@@ -252,6 +174,9 @@ namespace Game.Services.Table
                 return new NotFoundResult();
             }
         }
+        #endregion
+
+        #region Admit Player to Table
         [FunctionName("AdmitPlayer")]
         public async Task<IActionResult> AdmitPlayer([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "tables/admit")] HttpRequest req,
                                                     ILogger log,
@@ -292,6 +217,9 @@ namespace Game.Services.Table
                 return new BadRequestObjectResult(ex);
             }
         }
+        #endregion
+
+        #region Request to Join a Table
         [FunctionName("RequestToJoinTable")]
         public async Task<IActionResult> RequestToJoinTable([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "tables/join")] HttpRequest req,
                                                             ILogger log,
@@ -329,6 +257,9 @@ namespace Game.Services.Table
                 return new BadRequestResult();
             }
         }
+        #endregion
+
+        #region Create a New Table
         [FunctionName("CreateTable")]
         public async Task<IActionResult> CreateTable(
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "tables")] HttpRequest req,
@@ -377,11 +308,17 @@ namespace Game.Services.Table
                 return new BadRequestObjectResult(ex);
             }
         }
+        #endregion
+
+        #region Retrieve All Available Tables
         [FunctionName("FetchTables")]
         public async Task<IActionResult> GetActiveTables([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "tables")] HttpRequest reg, ILogger log)
         {
             return new OkObjectResult(await Helpers.Helpers.GetTables());
         }
+        #endregion
+
+        #region Retrieve Specific Table
         [FunctionName("FetchTable")]
         public async Task<IActionResult> GetTable([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "tables/{id}")] HttpRequest req, string? id, ILogger log)
         {
@@ -394,5 +331,6 @@ namespace Game.Services.Table
                 return new BadRequestObjectResult(ex);
             }
         }
+        #endregion
     }
 }

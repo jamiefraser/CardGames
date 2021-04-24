@@ -8,6 +8,18 @@ namespace Game.Client.Shared.Services.CurrentUser
 {
     public class CurrentUserService : ICurrentUserService
     {
+        private string authtoken;
+        public string AuthToken
+        {
+            get
+            {
+                return authtoken;
+            }
+            set
+            {
+                authtoken = value;
+            }
+        }
         private ClaimsPrincipal currentClaimsPrincipal;
         public ClaimsPrincipal CurrentClaimsPrincipal
         {
