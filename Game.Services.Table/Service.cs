@@ -259,57 +259,6 @@ namespace Game.Services.Table
         }
         #endregion
 
-        #region Create a New Table
-        [FunctionName("CreateTable")]
-        public async Task<IActionResult> CreateTable(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "tables")] HttpRequest req,
-            ILogger log,
-            [SignalR(ConnectionStringSetting = "AzureSignalRConnectionString", HubName = "gameroom")] IAsyncCollector<SignalRMessage> messages)
-        {
-            try
-            {
-                string tableJson = await new StreamReader(req.Body).ReadToEndAsync();
-                var table = Newtonsoft.Json.JsonConvert.DeserializeObject<Game.Entities.Table>(tableJson);
-                var owner = req.UserInfo(_config);
-                table.TableOwner = owner;
-                if (table.Id.Equals(Guid.Empty))
-                {
-                    table.Id = Guid.NewGuid();
-                }
-                if (table.Game != null)
-                {
-                    if (table.Deck == null)
-                    {
-                        table.Game = table.Game;
-                    }
-                }
-                table = await table.Save();
-
-                var message = new SignalRMessage
-                {
-                    Target = "newtable",
-                    Arguments = new[]
-                    {
-                        new Entities.TableCreationOrDeletionMessage()
-                        {
-                            Action = Entities.TableAction.Added,
-                            Table = table
-                        }
-                    }
-                };
-                await messages.AddAsync(message);
-                //var service = Refit.RestService.For<IRTCService>(Environment.GetEnvironmentVariable("RTCBaseUrl"));
-                //await service.PublishTableCreatedMessage(table);
-                return new AcceptedResult();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"{ex.Message}\r\n{ex.StackTrace}");
-                return new BadRequestObjectResult(ex);
-            }
-        }
-        #endregion
-
         #region Retrieve All Available Tables
         [FunctionName("FetchTables")]
         public async Task<IActionResult> GetActiveTables([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "tables")] HttpRequest reg, ILogger log)

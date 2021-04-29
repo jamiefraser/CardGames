@@ -177,9 +177,9 @@ namespace Game.Client.Shared.Services.SignalRService
                 RaisePlayerSelectedCard(message);
             });
             #endregion
-            //var clientAddress = _factory.CreateClient("PresenceServiceRoot").BaseAddress;
-            //var client = _factory.CreateClient("presenceAPI");
-            //var tableClient = _factory.CreateClient("tableAPI");
+            var clientAddress = _factory.CreateClient("PresenceServiceRoot").BaseAddress;
+            var client = _factory.CreateClient("presenceAPI");
+            var tableClient = _factory.CreateClient("tableAPI");
             List<Player> players;
             try
             {
@@ -193,9 +193,9 @@ namespace Game.Client.Shared.Services.SignalRService
             
             try
             {
-                //var tables = await tableClient.GetFromJsonAsync<List<Entities.Table>>("api/tables");
-                //AvailableTables = new ObservableCollection<Table>(tables);
-                //RaiseReadyStateChanged(true);
+                var tables = await tableClient.GetFromJsonAsync<List<Entities.Table>>("api/tables");
+                AvailableTables = new ObservableCollection<Table>(tables);
+                RaiseReadyStateChanged(true);
             }
             catch(Exception ex)
             {
@@ -205,6 +205,15 @@ namespace Game.Client.Shared.Services.SignalRService
                 RaiseReadyStateChanged(false);
             }
             RaiseReadyStateChanged(true);
+        }
+        public async Task CreateTable(Table table)
+        {
+            var message = new RequestCreateNewTableMessage()
+            {
+                Owner = currentUserService.CurrentClaimsPrincipal.ToPlayer(),
+                Table = table
+            };
+            await hubConnection.InvokeAsync("CreateTable", message);
         }
         public async Task DisconnectSignalR()
         {

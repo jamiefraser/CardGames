@@ -1,19 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+#if CLIENT
 using System.ComponentModel.DataAnnotations;
+#endif
 using System.Text;
 
 namespace Game.Entities
 {
-    public class AtLeastOneItemValidator : ValidationAttribute
+#if CLIENT
+    public class NotNullValidatorAttribute : ValidationAttribute
     {
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
-            if (value == null)
-            {
-                return new ValidationResult(this.ErrorMessage);
-            }
-            if((value as Array).Length==0)
+            if(value ==null)
             {
                 return new ValidationResult(this.ErrorMessage);
             }
@@ -22,5 +21,11 @@ namespace Game.Entities
                 return ValidationResult.Success;
             }
         }
+        public static ValidationResult IsGreaterThanZero(int value)
+        {
+            ValidationResult result = new ValidationResult(((DeckType)value) > 0 ? null : "Not greater than zero");
+            return result;
+        }
     }
+#endif
 }

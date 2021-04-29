@@ -1,24 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
+#if CLIENT
 using System.ComponentModel.DataAnnotations;
+#endif
 using System.Text;
 
 namespace Game.Entities
 {
-    public class ValidGameValidatorAttribute : ValidationAttribute
+#if CLIENT
+    public class AtLeastOneItemValidator : ValidationAttribute
     {
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
-            if(value==null)
+            if (value == null)
             {
                 return new ValidationResult(this.ErrorMessage);
             }
-            var game = value as Entities.Game;
-            if (game == null)
-            {
-                return new ValidationResult(this.ErrorMessage);
-            }
-            if(string.IsNullOrEmpty(game.Name))
+            if((value as Array).Length==0)
             {
                 return new ValidationResult(this.ErrorMessage);
             }
@@ -27,10 +25,6 @@ namespace Game.Entities
                 return ValidationResult.Success;
             }
         }
-        public static ValidationResult IsGreaterThanZero(int value)
-        {
-            ValidationResult result = new ValidationResult(((DeckType)value) > 0 ? null : "Not greater than zero");
-            return result;
-        }
     }
+#endif
 }

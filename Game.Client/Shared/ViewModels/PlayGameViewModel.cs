@@ -384,6 +384,7 @@ namespace Game.Client.Shared.ViewModels
 
         public async Task StartGame()
         {
+
             var tableService = factory.CreateClient("tableAPI");
             var result = await tableService.PostAsJsonAsync<string>($"/api/tables/{Table.Id.ToString()}/start","");
         }

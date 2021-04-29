@@ -3,7 +3,9 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+#if CLIENT
 using System.ComponentModel.DataAnnotations;
+#endif
 using System.Text;
 
 namespace Game.Entities
@@ -83,7 +85,9 @@ namespace Game.Entities
         public string Name { get; set; }
         public int MaxPlayers { get; private set; }
         private Game _game;
+#if CLIENT
         [NotNullValidator(ErrorMessage = "You must select a game to play")]
+#endif
         public Game Game
         {
             get

@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <UserSecretsId>Game.Client.Server-E9C2A57E-413A-4690-B633-4F615AE8F514</UserSecretsId>
+    <Configurations>Debug;Release;Debug-Client</Configurations>
   </PropertyGroup>
 
   <ItemGroup>

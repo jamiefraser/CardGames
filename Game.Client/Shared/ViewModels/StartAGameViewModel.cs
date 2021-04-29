@@ -104,22 +104,24 @@ namespace Game.Client.Shared.ViewModels
         public async Task StartGame()
         {
             gametable.Game = selectedgame;
-            var tableService = factory.CreateClient("tableAPI");
+
+            //var tableService = factory.CreateClient("tableAPI");
             //gametable.InvitedPlayers.Add(currentUserService.CurrentClaimsPrincipal.ToPlayer());
-            gametable.Players.Add(0,currentUserService.CurrentClaimsPrincipal.ToPlayer());
+            gametable.Players.Add(0, currentUserService.CurrentClaimsPrincipal.ToPlayer());
             gametable.Dealer = currentUserService.CurrentClaimsPrincipal.ToPlayer();
 
             List<string> ids = gametable.InvitedPlayerIds != null ? new List<string>(gametable.InvitedPlayerIds) : new List<string>();
             ids.Add(currentUserService.CurrentClaimsPrincipalOid);
             gametable.InvitedPlayerIds = ids.ToArray();
-            try
-            {
-                var result = await tableService.PostAsJsonAsync<Entities.Table>("/api/tables", GameTable);
-            }
-            catch (Exception ex)
-            {
+            await signalRService.CreateTable(gametable);
+            //try
+            //{
+            //    var result = await tableService.PostAsJsonAsync<Entities.Table>("/api/tables", GameTable);
+            //}
+            //catch (Exception ex)
+            //{
 
-            }
+            //}
         }
         #endregion
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Game.Entities;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -27,5 +28,6 @@ namespace Game.Client.Shared.Services.SignalRService
         Task SayHello(string message);
         Task Deal(string tableId);
         Task UpdateStatus(bool online);
+        Task CreateTable(Table table);
     }
 }
