@@ -29,5 +29,6 @@ namespace Game.Client.Shared.Services.SignalRService
         Task Deal(string tableId);
         Task UpdateStatus(bool online);
         Task CreateTable(Table table);
+        Task RequestToJoinTable(RequestToJoinTableMessage message);
     }
 }

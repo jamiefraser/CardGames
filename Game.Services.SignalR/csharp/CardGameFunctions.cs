@@ -128,7 +128,33 @@ namespace FunctionApp
         }
         #endregion
 
-
+        #region Request to Join a Table
+        [FunctionName("RequestToJoinTable")]
+        public async Task RequestToJoinTable([SignalRTrigger]InvocationContext invocation,
+                                                            RequestToJoinTableMessage message,
+                                                            ILogger log)        
+        {
+            try
+            {
+                var player = message.RequestingPlayer;
+                var table = message.Table;
+                var persistedTable = await Helpers.GetTable(table.Id.ToString());
+                table.PlayersRequestingAccess.Add(player);
+                await table.Save();
+                var joinRequest = new RequestToJoinTableMessage()
+                {
+                    RequestingPlayer = player,
+                    Table = table,
+                    TableOwnerId = table.TableOwner.PrincipalId
+                };
+                await Clients.All.SendAsync("joinrequest", joinRequest);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+        #endregion
         #region RegisterPlayerStatus
         [FunctionName(nameof(RegisterPlayerStatus))]
         public async Task RegisterPlayerStatus([SignalRTrigger] InvocationContext invocation,

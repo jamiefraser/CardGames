@@ -95,8 +95,8 @@ namespace Game.Client.Shared.ViewModels
                         Table = table,
                         TableOwnerId = table.TableOwner.PrincipalId
                     };
-                    var tableClient = factory.CreateClient("tableAPI");
-                    await tableClient.PostJsonAsync("/api/tables/join", table);
+                    await signalRService.RequestToJoinTable(req);
+                    //await tableClient.PostJsonAsync("/api/tables/join", table);
                 }
             }
             catch(Exception ex)

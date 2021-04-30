@@ -401,6 +401,10 @@ namespace Game.Client.Shared.Services.SignalRService
         {
             await hubConnection.InvokeAsync("AdmitFromSignalR", "My Hello Message");
         }
+        public async Task RequestToJoinTable(RequestToJoinTableMessage message)
+        {
+            await hubConnection.InvokeAsync("RequestToJoinTable", message);
+        }
         #endregion
     }
 }
