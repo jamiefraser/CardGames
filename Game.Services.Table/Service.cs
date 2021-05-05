@@ -176,48 +176,7 @@ namespace Game.Services.Table
         }
         #endregion
 
-        #region Admit Player to Table
-        [FunctionName("AdmitPlayer")]
-        public async Task<IActionResult> AdmitPlayer([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "tables/admit")] HttpRequest req,
-                                                    ILogger log,
-                                                    [SignalR(ConnectionStringSetting = "AzureSignalRConnectionString", HubName = "gameroom")] IAsyncCollector<SignalRMessage> messages)
-        {
-            try
-            {
-                string messageJson = await new StreamReader(req.Body).ReadToEndAsync();
-                var message = Newtonsoft.Json.JsonConvert.DeserializeObject<Entities.RequestToJoinTableMessage>(messageJson);
-                var user = req.UserInfo(_config);
-                var principal = await Helpers.Helpers.GetClaimsPrincipalAsync(req.GetAccessToken(), log);
-                var player = principal.ToPlayer();
-                if (message.Table.TableOwner.PrincipalId.Equals(player.PrincipalId))
-                {
-                    var lookupPlayer = message.Table.PlayersRequestingAccess.Where(p => p.PrincipalId.Equals(message.RequestingPlayer.PrincipalId)).FirstOrDefault();
-                    message.Table.PlayersRequestingAccess.Remove(lookupPlayer);
-                    int key = message.Table.Players.Count == 0 ? 0 : message.Table.Players.Keys.Max() + 1;
-                    message.Table.Players.Add(key, message.RequestingPlayer);
-                    await message.Table.Save();
-                    var srMessage = new SignalRMessage
-                    {
-                        Target = "playeradmitted",
-                        Arguments = new[]
-                    {
-                        message
-                    }
-                    };
-                    await messages.AddAsync(srMessage);
-                    return new AcceptedResult();
-                }
-                else
-                {
-                    return new BadRequestObjectResult(message);
-                }
-            }
-            catch (Exception ex)
-            {
-                return new BadRequestObjectResult(ex);
-            }
-        }
-        #endregion
+
 
         #region Request to Join a Table
         [FunctionName("RequestToJoinTable")]

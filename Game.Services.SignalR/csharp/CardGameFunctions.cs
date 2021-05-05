@@ -15,6 +15,7 @@ using System.Linq;
 using Microsoft.IdentityModel.Logging;
 using Game.Entities;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 
 namespace FunctionApp
 {
@@ -41,7 +42,36 @@ namespace FunctionApp
             await signalRMessages.AddAsync(msg);
         }
 
+        #region Admit Player to Table
+        [FunctionName("AdmitPlayer")]
+        public async Task AdmitPlayer([SignalRTrigger]InvocationContext context,
+                                                     RequestToJoinTableMessage message,
+                                                     ILogger log)
+        {
+            try
+            {
+                var player = message.RequestingPlayer;
+                if (context.UserId.Equals(message.TableOwnerId))
+                {
+                    var lookupPlayer = message.Table.PlayersRequestingAccess.Where(p => p.PrincipalId.Equals(message.RequestingPlayer.PrincipalId)).FirstOrDefault();
+                    message.Table.PlayersRequestingAccess.Remove(lookupPlayer);
+                    int key = message.Table.Players.Count == 0 ? 0 : message.Table.Players.Keys.Max() + 1;
+                    message.Table.Players.Add(key, message.RequestingPlayer);
+                    await message.Table.Save();
 
+                    await Clients.All.SendAsync("playeradmitted", message);
+                }
+                else
+                {
+                    throw new Exception($"Couldn't process message {JsonConvert.SerializeObject(message)}");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+        #endregion
         #region Negotiate
         [FunctionName("negotiate")]
         public async Task<SignalRConnectionInfo> Negotiate([HttpTrigger(AuthorizationLevel.Anonymous)] HttpRequest req,

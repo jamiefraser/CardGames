@@ -37,7 +37,105 @@ namespace Game.Client.Shared.Services.SignalRService
             var tableClient = factory.CreateClient("tableAPI");
             PlayersOnline = new ObservableCollection<Player>();
         }
+        #region Initialization
+        private bool initializing = false;
+        public async Task InitializeAsync()
+        {
+            hubConnection = new HubConnectionBuilder()
+                    .WithUrl($"{_serviceBaseUrl}api", async (options) =>
+                    {
+                        options.Headers.Add("x-ms-signalr-user-id", currentUserService.CurrentClaimsPrincipalOid.ToString());
+                        options.AccessTokenProvider = () => Task.FromResult(currentUserService.AuthToken);
+                    })
+                    .WithAutomaticReconnect()
+                    .Build();
+            await hubConnection.StartAsync();
+            #region HubConnection Handlers
+            hubConnection.On<Game.Entities.NewDiscardedCardMessage>("newCardOnDiscardPile", (message) =>
+            {
+                RaiseCardAddedToDiscardPile(message.Card, message.NextPlayer);
+            });
+            hubConnection.On<Game.Entities.TableStartedMessage>("tableStarted", (message) =>
+            {
+                Console.WriteLine($"Recieved a signalr message that the table {message.TableId} was started");
+                var tbl = AvailableTables.Where(t => t.Id.Equals(Guid.Parse(message.TableId))).FirstOrDefault();
+                foreach (var t in AvailableTables)
+                {
+                    Console.WriteLine(t.Id);
+                }
+                Console.WriteLine($"I was {(tbl != null ? "able" : "not able")} to find a corresponding table for this message's table id of {message.TableId.ToString()}");
+                AvailableTables.Where(t => t.Id.Equals(Guid.Parse(message.TableId))).FirstOrDefault()!.Started = true;
+                RaiseTableStarted(message.TableId, message.Dealer);
+            });
+            hubConnection.On<Game.Entities.PlayerHandMessage>("handDealt", (message) =>
+            {
+                RaisePlayerDealtNewHand(message.Hand);
+            });
+            hubConnection.On("newtable", (Action<TableCreationOrDeletionMessage>)(message =>
+            {
+                HandleTableCreatedOrDeleted(message);
+            }));
+            hubConnection.On("presence", (Action<PresenceStatusMessage>)((message) =>
+            {
+                HandlePlayerJoinedOrLeftMessage(currentUserService, message);
+            }));
+            hubConnection.On("joinrequest", (Action<RequestToJoinTableMessage>)((message) =>
+            {
+                HandlePlayerRequestingToJoinTableMessage(message);
+            }));
+            hubConnection.On<RequestToJoinTableMessage>("playeradmitted", (message) =>
+            {
+                var t = AvailableTables.Where(tbl => tbl.Id.Equals(message.Table.Id)).FirstOrDefault();
+                if (t != null)
+                {
+                    availabletables.Remove(t);
+                    availabletables.Add(message.Table);
+                }
+                RaisePlayerAdmittedToTable(message);
+            });
+            hubConnection.On<CardSelectedMessage>("playerSelectedCard", (message) =>
+            {
+                Console.WriteLine($"SignalRService has heard that a player has selected a card! {message.CardIndex}");
+                RaisePlayerSelectedCard(message);
+            });
+            hubConnection.On<PlayerAdmittedMessage>("playerAdmitted", (message) =>
+            {
 
+            });
+            #endregion
+            var clientAddress = _factory.CreateClient("PresenceServiceRoot").BaseAddress;
+            var client = _factory.CreateClient("presenceAPI");
+            var tableClient = _factory.CreateClient("tableAPI");
+            List<Player> players;
+            try
+            {
+                //players = await client.GetFromJsonAsync<List<Entities.Player>>("api/players");
+                //PlayersOnline = new ObservableCollection<Entities.Player>(players);
+            }
+            catch
+            {
+
+            }
+
+            try
+            {
+                var tables = await tableClient.GetFromJsonAsync<List<Entities.Table>>("api/tables");
+                AvailableTables = new ObservableCollection<Table>(tables);
+                RaiseReadyStateChanged(true);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"{ex.Message}\r\n{ex.StackTrace}");
+                //Console.WriteLine($"The tableClient {(tableClient == null ? "is" : "is not")} null");
+                availabletables = new ObservableCollection<Table>();
+                RaiseReadyStateChanged(false);
+            }
+            RaiseReadyStateChanged(true);
+        }
+        #endregion
+        #endregion
+
+        #region MessageHandlers
         private void HandlePlayerRequestingToJoinTableMessage(RequestToJoinTableMessage message)
         {
             if (message.TableOwnerId.Equals(currentUserService.CurrentClaimsPrincipalOid))
@@ -106,6 +204,189 @@ namespace Game.Client.Shared.Services.SignalRService
                 RaiseTableRemoved(message.Table);
             }
         }
+        #endregion
+
+        #region Properties
+        private ObservableCollection<Entities.Player> _playersonline;
+        private ObservableCollection<Entities.Table> availabletables;
+        public ObservableCollection<Entities.Table> AvailableTables
+        {
+            get
+            {
+                return availabletables;
+            }
+            private set
+            {
+                availabletables = value;
+            }
+        }
+
+        public ObservableCollection<Entities.Player> PlayersOnline
+        {
+            get
+            {
+                return _playersonline;
+            }
+            set
+            {
+                _playersonline = value;
+            }
+        }
+
+        public string AccessToken
+        {
+            get;
+            set;
+        }
+        #endregion
+        
+        #region Events
+        public event EventHandler<PlayerAddedEventArgs> PlayerAdded;
+        public event EventHandler<PlayerRemovedEventArgs> PlayerRemoved;
+        public event EventHandler<PlayerRequestingToJoinTableEventArgs> PlayerRequestingToJoinTable;
+        public event EventHandler<PlayerDealtNewHandEventArgs> PlayerDealtNewHand;
+        public event EventHandler<TableStartedEventArgs> TableStarted;
+        public event EventHandler<NewCardOnDiscardPileEventArgs> CardAddedToDiscardPile;
+        public event EventHandler<PlayerSelectedCardEventArgs> PlayerSelectedCard;
+        private void RaisePlayerSelectedCard(CardSelectedMessage message)
+        {
+            if (PlayerSelectedCard != null)
+            {
+                PlayerSelectedCard(this, new PlayerSelectedCardEventArgs(message));
+            }
+        }
+        private void RaiseCardAddedToDiscardPile(Entities.Card card, Entities.Player player)
+        {
+            if (CardAddedToDiscardPile != null)
+            {
+                CardAddedToDiscardPile(this, new NewCardOnDiscardPileEventArgs()
+                {
+                    Card = card,
+                    NextPlayer = player
+                });
+            }
+        }
+
+        private void RaiseTableStarted(string tableId, Entities.Player dealer)
+        {
+            Console.WriteLine($"Raising Table Started for {tableId}");
+            if (TableStarted != null)
+            {
+                TableStarted(this, new TableStartedEventArgs()
+                {
+                    TableId = tableId,
+                    Dealer = dealer
+                });
+            }
+        }
+        private void RaisePlayerDealtNewHand(List<Card> Hand)
+        {
+            if (PlayerDealtNewHand != null)
+            {
+                PlayerDealtNewHand(this, new PlayerDealtNewHandEventArgs()
+                {
+                    Hand = new ObservableCollection<Card>(Hand.ToArray())
+                });
+            }
+        }
+
+        private void RaisePlayerRequestingToJoinTable(Entities.RequestToJoinTableMessage message)
+        {
+            if (PlayerRequestingToJoinTable != null)
+            {
+                PlayerRequestingToJoinTable(this, new PlayerRequestingToJoinTableEventArgs()
+                {
+                    Message = message
+                });
+            }
+        }
+        private void RaisePlayerAdded(Entities.Player player)
+        {
+            if (PlayerAdded != null)
+            {
+                PlayerAdded(this, new PlayerAddedEventArgs()
+                {
+                    Player = player
+                });
+            }
+        }
+        private void RaisePlayerRemoved(Entities.Player player)
+        {
+            if (PlayerRemoved != null)
+            {
+                PlayerRemoved(this, new PlayerRemovedEventArgs()
+                {
+                    Player = player
+                });
+            }
+        }
+        public event EventHandler<ReadyStateChangedEventArgs> ReadyStateChanged;
+        public event EventHandler<PlayerRequestingToJoinTableEventArgs> PlayerAdmittedToTable;
+        public event EventHandler<TableAddedEventArgs> TableAdded;
+        public event EventHandler<TableRemovedEventArgs> TableRemoved;
+
+        private void RaiseReadyStateChanged(bool Ready)
+        {
+            if (ReadyStateChanged != null)
+            {
+                {
+                    ReadyStateChanged(this, new ReadyStateChangedEventArgs() { Ready = Ready });
+                }
+            }
+        }
+        private void RaiseTableAdded(Entities.Table table)
+        {
+            if (TableAdded != null)
+            {
+                TableAdded(this, new TableAddedEventArgs()
+                {
+                    Table = table
+                });
+            }
+        }
+
+        private void RaiseTableRemoved(Entities.Table table)
+        {
+            if (TableRemoved != null)
+            {
+                TableRemoved(this, new TableRemovedEventArgs()
+                {
+                    Table = table
+                });
+            }
+        }
+
+        private void RaisePlayerAdmittedToTable(RequestToJoinTableMessage message)
+        {
+            if (PlayerAdmittedToTable != null)
+            {
+                PlayerAdmittedToTable(this, new PlayerRequestingToJoinTableEventArgs()
+                {
+                    Message = message
+                });
+            }
+        }
+
+        #endregion
+
+        #region Methods
+        public async Task Deal(string tableId)
+        {
+            await hubConnection.InvokeAsync("DealHands", tableId);
+        }
+        public async Task SayHello(string message)
+        {
+            await hubConnection.InvokeAsync("AdmitFromSignalR", "My Hello Message");
+        }
+        public async Task RequestToJoinTable(RequestToJoinTableMessage message)
+        {
+            await hubConnection.InvokeAsync("RequestToJoinTable", message);
+        }
+        public async Task Admit(RequestToJoinTableMessage message)
+        {
+            await hubConnection.InvokeAsync("AdmitPlayer", message);
+        }
+
         public async Task UpdateStatus(bool online)
         {
             var presenceMessage = new Entities.PresenceStatusMessage()
@@ -115,96 +396,6 @@ namespace Game.Client.Shared.Services.SignalRService
                 Player = currentUserService.CurrentClaimsPrincipal.ToPlayer()
             };
             await hubConnection.InvokeAsync("registerPlayerStatus", presenceMessage);
-        }
-        private bool initializing = false;
-        public async Task InitializeAsync()
-        {
-            hubConnection = new HubConnectionBuilder()
-                    .WithUrl($"{_serviceBaseUrl}api", async(options) =>
-                    {
-                        options.Headers.Add("x-ms-signalr-user-id", currentUserService.CurrentClaimsPrincipalOid.ToString());
-                        options.AccessTokenProvider = () => Task.FromResult(currentUserService.AuthToken);
-                    })
-                    .WithAutomaticReconnect()
-                    .Build();
-            await hubConnection.StartAsync();
-            #region HubConnection Handlers
-            hubConnection.On<Game.Entities.NewDiscardedCardMessage>("newCardOnDiscardPile", (message) =>
-            {
-                RaiseCardAddedToDiscardPile(message.Card, message.NextPlayer);
-            });
-            hubConnection.On<Game.Entities.TableStartedMessage>("tableStarted", (message) =>
-            {
-                Console.WriteLine($"Recieved a signalr message that the table {message.TableId} was started");
-                var tbl = AvailableTables.Where(t => t.Id.Equals(Guid.Parse(message.TableId))).FirstOrDefault();
-                foreach (var t in AvailableTables)
-                {
-                    Console.WriteLine(t.Id);
-                }
-                Console.WriteLine($"I was {(tbl != null ? "able" : "not able")} to find a corresponding table for this message's table id of {message.TableId.ToString()}");
-                AvailableTables.Where(t => t.Id.Equals(Guid.Parse(message.TableId))).FirstOrDefault()!.Started = true;
-                RaiseTableStarted(message.TableId, message.Dealer);
-            });
-            hubConnection.On<Game.Entities.PlayerHandMessage>("handDealt", (message) =>
-             {
-                 RaisePlayerDealtNewHand(message.Hand);
-             });
-            hubConnection.On("newtable", (Action<TableCreationOrDeletionMessage>)(message =>
-            {
-                HandleTableCreatedOrDeleted(message);
-            }));
-            hubConnection.On("presence", (Action<PresenceStatusMessage>)((message) =>
-            {
-                HandlePlayerJoinedOrLeftMessage(currentUserService, message);
-            }));
-            hubConnection.On("joinrequest", (Action<RequestToJoinTableMessage>)((message) =>
-            {
-                HandlePlayerRequestingToJoinTableMessage(message);
-            }));
-            hubConnection.On<RequestToJoinTableMessage>("playeradmitted", (message) =>
-            {
-                var t = AvailableTables.Where(tbl => tbl.Id.Equals(message.Table.Id)).FirstOrDefault();
-                if (t != null)
-                {
-                    availabletables.Remove(t);
-                    availabletables.Add(message.Table);
-                }
-                RaisePlayerAdmittedToTable(message);
-            });
-            hubConnection.On<CardSelectedMessage>("playerSelectedCard", (message) =>
-            {
-                Console.WriteLine($"SignalRService has heard that a player has selected a card! {message.CardIndex}");
-                RaisePlayerSelectedCard(message);
-            });
-            #endregion
-            var clientAddress = _factory.CreateClient("PresenceServiceRoot").BaseAddress;
-            var client = _factory.CreateClient("presenceAPI");
-            var tableClient = _factory.CreateClient("tableAPI");
-            List<Player> players;
-            try
-            {
-                //players = await client.GetFromJsonAsync<List<Entities.Player>>("api/players");
-                //PlayersOnline = new ObservableCollection<Entities.Player>(players);
-            }
-            catch
-            {
-
-            }
-            
-            try
-            {
-                var tables = await tableClient.GetFromJsonAsync<List<Entities.Table>>("api/tables");
-                AvailableTables = new ObservableCollection<Table>(tables);
-                RaiseReadyStateChanged(true);
-            }
-            catch(Exception ex)
-            {
-                Console.WriteLine($"{ex.Message}\r\n{ex.StackTrace}");
-                //Console.WriteLine($"The tableClient {(tableClient == null ? "is" : "is not")} null");
-                availabletables = new ObservableCollection<Table>();
-                RaiseReadyStateChanged(false);
-            }
-            RaiseReadyStateChanged(true);
         }
         public async Task CreateTable(Table table)
         {
@@ -229,181 +420,6 @@ namespace Game.Client.Shared.Services.SignalRService
                 #endregion
             }
             catch { }
-        }
-        #endregion
-
-        #region Properties
-        private ObservableCollection<Entities.Player> _playersonline;
-
-        public event EventHandler<PlayerAddedEventArgs> PlayerAdded;
-        public event EventHandler<PlayerRemovedEventArgs> PlayerRemoved;
-        public event EventHandler<PlayerRequestingToJoinTableEventArgs> PlayerRequestingToJoinTable;
-        public event EventHandler<PlayerDealtNewHandEventArgs> PlayerDealtNewHand;
-        public event EventHandler<TableStartedEventArgs> TableStarted;
-        public event EventHandler<NewCardOnDiscardPileEventArgs> CardAddedToDiscardPile;
-        public event EventHandler<PlayerSelectedCardEventArgs> PlayerSelectedCard;
-        private void RaisePlayerSelectedCard(CardSelectedMessage message)
-        {
-            if(PlayerSelectedCard != null)
-            {
-                PlayerSelectedCard(this, new PlayerSelectedCardEventArgs(message));
-            }
-        }   
-        private void RaiseCardAddedToDiscardPile(Entities.Card card, Entities.Player player)
-        {
-            if(CardAddedToDiscardPile != null)
-            {
-                CardAddedToDiscardPile(this, new NewCardOnDiscardPileEventArgs()
-                {
-                    Card = card,
-                    NextPlayer = player
-                });
-            }
-        }
-
-        private void RaiseTableStarted(string tableId, Entities.Player dealer)
-        {
-            Console.WriteLine($"Raising Table Started for {tableId}");
-            if(TableStarted != null)
-            {
-                TableStarted(this, new TableStartedEventArgs()
-                {
-                    TableId = tableId,
-                    Dealer = dealer
-                });
-            }
-        }
-        private void RaisePlayerDealtNewHand(List<Card> Hand)
-        {
-            if(PlayerDealtNewHand != null)
-            {
-                PlayerDealtNewHand(this, new PlayerDealtNewHandEventArgs()
-                {
-                    Hand = new ObservableCollection<Card>(Hand.ToArray())
-                });
-            }
-        }
-
-        private void RaisePlayerRequestingToJoinTable(Entities.RequestToJoinTableMessage message)
-        {
-            if(PlayerRequestingToJoinTable != null)
-            {
-                PlayerRequestingToJoinTable(this, new PlayerRequestingToJoinTableEventArgs()
-                {
-                    Message = message
-                });
-            }
-        }
-        private void RaisePlayerAdded(Entities.Player player)
-        {
-            if(PlayerAdded != null)
-            {
-                PlayerAdded(this,new PlayerAddedEventArgs()
-                {
-                    Player = player
-                });
-            }
-        }
-        private void RaisePlayerRemoved(Entities.Player player)
-        {
-            if(PlayerRemoved != null)
-            {
-                PlayerRemoved(this, new PlayerRemovedEventArgs()
-                {
-                    Player = player
-                });
-            }
-        }
-        public event EventHandler<ReadyStateChangedEventArgs> ReadyStateChanged;
-        public event EventHandler<PlayerRequestingToJoinTableEventArgs> PlayerAdmittedToTable;
-        public event EventHandler<TableAddedEventArgs> TableAdded;
-        public event EventHandler<TableRemovedEventArgs> TableRemoved;
-
-        private void RaiseReadyStateChanged(bool Ready)
-        {
-            if(ReadyStateChanged!=null)
-            {
-                {
-                    ReadyStateChanged(this, new ReadyStateChangedEventArgs() { Ready = Ready });
-                } }
-        }
-        private void RaiseTableAdded(Entities.Table table)
-        {
-            if(TableAdded!=null)
-            {
-                TableAdded(this, new TableAddedEventArgs()
-                {
-                    Table = table
-                });
-            }
-        }
-
-        private void RaiseTableRemoved(Entities.Table table)
-        {
-            if(TableRemoved != null)
-            {
-                TableRemoved(this, new TableRemovedEventArgs()
-                {
-                    Table = table
-                });
-            }
-        }
-
-        private void RaisePlayerAdmittedToTable(RequestToJoinTableMessage message)
-        {
-            if(PlayerAdmittedToTable != null)
-            {
-                PlayerAdmittedToTable(this, new PlayerRequestingToJoinTableEventArgs() 
-                { 
-                    Message = message 
-                });
-            }
-        }
-
-        private ObservableCollection<Entities.Table> availabletables;
-        public ObservableCollection<Entities.Table>AvailableTables
-        {
-            get
-            {
-                return availabletables;
-            }
-            private set
-            {
-                availabletables = value;
-            }
-        }
-
-        public ObservableCollection<Entities.Player>PlayersOnline
-        {
-            get
-            {
-                return _playersonline;
-            }
-            set
-            {
-                _playersonline = value;
-            }
-        }
-
-        public string AccessToken
-        {
-            get;
-            set;
-        }
-        #endregion
-
-        #region Methods
-        public async Task Deal(string tableId)
-        {
-            await hubConnection.InvokeAsync("DealHands", tableId);
-        }
-        public async Task SayHello(string message)
-        {
-            await hubConnection.InvokeAsync("AdmitFromSignalR", "My Hello Message");
-        }
-        public async Task RequestToJoinTable(RequestToJoinTableMessage message)
-        {
-            await hubConnection.InvokeAsync("RequestToJoinTable", message);
         }
         #endregion
     }

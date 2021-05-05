@@ -23,6 +23,7 @@ namespace Game.Client.Shared.Services.SignalRService
         event EventHandler<TableStartedEventArgs> TableStarted;
         event EventHandler<NewCardOnDiscardPileEventArgs> CardAddedToDiscardPile;
         event EventHandler<PlayerSelectedCardEventArgs> PlayerSelectedCard;
+        //event EventHandler<PlayerAdmittedEventArgs> PlayerAdmitted;
         Task InitializeAsync();
         Task DisconnectSignalR();
         Task SayHello(string message);
@@ -30,5 +31,6 @@ namespace Game.Client.Shared.Services.SignalRService
         Task UpdateStatus(bool online);
         Task CreateTable(Table table);
         Task RequestToJoinTable(RequestToJoinTableMessage message);
+        Task Admit(RequestToJoinTableMessage message);
     }
 }

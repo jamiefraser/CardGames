@@ -42,6 +42,28 @@ namespace Game.Client.Shared.ViewModels
             {
                 RaisePropertyChanged("CanDiscard");
             };
+            rtc.PlayerAdmittedToTable += PlayerAdmitted;
+        }
+
+        private void PlayerAdmitted(object sender, PlayerRequestingToJoinTableEventArgs e)
+        {
+            var remove = this.playersrequestingentry.Where(pre => pre.PrincipalId.Equals(e.Message.RequestingPlayer.PrincipalId));
+            foreach(Player p in remove)
+            {
+                this.PlayersRequestingEntry.Remove(p);
+            }
+            RaisePropertyChanged("PlayersRequestingEntry");
+            int key = Players.Count == 0 ? 0 : Players.Keys.Max() + 1;
+            Players.Add(key, PlayerToAdmit);
+            //table.Players.Add(key,PlayerToAdmit);
+            PlayerToAdmit = null;
+            if (Players.Count >= Table.Game.MinimumPlayers)
+            {
+                CanStartGame = true;
+            }
+            RaisePropertyChanged("PlayersRequestingEntry");
+            RaisePropertyChanged("Players");
+
         }
 
         private void PlayerSelectedCard(object sender, PlayerSelectedCardEventArgs e)
@@ -314,25 +336,26 @@ namespace Game.Client.Shared.ViewModels
                 Table = table,
                 TableOwnerId = table.TableOwner.PrincipalId
             };
-            var client = factory.CreateClient("tableAPI");
-            var response = await client.PostAsJsonAsync("/api/tables/admit", message);
-            if(response.IsSuccessStatusCode)
-            {
-                Console.WriteLine($"Successfully admitted {playertoadmit.PrincipalName}");
-                var remove = table.PlayersRequestingAccess.Where(p => p.PrincipalId.Equals(playertoadmit.PrincipalId)).FirstOrDefault();
-                table.PlayersRequestingAccess.Remove(remove);
-                int key = Players.Count == 0 ? 0 : Players.Keys.Max()+1;
-                Players.Add(key, PlayerToAdmit);
-                //table.Players.Add(key,PlayerToAdmit);
-                PlayersRequestingEntry.Remove(remove);
-                PlayerToAdmit = null;
-                if(Players.Count >= Table.Game.MinimumPlayers)
-                {
-                    CanStartGame = true;
-                }
-                RaisePropertyChanged("PlayersRequestingEntry");
-                RaisePropertyChanged("Players");
-            }
+            await rtc.Admit(message);
+            //var client = factory.CreateClient("tableAPI");
+            //var response = await client.PostAsJsonAsync("/api/tables/admit", message);
+            //if(response.IsSuccessStatusCode)
+            //{
+            //    Console.WriteLine($"Successfully admitted {playertoadmit.PrincipalName}");
+            //    var remove = table.PlayersRequestingAccess.Where(p => p.PrincipalId.Equals(playertoadmit.PrincipalId)).FirstOrDefault();
+            //    table.PlayersRequestingAccess.Remove(remove);
+            //    int key = Players.Count == 0 ? 0 : Players.Keys.Max()+1;
+            //    Players.Add(key, PlayerToAdmit);
+            //    //table.Players.Add(key,PlayerToAdmit);
+            //    PlayersRequestingEntry.Remove(remove);
+            //    PlayerToAdmit = null;
+            //    if(Players.Count >= Table.Game.MinimumPlayers)
+            //    {
+            //        CanStartGame = true;
+            //    }
+            //    RaisePropertyChanged("PlayersRequestingEntry");
+            //    RaisePropertyChanged("Players");
+            //}
         }
 
         public async Task Decline(Entities.RequestToJoinTableMessage message)
@@ -380,6 +403,7 @@ namespace Game.Client.Shared.ViewModels
             rtc.PlayerRequestingToJoinTable -= Rtc_PlayerRequestingToJoinTable;
             rtc.PlayerDealtNewHand -= PlayerDealtNewHand;
             rtc.TableStarted -= TableStarted;
+            rtc.PlayerAdmittedToTable -= PlayerAdmitted;
         }
 
         public async Task StartGame()
